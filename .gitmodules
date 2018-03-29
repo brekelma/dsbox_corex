@@ -1,0 +1,6 @@
+[submodule "corexcontinuous"]
+	path = corexcontinuous
+	url = ./corexcontinuous
+[submodule "corextext"]
+	path = corextext
+	url = ./corextext
