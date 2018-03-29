@@ -1,6 +1,6 @@
 [submodule "corexcontinuous"]
 	path = corexcontinuous
-	url = ./corexcontinuous
+	url = https://github.com/brekelma/corexcontinuous
 [submodule "corextext"]
 	path = corextext
-	url = ./corextext
+	url = https://github.com/brekelma/corextext
