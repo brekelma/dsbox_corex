@@ -28,7 +28,8 @@ setup(
     entry_points = {
     'd3m.primitives': [
         'dsbox.CorexContinuous = corexcontinuous.corex_continuous:CorexContinuous',
-        'dsbox.CorexText = corextext.corex_text:CorexText'
+        'dsbox.CorexText = corextext.corex_text:CorexText',
+        'dsbox.CorexSupervised = corexsae.corex_sae:CorexSAE'
     ],
     }
 
