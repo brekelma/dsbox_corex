@@ -22,8 +22,6 @@ from d3m.metadata.hyperparams import Uniform, UniformInt, Union, Enumeration
 from typing import NamedTuple, Optional, Sequence, Any
 import typing
 
-from .. import config
-
 Input = container.ndarray #container.DataFrame
 Output = container.ndarray #container.DataFrame
 
@@ -51,27 +49,20 @@ class CorexSAE(SupervisedLearnerPrimitiveBase[Input, Output, CorexSAE_Params, Co
     metadata = PrimitiveMetadata({
         "schema": "v0",
         "id": "6c95166f-434a-435d-a3d7-bce8d7238061",
-        "version": config.VERSION,
+        "version": "1.0.0",
         "name": "corex_sae.corex_supervised_ae.CorexSAE",
         "description": "Autoencoder implementation of Corex / Information Bottleneck "
         "python_path": "d3m.primitives.dsbox.CorexSAE",
         "original_python_path": "corex_sae.corex_supervised_ae.CorexSAE",
         "source": {
-            "name": config.D3M_PERFORMER_TEAM,
-            "contact": config.MAIL_TO,
-            "uris": [ config.REPOSITORY ]
+            "name": "ISI",
+            "contact": "mailto:brekelma@usc.edu",
+            "uris": [ "https://github.com/brekelma/dsbox_corex" ]
             },
         # git+https://github.com/brekelma/corex_continuous#egg=corex_continuous
         "installation": [
-            config.INSTALLATION 
+            {'type': 'PIP', 'package_uri': 'git+https://github.com/brekelma/dsbox_corex@e1cf26dff2ba2957626181f26fe121491691d0fe#egg=dsbox_corex'}
             ],
-        # "installation": [
-        # {
-        #     "type": "PIP",
-        #     "package_uri": "git+https://github.com/brekelma/dsbox_corex#egg=dsbox_corex"  #@8d75bb415aa4147736bb61554bdaed73ebfc7cc0#egg=dsbox-datacleaning"
-        #     #"package_uri": "git+https://github.com/usc-isi-i2/dsbox-cleaning@8d75bb415aa4147736bb61554bdaed73ebfc7cc0#egg=dsbox-datacleaning"
-        # }
-        # ],
       "algorithm_types": ["EXPECTATION_MAXIMIZATION_ALGORITHM"],
       "primitive_family": "CLASSIFICATION", #"FEATURE_CONSTRUCTION",
       "hyperparams_to_tune": ["label_beta", "epochs"]
