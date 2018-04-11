@@ -70,7 +70,7 @@ class CorexSAE(SupervisedLearnerPrimitiveBase[Input, Output, CorexSAE_Params, Co
 
 
 
-    def __init__(self, *, Hyperparams : CorexSAE_Hyperparams) -> None: #, random_seed : int =  0, docker_containers: typing.Dict[str, DockerContainer] = None
+    def __init__(self, *, hyperparams : CorexSAE_Hyperparams) -> None: #, random_seed : int =  0, docker_containers: typing.Dict[str, DockerContainer] = None
         super().__init__(hyperparams = Hyperparams) # random_seed = random_seed, docker_containers = docker_containers)
 
     def fit(self, *, timeout : float = None, iterations : int = None) -> CallResult[None]:
