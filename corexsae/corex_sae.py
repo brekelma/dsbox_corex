@@ -7,6 +7,7 @@ from keras.layers import Activation, BatchNormalization, Lambda, Reshape
 from keras.callbacks import Callback, TensorBoard, LearningRateScheduler
 from keras.models import Model, Sequential
 from keras.optimizers import Adam, SGD
+from keras.engine.topology import Layer
 from keras.utils import to_categorical
 
 import d3m.container as container
