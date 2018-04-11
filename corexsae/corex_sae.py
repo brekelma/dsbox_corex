@@ -9,10 +9,10 @@ from keras.models import Model, Sequential
 from keras.optimizers import Adam, SGD
 from keras.utils import to_categorical
 
-import d3m.metadata.container as container
+import d3m.container as container
 import d3m.metadata.hyperparams as hyperparams
 import d3m.metadata.params as params
-from d3m.metadata.metadata import PrimitiveMetadata
+from d3m.metadata.base import PrimitiveMetadata, DockerContainer
 
 from d3m.primitive_interfaces.unsupervised_learning import UnsupervisedLearnerPrimitiveBase
 from d3m.primitive_interfaces.base import CallResult
@@ -70,7 +70,7 @@ class CorexSAE(SupervisedLearnerPrimitiveBase[Input, Output, CorexSAE_Params, Co
 
 
 
-    def __init__(self, *, Hyperparams : CorexSAE_Hyperparams, random_seed : int =  0, docker_containers: typing.Dict[str, d3m.primitive_interfaces.base.DockerContainer] = None) -> None:
+    def __init__(self, *, Hyperparams : CorexSAE_Hyperparams, random_seed : int =  0, docker_containers: typing.Dict[str, DockerContainer] = None) -> None:
         super().__init__(hyperparams = Hyperparams, random_seed = random_seed, docker_containers = docker_containers)
 
     def fit(self, *, timeout : float = None, iterations : int = None) -> CallResult[None]:
