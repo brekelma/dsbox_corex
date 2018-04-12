@@ -51,10 +51,10 @@ class CorexSAE(SupervisedLearnerPrimitiveBase[Input, Output, CorexSAE_Params, Co
         "schema": "v0",
         "id": "6c95166f-434a-435d-a3d7-bce8d7238061",
         "version": "1.0.0",
-        "name": "corex_sae.corex_supervised_ae.CorexSAE",
+        "name": "CorexSupervised",
         "description": "Autoencoder implementation of Corex / Information Bottleneck",
-        "python_path": "d3m.primitives.dsbox.CorexSAE",
-        "original_python_path": "corex_sae.corex_supervised_ae.CorexSAE",
+        "python_path": "d3m.primitives.dsbox.CorexSupervised",
+        "original_python_path": "corexsae.corex_sae.CorexSAE",
         "source": {
             "name": "ISI",
             "contact": "mailto:brekelma@usc.edu",
