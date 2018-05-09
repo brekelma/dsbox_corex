@@ -64,7 +64,7 @@ class CorexSAE(SupervisedLearnerPrimitiveBase[Input, Output, CorexSAE_Params, Co
             },
         # git+https://github.com/brekelma/corex_continuous#egg=corex_continuous
         "installation": [
-            {'type': 'PIP', 'package_uri': 'git+https://github.com/brekelma/dsbox_corex.git@5976d879c994e60c7998111353b6cb621781d666#egg=dsbox_corex'}
+            {'type': 'PIP', 'package_uri': 'git+https://github.com/brekelma/dsbox_corex.git@5fb04354811ed21f84f02f3a156d6546003831ca#egg=dsbox_corex'}
             ],
       "algorithm_types": ["EXPECTATION_MAXIMIZATION_ALGORITHM"],
       "primitive_family": "CLASSIFICATION", #"FEATURE_CONSTRUCTION",
