@@ -11,6 +11,7 @@ from keras.optimizers import Adam, SGD
 from keras.engine.topology import Layer
 from keras.utils import to_categorical
 
+from d3m import utils
 import d3m.container as container
 import d3m.metadata.hyperparams as hyperparams
 import d3m.metadata.params as params
