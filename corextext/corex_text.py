@@ -72,7 +72,7 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
             },
           "installation": [
                 {'type': 'PIP', 
-                 'package_uri': 'git+https://github.com/brekelma/dsbox_corex.git@'+ str(subprocess.check_output(["git", "describe"]).strip()) + '#egg=dsbox-corex'#@'+str(utils.current_git_commit(os.path.dirname(__file__)))+'#egg=dsbox-corex'
+                 'package_uri': 'git+https://github.com/brekelma/dsbox_corex.git@'+ str(git.Repo(search_parent_directories = True).head.object.hexsha) + '#egg=dsbox-corex'#@'+str(utils.current_git_commit(os.path.dirname(__file__)))+'#egg=dsbox-corex'
                 }
             ],
           "algorithm_types": ["EXPECTATION_MAXIMIZATION_ALGORITHM", "LATENT_DIRICHLET_ALLOCATION"],
