@@ -8,7 +8,7 @@ from collections import defaultdict, OrderedDict
 from scipy import sparse
 import pandas as pd
 import numpy as np
-
+import git
 from d3m import utils
 import d3m.container as container
 import d3m.metadata.hyperparams as hyperparams
@@ -64,7 +64,7 @@ class CorexContinuous(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexConti
       "installation": [
             {
              'type': 'PIP', 
-             'package_uri': 'git+https://github.com/brekelma/dsbox_corex.git#egg=dsbox-corex' #@'+str(utils.current_git_commit(os.path.dirname(__file__)))+'#egg=dsbox-corex'
+             'package_uri': 'git+https://github.com/brekelma/dsbox_corex.git@'+ str(git.Repo(search_parent_directories = True).head.object.hexsha) + '#egg=dsbox-corex'
             }
         ],
       "algorithm_types": ["EXPECTATION_MAXIMIZATION_ALGORITHM"],
