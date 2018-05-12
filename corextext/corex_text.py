@@ -11,8 +11,9 @@ import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 import numpy as np
 import re
+import subprocess
 
-from d3m import utils
+#from d3m import utils
 import d3m.container as container
 import d3m.metadata.hyperparams as hyperparams
 import d3m.metadata.params as params
@@ -71,7 +72,7 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
             },
           "installation": [
                 {'type': 'PIP', 
-                 'package_uri': 'git+https://github.com/brekelma/dsbox_corex.git@master#egg=dsbox-corex'#@'+str(utils.current_git_commit(os.path.dirname(__file__)))+'#egg=dsbox-corex'
+                 'package_uri': 'git+https://github.com/brekelma/dsbox_corex.git@'+ str(subprocess.check_output(["git", "describe"]).strip()) + '#egg=dsbox-corex'#@'+str(utils.current_git_commit(os.path.dirname(__file__)))+'#egg=dsbox-corex'
                 }
             ],
           "algorithm_types": ["EXPECTATION_MAXIMIZATION_ALGORITHM", "LATENT_DIRICHLET_ALLOCATION"],
