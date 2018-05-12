@@ -11,7 +11,7 @@ import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 import numpy as np
 import re
-import subprocess
+import git
 
 #from d3m import utils
 import d3m.container as container
