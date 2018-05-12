@@ -9,7 +9,7 @@ from scipy import sparse
 import pandas as pd
 import numpy as np
 import git
-from .. import config
+from . import config
 
 from d3m import utils
 import d3m.container as container
