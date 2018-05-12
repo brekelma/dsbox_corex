@@ -11,6 +11,7 @@ from keras.optimizers import Adam, SGD
 from keras.engine.topology import Layer
 from keras.utils import to_categorical
 
+import git
 from d3m import utils
 import d3m.container as container
 import d3m.metadata.hyperparams as hyperparams
@@ -66,7 +67,7 @@ class CorexSAE(SupervisedLearnerPrimitiveBase[Input, Output, CorexSAE_Params, Co
         # git+https://github.com/brekelma/corex_continuous#egg=corex_continuous
         "installation": [
             {'type': 'PIP', 
-             'package_uri': 'git+https://github.com/brekelma/dsbox_corex.git#egg=dsbox-corex'#@'+str(utils.current_git_commit(os.path.dirname(__file__)))+'#egg=dsbox-corex'
+             'package_uri': 'git+https://github.com/brekelma/dsbox_corex.git@'+ str(git.Repo(search_parent_directories = True).head.object.hexsha) + '#egg=dsbox-corex'
             }
             ],
       "algorithm_types": ["EXPECTATION_MAXIMIZATION_ALGORITHM"],
