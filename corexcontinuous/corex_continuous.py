@@ -9,6 +9,7 @@ from scipy import sparse
 import pandas as pd
 import numpy as np
 
+from d3m import utils
 import d3m.container as container
 import d3m.metadata.hyperparams as hyperparams
 import d3m.metadata.params as params
