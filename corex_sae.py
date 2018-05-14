@@ -25,6 +25,7 @@ from d3m.metadata.hyperparams import Uniform, UniformInt, Union, Enumeration
 
 from typing import NamedTuple, Optional, Sequence, Any
 import typing
+import config
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 Input = container.ndarray #container.DataFrame
@@ -65,11 +66,12 @@ class CorexSAE(SupervisedLearnerPrimitiveBase[Input, Output, CorexSAE_Params, Co
             "uris": [ "https://github.com/brekelma/dsbox_corex" ]
             },
         # git+https://github.com/brekelma/corex_continuous#egg=corex_continuous
-        "installation": [
-            {'type': 'PIP', 
-             'package_uri': 'git+https://github.com/brekelma/dsbox_corex.git@7381c3ed2d41a8dbe96bbf267a915a0ec48ee397#egg=dsbox-corex'#'+ str(git.Repo(search_parent_directories = True).head.object.hexsha) + '#egg=dsbox-corex'
-            }
-            ],
+        "installation": [ config.INSTALLATION ]
+            #{'type': 'PIP', 
+             #'package_uri': 'git+https://github.com/brekelma/dsbox_corex.git@7381c3ed2d41a8dbe96bbf267a915a0ec48ee397#egg=dsbox-corex'#'+ str(git.Repo(search_parent_directories = True).head.object.hexsha) + '#egg=dsbox-corex'
+            #}
+            #]
+            ,
       "algorithm_types": ["EXPECTATION_MAXIMIZATION_ALGORITHM"],
       "primitive_family": "CLASSIFICATION", #"FEATURE_CONSTRUCTION",
       "hyperparams_to_tune": ["label_beta", "epochs"]

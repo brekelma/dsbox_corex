@@ -26,6 +26,8 @@ from d3m.metadata.hyperparams import Uniform, UniformInt, Union, Enumeration
 
 from typing import NamedTuple, Optional, Sequence, Any, Tuple
 import typing
+
+import config
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 Input = container.DataFrame
@@ -70,11 +72,11 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
             "contact": "mailto:brekelma@usc.edu",
             "uris": [ "https://github.com/brekelma/dsbox_corex" ]
             },
-          "installation": [
-                {'type': 'PIP', 
-                 'package_uri': 'git+https://github.com/brekelma/dsbox_corex.git@7381c3ed2d41a8dbe96bbf267a915a0ec48ee397#egg=dsbox-corex'#'+ str(git.Repo(search_parent_directories = True).head.object.hexsha) + '#egg=dsbox-corex'#@'+str(utils.current_git_commit(os.path.dirname(__file__)))+'#egg=dsbox-corex'
-                }
-            ],
+          "installation": [ config.INSTALLATION ]
+                #{'type': 'PIP', 
+                # 'package_uri': 'git+https://github.com/brekelma/dsbox_corex.git@7381c3ed2d41a8dbe96bbf267a915a0ec48ee397#egg=dsbox-corex'#'+ str(git.Repo(search_parent_directories = True).head.object.hexsha) + '#egg=dsbox-corex'#@'+str(utils.current_git_commit(os.path.dirname(__file__)))+'#egg=dsbox-corex'
+                #}]
+          ,
           "algorithm_types": ["EXPECTATION_MAXIMIZATION_ALGORITHM", "LATENT_DIRICHLET_ALLOCATION"],
           "primitive_family": "FEATURE_CONSTRUCTION",
           "hyperparams_to_tune": ["n_hidden", "chunking", "max_df", "min_df"]
