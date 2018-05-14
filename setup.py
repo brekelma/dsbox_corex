@@ -27,9 +27,9 @@ setup(
     ], 
     entry_points = {
     'd3m.primitives': [
-        'dsbox.CorexContinuous = corexcontinuous.corex_continuous:CorexContinuous',
-        'dsbox.CorexText = corextext.corex_text:CorexText',
-        'dsbox.CorexSupervised = corexsae.corex_sae:CorexSAE'
+        'dsbox.CorexContinuous = corex_continuous:CorexContinuous',
+        'dsbox.CorexText = corex_text:CorexText',
+        'dsbox.CorexSupervised = corex_sae:CorexSAE'
     ],
     }
 
