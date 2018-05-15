@@ -3,6 +3,7 @@ from sklearn import preprocessing
 import sys
 import os
 import linearcorex.linearcorex.linearcorex as corex_cont
+#import linearcorex.linearcorex.linearcorex as corex_cont
 #import LinearCorex.linearcorex as corex_cont
 from collections import defaultdict, OrderedDict
 from scipy import sparse
