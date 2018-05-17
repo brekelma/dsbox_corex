@@ -66,7 +66,7 @@ class CorexSAE(SupervisedLearnerPrimitiveBase[Input, Output, CorexSAE_Params, Co
             "uris": [ "https://github.com/brekelma/dsbox_corex" ]
             },
         # git+https://github.com/brekelma/corex_continuous#egg=corex_continuous
-        "installation": [ config.INSTALLATION ]
+        "installation": [ cfg_.INSTALLATION ]
             #{'type': 'PIP', 
              #'package_uri': 'git+https://github.com/brekelma/dsbox_corex.git@7381c3ed2d41a8dbe96bbf267a915a0ec48ee397#egg=dsbox-corex'#'+ str(git.Repo(search_parent_directories = True).head.object.hexsha) + '#egg=dsbox-corex'
             #}
