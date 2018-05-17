@@ -25,7 +25,7 @@ from d3m.metadata.hyperparams import Uniform, UniformInt, Union, Enumeration
 from typing import NamedTuple, Optional, Sequence, Any
 import typing
 
-import config
+import config as cfg_
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 #from .. import config
@@ -65,7 +65,7 @@ class CorexContinuous(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexConti
             "contact": 'mailto:brekelma@usc.edu',
             "uris": [ 'https://github.com/brekelma/dsbox_corex' ]
             },
-      "installation": [ config.INSTALLATION ],
+      "installation": [ cfg_.INSTALLATION ],
             #[ {
             # 'type': 'PIP', 
             # 'package_uri': 'git+https://github.com/brekelma/dsbox_corex.git@7381c3ed2d41a8dbe96bbf267a915a0ec48ee397#egg=dsbox-corex'#+ str(git.Repo(search_parent_directories = True).head.object.hexsha) + '#egg=dsbox-corex'
