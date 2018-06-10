@@ -44,16 +44,33 @@ class CorexText_Params(params.Params):
     # add support for resuming training / storing model information
 
 
+# Set hyperparameters according to https://gitlab.com/datadrivendiscovery/d3m#hyper-parameters
 class CorexText_Hyperparams(hyperparams.Hyperparams):
-    n_hidden = Uniform(lower = 0, upper = 100, default = 10, q = 1, description = 'number of topics')
-    max_df = Uniform(lower = .10, upper = 1.01, default = .9, q = .05, description = 'max percent document frequency of analysed terms')
+    n_hidden = Uniform(lower = 0, upper = 100, default = 10, q = 1, description = 'number of topics', semantic_types=[
+        'https://metadata.datadrivendiscovery.org/types/TuningParameter'
+    ])
+    max_df = Uniform(lower = .10, upper = 1.01, default = .9, q = .05, description = 'max percent document frequency of analysed terms', semantic_types=[
+        'https://metadata.datadrivendiscovery.org/types/TuningParameter'
+    ])
+
     min_df = Union(OrderedDict([('int df' , Uniform(lower = 1, upper = 20, default = 2, q = 1, description = 'min integer document frequency of analysed terms')),
             ('pct df' , Uniform(lower = 0, upper = .10, default = .02, q = .01, description = 'min percent document frequency of analysed terms'))]), 
-            default = 'pct df')
-    chunking = Uniform(lower = 0, upper = 2000, default = 0, q = 100, description = 'number of tfidf-filtered terms to include as a document, 0 => no chunking.  last chunk may be > param value to avoid small documents')
+            default = 'pct df', semantic_types=[
+        'https://metadata.datadrivendiscovery.org/types/TuningParameter'
+    ])
+
+    chunking = Uniform(lower = 0, upper = 2000, default = 0, q = 100, 
+        description = 'number of tfidf-filtered terms to include as a document, 0 => no chunking.  last chunk may be > param value to avoid small documents', 
+        semantic_types=[
+        'https://metadata.datadrivendiscovery.org/types/TuningParameter'
+    ])
+
     max_features = Union(OrderedDict([('none', Enumeration([None], default = None)), 
-                ('int mf', Uniform(lower = 1000, upper = 50001, default = 50000, q = 1000, description = 'max number of terms to use'))]),
-                default = 'none')
+        ('int mf', Uniform(lower = 1000, upper = 50001, default = 50000, q = 1000, description = 'max number of terms to use'))]), 
+        default = 'none', semantic_types=[
+        'https://metadata.datadrivendiscovery.org/types/TuningParameter'
+    ])
+
 
 class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params, CorexText_Hyperparams]):  #(Primitive):
     """
