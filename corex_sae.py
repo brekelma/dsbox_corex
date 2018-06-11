@@ -38,8 +38,15 @@ class CorexSAE_Params(params.Params):
 
 
 class CorexSAE_Hyperparams(hyperparams.Hyperparams):
-    label_beta = Uniform(lower = 0, upper = 1000, default = 1, q = .01, description = 'Lagrange multiplier for beta : 1 tradeoff btwn label relevance : compression.')
-    epochs = Uniform(lower = 1, upper = 1000, default = 100, description = 'number of epochs to train')
+    label_beta = Uniform(lower = 0, upper = 1000, default = 1, q = .01, 
+    	description = 'Lagrange multiplier for beta : 1 tradeoff btwn label relevance : compression.', semantic_types=[
+        'https://metadata.datadrivendiscovery.org/types/TuningParameter'
+    ])
+    epochs = Uniform(lower = 1, upper = 1000, default = 100, description = 'number of epochs to train', semantic_types=[
+        'https://metadata.datadrivendiscovery.org/types/TuningParameter'
+    ])
+
+
     #n_hidden = Uniform(lower = 0, upper = 100, default = 10, q = 1, description = 'number of topics')
     #max_df = Uniform(lower = .10, upper = 1.01, default = .9, q = .05, description = 'max percent document frequency of analysed terms')
     #min_df = Union(OrderedDict([('int df' , Uniform(lower = 1, upper = 20, default = 2, q = 1, description = 'min integer document frequency of analysed terms')),
