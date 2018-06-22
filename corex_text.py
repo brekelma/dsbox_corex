@@ -31,8 +31,8 @@ import config as cfg_
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 Input = container.DataFrame
-Output = container.ndarray
-#Output = container.DataFrame
+# Output = container.ndarray
+Output = container.DataFrame
 
 class CorexText_Params(params.Params):
     model: typing.Union[Corex, None]

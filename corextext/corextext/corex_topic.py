@@ -15,6 +15,7 @@ License: Apache V2
 """
 
 import numpy as np  # Tested with 1.8.0
+import pandas as pd
 from os import makedirs
 from os import path
 from scipy.misc import logsumexp  # Tested with 0.13.0
@@ -204,7 +205,7 @@ class Corex(object):
             self.sort_and_output(X)
         self.p_y_given_x, self.log_p_y_given_x, self.log_z = self.calculate_latent(X, self.theta)  # Needed to output labels
         self.mis = self.calculate_mis(self.theta, self.log_p_y)  # / self.h_x  # could normalize MIs
-        return self.labels
+        return pd.DataFrame(self.labels)
 
     def transform(self, X, details=False):
         """
@@ -234,7 +235,7 @@ class Corex(object):
         elif details:
             return p_y_given_x, log_z
         else:
-            return labels
+            return pd.DataFrame(labels)
 
     def predict_proba(self, X):
         return self.transform(X, details=True)
