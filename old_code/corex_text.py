@@ -1,18 +1,17 @@
-import git
-import os
-import re
-import sys
-
-import pandas as pd
-import numpy as np
-
 from sklearn import preprocessing
-
-from corextext.corex_topic import Corex
+#import primitive
+import sys
+import os
+#sys.path.append('corex_topic/')
+from corextext.corextext.corex_topic import Corex
+#import corex_topic.corex_topic as corex_text
 from collections import defaultdict, OrderedDict
 from scipy import sparse as sp
-
+import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+import numpy as np
+import re
+import git
 
 #from d3m import utils
 import d3m.container as container
@@ -22,6 +21,7 @@ from d3m.metadata.base import PrimitiveMetadata
 
 from d3m.primitive_interfaces.unsupervised_learning import UnsupervisedLearnerPrimitiveBase
 from d3m.primitive_interfaces.base import CallResult
+#from d3m.primitive_interfaces.params import Params
 from d3m.metadata.hyperparams import Uniform, UniformInt, Union, Enumeration
 
 from typing import NamedTuple, Optional, Sequence, Any, Tuple
@@ -39,6 +39,9 @@ class CorexText_Params(params.Params):
     bow: typing.Union[TfidfVectorizer, None]
     get_text: bool 
     data_path: str
+    #fitted: bool = False
+    #training_inputs: Input = None
+    # add support for resuming training / storing model information
 
 
 # Set hyperparameters according to https://gitlab.com/datadrivendiscovery/d3m#hyper-parameters
@@ -74,35 +77,44 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
     Learns latent factors / topics which explain the most multivariate information in bag of words representations of documents. Returns learned topic scores for each document. Also supports hierarchical models and 'anchoring' to encourage topics to concentrate around desired words.
     """
     metadata = PrimitiveMetadata({
-		"schema": "v0",
-		"id": "18e63b10-c5b7-34bc-a670-f2c831d6b4bf",
-		"version": "1.0.0",
-		"name": "CorexText",
-		"description": "Learns latent factors / topics which explain the most multivariate information in bag of words representations of documents. Returns learned topic scores for each document. Also supports hierarchical models and 'anchoring' to encourage topics to concentrate around desired words.",
-		"python_path": "d3m.primitives.dsbox.CorexText",
-		"original_python_path": "corextext.corex_text.CorexText",
-		"source": {
-			"name": "ISI",
-			"contact": "mailto:brekelma@usc.edu",
-			"uris": [ "https://github.com/brekelma/dsbox_corex" ]
-		},
-		"installation": [ cfg_.INSTALLATION ],
-		"algorithm_types": ["EXPECTATION_MAXIMIZATION_ALGORITHM", "LATENT_DIRICHLET_ALLOCATION"],
-		"primitive_family": "FEATURE_CONSTRUCTION",
-		"hyperparams_to_tune": ["n_hidden", "chunking", "max_df", "min_df"]
-	})
+          "schema": "v0",
+          "id": "18e63b10-c5b7-34bc-a670-f2c831d6b4bf",
+          "version": "1.0.0",
+          "name": "CorexText",
+          "description": "Learns latent factors / topics which explain the most multivariate information in bag of words representations of documents. Returns learned topic scores for each document. Also supports hierarchical models and 'anchoring' to encourage topics to concentrate around desired words.",
+          "python_path": "d3m.primitives.dsbox.CorexText",
+          "original_python_path": "corextext.corex_text.CorexText",
+          "source": {
+            "name": "ISI",
+            "contact": "mailto:brekelma@usc.edu",
+            "uris": [ "https://github.com/brekelma/dsbox_corex" ]
+            },
+          "installation": [ cfg_.INSTALLATION ]
+                #{'type': 'PIP', 
+                # 'package_uri': 'git+https://github.com/brekelma/dsbox_corex.git@7381c3ed2d41a8dbe96bbf267a915a0ec48ee397#egg=dsbox-corex'#'+ str(git.Repo(search_parent_directories = True).head.object.hexsha) + '#egg=dsbox-corex'#@'+str(utils.current_git_commit(os.path.dirname(__file__)))+'#egg=dsbox-corex'
+                #}]
+          ,
+          "algorithm_types": ["EXPECTATION_MAXIMIZATION_ALGORITHM", "LATENT_DIRICHLET_ALLOCATION"],
+          "primitive_family": "FEATURE_CONSTRUCTION",
+          "hyperparams_to_tune": ["n_hidden", "chunking", "max_df", "min_df"]
+        })
+        #"preconditions": [],
+    #      "effects": [],
+
 
     def __init__(self, *, hyperparams : CorexText_Hyperparams) -> None: #, random_seed : int =  0, docker_containers: typing.Dict[str, DockerContainer] = None)
 
         super().__init__(hyperparams = hyperparams)#, random_seed = random_seed, docker_containers = docker_containers)
         
          
-    def fit(self, *, timeout : float = None, iterations : int = None) -> CallResult[None]: 
+    def fit(self, *, timeout : float = None, iterations : int = None) -> CallResult[None]: #X : Sequence[Input]): 
+        #self.columns = list(X)
+        #X_ = X[self.columns].values # useless if only desired columns are passed
         if self.fitted:
             return
 
         if not hasattr(self, 'model') or self.model is None:
-            self.model = Corex(n_hidden= self.hyperparams['n_hidden'], max_iter = iterations, seed = self.random_seed)
+            self.model = Corex(n_hidden= self.hyperparams['n_hidden'], max_iter = iterations, seed = self.random_seed)#, **kwargs)
 
         if not hasattr(self, 'training_inputs'):
             raise ValueError("Missing training data.")
