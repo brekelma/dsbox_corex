@@ -26,7 +26,6 @@ if INSTALLATION_TYPE == 'PYPI':
         "version": VERSION
     }
 else:
-    # INSTALLATION_TYPE == 'GIT'
     INSTALLATION = {
         "type" : "PIP",
         "package_uri": PACKAGE_URI,
