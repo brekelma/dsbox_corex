@@ -1,3 +1,4 @@
+import copy
 import git
 import os
 import re
@@ -7,17 +8,20 @@ import typing
 import pandas as pd
 import numpy as np
 
-from corextext.corex_topic import Corex
 from collections import defaultdict, OrderedDict
+from common_primitives import utils
+from corextext.corex_topic import Corex
 from scipy import sparse as sp
 
 from sklearn import preprocessing
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 
 import d3m.container as container
+import d3m.metadata.base as mbase
 import d3m.metadata.hyperparams as hyperparams
 import d3m.metadata.params as params
 
+from d3m.container import DataFrame as d3m_DataFrame
 from d3m.metadata.base import PrimitiveMetadata
 from d3m.metadata.hyperparams import Uniform, UniformInt, Union, Enumeration
 from d3m.primitive_interfaces.base import CallResult
@@ -25,6 +29,8 @@ from d3m.primitive_interfaces.unsupervised_learning import UnsupervisedLearnerPr
 
 import config as cfg_
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+
+import pandas as pd
 
 Input = container.DataFrame
 Output = container.DataFrame
@@ -47,6 +53,7 @@ class CorexText_Hyperparams(hyperparams.Hyperparams):
     # max_features @ http://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.TfidfVectorizer.html
     max_features = Union(OrderedDict([('none', Enumeration([None], default = None)), ('int_mf', UniformInt(lower = 1000, upper = 50000, default = 50000, upper_inclusive=True, description = 'max number of terms to use'))]), default = 'none', semantic_types=["http://schema.org/Integer", 'https://metadata.datadrivendiscovery.org/types/TuningParameter'])
 
+    # chunking is only used for text datasets
     chunking = Uniform(lower = 0, upper = 2000, default = 0, q = 100, description = 'number of tfidf-filtered terms to include as a document, 0 => no chunking.  last chunk may be > param value to avoid small documents', semantic_types=["http://schema.org/Integer", 'https://metadata.datadrivendiscovery.org/types/TuningParameter'])
 
 
@@ -81,15 +88,21 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
         self.training_data = inputs
         self.fitted = False
          
+    # assumes input as data-frame and do prediction on the 'text' labeled columns
     def fit(self, *, timeout : float = None, iterations : int = None) -> None:
-        # don't fit twice
         if self.fitted:
-            return
+            return CallResult(None, True, 1)
 
-        print(self.hyperparams['max_df'], type(self.hyperparams['max_df']))
-        print(self.hyperparams['min_df'], type(self.hyperparams['min_df']))
+        text_attributes = utils.list_columns_with_semantic_types(metadata=self.training_data.metadata,semantic_types=["http://schema.org/Text"])
+        all_attributes = utils.list_columns_with_semantic_types(metadata=self.training_data.metadata,semantic_types=["https://metadata.datadrivendiscovery.org/types/Attribute"])
+        self.text_columns = list(set(all_attributes).intersection(text_attributes))
 
+        # if no text columns are present don't do anything
+        if len(self.text_columns) == 0:
+            self.fitted = False
+            return CallResult(None, True, 1)
 
+        # instantiate a corex model and a bag of words model
         self.model = Corex(n_hidden= self.hyperparams['n_hidden'], max_iter = iterations, seed = self.random_seed)
         self.bow = TfidfVectorizer(decode_error='ignore', max_df = self.hyperparams['max_df'], min_df = self.hyperparams['min_df'], max_features = self.hyperparams['max_features'])
 
@@ -100,95 +113,71 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
             self.max_iter = 250
         self.model.max_iter = self.max_iter
 
-        column_name = training_data.columns[0]
-        if self.hyperparams['chunking'] == 0:
-            bow = self.bow.fit_transform(self.training_data[column_name].ravel())       
-        else:
-            inp, self.chunks = self._chunk(self.training_data[column_name].ravel())
-            bow = self.bow.fit_transform(inp)
-        
-        self.latent_factors = self.model.fit_transform(bow)
-        if self.hyperparams['chunking'] > 0:
-            self.latent_factors = self._unchunk(self.latent_factors, self.chunks)
+        # concatenate the columns row-wise
+        concat_cols = None
+        for column_index in self.text_columns:
+            if concat_cols is not None:
+                concat_cols = concat_cols.str.cat(self.training_data.ix[:,column_index])
+            else:
+                concat_cols = copy.deepcopy(self.training_data.ix[:,column_index])
 
+        bow = self.bow.fit_transform(concat_cols.ravel())
+
+        self.latent_factors = self.model.fit_transform(bow)
         self.fitted = True
 
-        return
+        return CallResult(None, True, 1)
 
 
     def produce(self, *, inputs : Input, timeout : float = None, iterations : int = None) -> CallResult[Output]: 
+        # if model was not fitted for any reason (e.g. no text columns present), then just return the input data unchanged
+        if not self.fitted:
+            return CallResult(inputs, True, 1)
+
         if iterations is not None:
             self.max_iter = iterations
-            self.model.max_iter = self.max_iter
         else:
             self.max_iter = 250
-            self.model.max_iter = self.max_iter
+        self.model.max_iter = self.max_iter
 
-        column_name = inputs.columns[0]
-        if self.hyperparams['chunking'] == 0:
-            bow = self.bow.transform(inputs[column_name].ravel())
-        else:
-            inp, self.chunks = self._chunk(inputs[column_name].ravel())
-            bow = self.bow.transform(inp)
-
+        # concatenate the columns row-wise
+        concat_cols = None
+        for column_index in self.text_columns:
+            if concat_cols is not None:
+                concat_cols = concat_cols.str.cat(inputs.ix[:,column_index])
+            else:
+                concat_cols = copy.deepcopy(inputs.ix[:,column_index])
+        bow = self.bow.transform(concat_cols.ravel())
         self.latent_factors = self.model.transform(bow).astype(float)
-        if self.hyperparams['chunking'] > 0:
-            self.latent_factors = self._unchunk(self.latent_factors, self.chunks)
+
+        # remove the selected columns from input and add the latent factors given by corex
+        out_df = d3m_DataFrame(inputs)
+
+        # create metadata for the corex columns
+        corex_df = d3m_DataFrame(self.latent_factors)
+        for column_index in range(corex_df.shape[1]):
+            col_dict = dict(corex_df.metadata.query((mbase.ALL_ELEMENTS, column_index)))
+            col_dict['structural_type'] = type(1.0)
+            # FIXME: assume we apply corex only once per template, otherwise column names might duplicate
+            col_dict['name'] = 'corex_' + str(out_df.shape[1] + column_index)
+            col_dict['semantic_types'] = ('http://schema.org/Float', 'https://metadata.datadrivendiscovery.org/types/Attribute')
+
+            corex_df.metadata = corex_df.metadata.update((mbase.ALL_ELEMENTS, column_index), col_dict)
+
+        # concatenate is --VERY-- slow without this next line
+        corex_df.index = out_df.index.copy()
+
+        out_df = utils.append_columns(out_df, corex_df)
+
+        # remove the initial text column from the df, if we do this before CorEx we can get an empty dataset error
+        adjust = 0
+        for column_index in self.text_columns:
+            out_df = utils.remove_column(out_df, column_index - adjust)
+            adjust = adjust + 1
 
         # TO DO : Incorporate timeout, max_iter
-        return CallResult(d3m_DataFrame(self.latent_factors))
-    
-    def _chunk(self, inputs : np.ndarray = None) -> typing.Tuple[np.ndarray, np.ndarray]:
-        # chunk each string in the string list
-
-        chunked_docs = []
-        chunk_list = []
-        overall_j = 0
-        for i in range(inputs.shape[0]):
-            doc_tokens = inputs[i]
-            
-            j = 0
-            
-            while (j+2)*self.hyperparams['chunking'] <= len(doc_tokens):
-                new_chunked_str = " ".join(doc_tokens[j*self.hyperparams['chunking']:(j+1)*self.hyperparams['chunking']])
-                chunked_docs.append(new_chunked_str)
-                j = j + 1
-
-            new_chunked_str = " ".join(doc_tokens[j*self.hyperparams['chunking']:])
-            chunked_docs.append(new_chunked_str)
-            overall_j += (j+1)
-            chunk_list.append(overall_j)
-
-        # all docs in 1 array, list indicating changepoints of documents
-        return np.array(chunked_docs), np.array(chunk_list) 
-
-    def _unchunk(self, transformed : np.ndarray,  chunk_array : np.ndarray):
-        # transformed is samples x topics
-        j = 0
-        return_val = None
-        # hacky?
-        
-        chunk_array = np.append(chunk_array, np.array([transformed.shape[0]-1]), axis = 0)
-        
-        temp = np.zeros((transformed.shape[1],)) 
-        for i in range(transformed.shape[0]):
-            if i < chunk_array[j] and i < transformed.shape[0]-1:
-                temp = temp + transformed[i,:] 
-            else:    
-                divisor = (chunk_array[j] - chunk_array[j-1]+1) if j > 0 else chunk_array[j]
-                
-                temp = temp / float(divisor)
-                temp = temp[np.newaxis, :] # 1 x features
-                
-                if return_val is None:
-                    return_val = temp
-                else:
-                    return_val = np.concatenate([return_val, temp], axis = 0)
-
-                j = j+1
-                temp = np.zeros((transformed.shape[1],)) 
-
-        return return_val
+        # return CallResult(d3m_DataFrame(self.latent_factors))
+        return CallResult(out_df, True, 1)
 
     def get_params(self) -> CorexText_Params:
         if not self.fitted:
