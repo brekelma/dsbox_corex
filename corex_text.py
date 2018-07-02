@@ -164,9 +164,9 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
         concat_cols = None
         for column_index in self.text_columns:
             if concat_cols is not None:
-                concat_cols = concat_cols.str.cat(self.training_data.ix[:,column_index])
+                concat_cols = concat_cols.str.cat(self.training_data.iloc[:,column_index])
             else:
-                concat_cols = copy.deepcopy(self.training_data.ix[:,column_index])
+                concat_cols = copy.deepcopy(self.training_data.iloc[:,column_index])
 
         bow = self.bow.fit_transform(concat_cols.ravel())
 
@@ -191,9 +191,9 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
         concat_cols = None
         for column_index in self.text_columns:
             if concat_cols is not None:
-                concat_cols = concat_cols.str.cat(inputs.ix[:,column_index])
+                concat_cols = concat_cols.str.cat(inputs.iloc[:,column_index])
             else:
-                concat_cols = copy.deepcopy(inputs.ix[:,column_index])
+                concat_cols = copy.deepcopy(inputs.iloc[:,column_index])
         bow = self.bow.transform(concat_cols.ravel())
         self.latent_factors = self.model.transform(bow).astype(float)
 
