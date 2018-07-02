@@ -23,7 +23,7 @@ import d3m.metadata.params as params
 
 from d3m.container import DataFrame as d3m_DataFrame
 from d3m.metadata.base import PrimitiveMetadata
-from d3m.metadata.hyperparams import Uniform, UniformInt, Union, Enumeration
+from d3m.metadata.hyperparams import Uniform, UniformBool, UniformInt, Union, Enumeration
 from d3m.primitive_interfaces.base import CallResult
 from d3m.primitive_interfaces.unsupervised_learning import UnsupervisedLearnerPrimitiveBase
 
@@ -42,19 +42,65 @@ class CorexText_Params(params.Params):
 # Set hyperparameters according to https://gitlab.com/datadrivendiscovery/d3m#hyper-parameters
 class CorexText_Hyperparams(hyperparams.Hyperparams):
     # number of Corex latent factors
-    n_hidden = Uniform(lower = 0, upper = 100, default = 10, q = 1, description = 'number of topics', semantic_types=["http://schema.org/Integer", 'https://metadata.datadrivendiscovery.org/types/TuningParameter'])
+    n_hidden = Uniform(
+        lower = 0, 
+        upper = 100, 
+        default = 10, 
+        q = 1, 
+        description = 'number of topics', 
+        semantic_types=["http://schema.org/Integer", 'https://metadata.datadrivendiscovery.org/types/TuningParameter']
+    )
 
     # max_df @ http://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.TfidfVectorizer.html
-    max_df = Uniform(lower = 0.0, upper = 1.00, default = .9, q = .05, description = 'max percent document frequency of analysed terms', semantic_types=["http://schema.org/Float", 'https://metadata.datadrivendiscovery.org/types/TuningParameter'])
+    max_df = Uniform(
+        lower = 0.0, 
+        upper = 1.00, 
+        default = .9, 
+        q = .05, 
+        description = 'max percent document frequency of analysed terms', 
+        semantic_types=["http://schema.org/Float", 'https://metadata.datadrivendiscovery.org/types/TuningParameter']
+    )
 
     # min_df @ http://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.TfidfVectorizer.html
-    min_df = Uniform(lower = 0.0, upper = 1.00, default = .02, q = .01, description = 'min percent document frequency of analysed terms', semantic_types=["http://schema.org/Float", 'https://metadata.datadrivendiscovery.org/types/TuningParameter'])
+    min_df = Uniform(
+        lower = 0.0, 
+        upper = 1.00, 
+        default = .02, 
+        q = .01, 
+        description = 'min percent document frequency of analysed terms', 
+        semantic_types=["http://schema.org/Float", 'https://metadata.datadrivendiscovery.org/types/TuningParameter']
+    )
 
     # max_features @ http://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.TfidfVectorizer.html
-    max_features = Union(OrderedDict([('none', Enumeration([None], default = None)), ('int_mf', UniformInt(lower = 1000, upper = 50000, default = 50000, upper_inclusive=True, description = 'max number of terms to use'))]), default = 'none', semantic_types=["http://schema.org/Integer", 'https://metadata.datadrivendiscovery.org/types/TuningParameter'])
+    max_features = Union(
+        OrderedDict([
+            ('none', Enumeration([None], default = None)), 
+            ('int_mf', UniformInt(
+                lower = 1000, 
+                upper = 50000, 
+                default = 50000, 
+                upper_inclusive=True, 
+                description = 'max number of terms to use'))]), 
+        default = 'none', 
+        semantic_types=["http://schema.org/Integer", 'https://metadata.datadrivendiscovery.org/types/TuningParameter']
+    )
 
     # chunking is only used for text datasets
-    chunking = Uniform(lower = 0, upper = 2000, default = 0, q = 100, description = 'number of tfidf-filtered terms to include as a document, 0 => no chunking.  last chunk may be > param value to avoid small documents', semantic_types=["http://schema.org/Integer", 'https://metadata.datadrivendiscovery.org/types/TuningParameter'])
+    chunking = Uniform(
+        lower = 0, 
+        upper = 2000, 
+        default = 0, 
+        q = 100, 
+        description = 'number of tfidf-filtered terms to include as a document, 0 => no chunking.  last chunk may be > param value to avoid small documents', 
+        semantic_types=["http://schema.org/Integer", 'https://metadata.datadrivendiscovery.org/types/TuningParameter']
+    )
+
+    # read-in documents
+    read_docs = UniformBool(
+        default=False, 
+        description = 'corex parameter regarding what dataset format we are using', 
+        semantic_types=["http://schema.org/Bool", 'https://metadata.datadrivendiscovery.org/types/ControlParameter']
+    )
 
 
 class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params, CorexText_Hyperparams]):  #(Primitive):
@@ -90,6 +136,7 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
          
     # assumes input as data-frame and do prediction on the 'text' labeled columns
     def fit(self, *, timeout : float = None, iterations : int = None) -> None:
+        # if already fitted, do nothing
         if self.fitted:
             return CallResult(None, True, 1)
 
