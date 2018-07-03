@@ -95,13 +95,6 @@ class CorexText_Hyperparams(hyperparams.Hyperparams):
         semantic_types=["http://schema.org/Integer", 'https://metadata.datadrivendiscovery.org/types/TuningParameter']
     )
 
-    # read-in documents
-    read_docs = UniformBool(
-        default=False, 
-        description = 'corex parameter regarding what dataset format we are using', 
-        semantic_types=["http://schema.org/Bool", 'https://metadata.datadrivendiscovery.org/types/ControlParameter']
-    )
-
 
 class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params, CorexText_Hyperparams]):  #(Primitive):
     """
@@ -139,6 +132,8 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
         # if already fitted, do nothing
         if self.fitted:
             return CallResult(None, True, 1)
+
+        self.training_data = self._process_files(self.training_data)
 
         text_attributes = utils.list_columns_with_semantic_types(metadata=self.training_data.metadata,semantic_types=["http://schema.org/Text"])
         all_attributes = utils.list_columns_with_semantic_types(metadata=self.training_data.metadata,semantic_types=["https://metadata.datadrivendiscovery.org/types/Attribute"])
@@ -180,6 +175,8 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
         # if model was not fitted for any reason (e.g. no text columns present), then just return the input data unchanged
         if not self.fitted:
             return CallResult(inputs, True, 1)
+
+        inputs = self._process_files(inputs)
 
         if iterations is not None:
             self.max_iter = iterations
@@ -226,6 +223,62 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
         # return CallResult(d3m_DataFrame(self.latent_factors))
         return CallResult(out_df, True, 1)
 
+    # remove the FileName columns from the data frame and replace them with text
+    def _process_files(self, inputs: Input):
+        fn_attributes = utils.list_columns_with_semantic_types(metadata=inputs.metadata, semantic_types=["https://metadata.datadrivendiscovery.org/types/FileName"])
+        all_attributes = utils.list_columns_with_semantic_types(metadata=inputs.metadata, semantic_types=["https://metadata.datadrivendiscovery.org/types/Attribute"])
+        fn_columns = list(set(all_attributes).intersection(fn_attributes))
+
+        # if no file name columns are detected, default to regular behavior
+        if len(fn_columns) == 0:
+            return inputs
+
+        # create an empty DataFrame of the required size
+        processed_cols = pd.DataFrame("", index = copy.deepcopy(inputs.index), columns = ['text_files_' + str(i) for i in range(len(fn_columns))])
+
+        for column_index in range(len(fn_columns)):
+            curr_column = copy.deepcopy(inputs.iloc[:, column_index])
+
+            file_loc = inputs.metadata.query((mbase.ALL_ELEMENTS, column_index))['location_base_uris']
+            file_loc = file_loc[0]  # take the first elem of the tuple
+            file_loc = file_loc[7:] # get rid of 'file://' prefix
+
+            for row_index in range(curr_column.shape[0]):
+                text_file = curr_column[row_index]
+            # for text_file in curr_column:
+                file_path = file_loc + text_file
+
+                with open(file_path, 'rb') as file:
+                    doc = file.read()
+                doc = "".join(map(chr, doc))
+                doc_tokens = re.compile(r"(?u)\b\w\w+\b").findall(doc) # list of strings
+
+                processed_cols.iloc[row_index, column_index] = " ".join(doc_tokens)
+
+        # construct metadata for the newly generated columns
+        processed_cols = d3m_DataFrame(processed_cols)
+
+        for column_index in range(processed_cols.shape[1]):
+            col_dict = dict(processed_cols.metadata.query((mbase.ALL_ELEMENTS, column_index)))
+            col_dict['structural_type'] = type("text")
+            # FIXME: assume we apply corex only once per template, otherwise column names might duplicate
+            col_dict['name'] = 'processed_file_' + str(inputs.shape[1] + column_index)
+            col_dict['semantic_types'] = ('http://schema.org/Text', 'https://metadata.datadrivendiscovery.org/types/Attribute')
+
+            processed_cols.metadata = processed_cols.metadata.update((mbase.ALL_ELEMENTS, column_index), col_dict)
+
+        # concatenate the input with the newly created columns
+        updated_inputs = utils.append_columns(inputs, processed_cols)
+
+        # remove the initial text column from the df, if we do this before concatenating we might get an empty dataset error
+        adjust = 0
+        for column_index in fn_columns:
+            updated_inputs = utils.remove_column(updated_inputs, column_index - adjust)
+            adjust = adjust + 1
+
+        return updated_inputs
+
+
     def get_params(self) -> CorexText_Params:
         if not self.fitted:
             raise ValueError("Fit not performed")
@@ -245,4 +298,3 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
         self._annotation.ml_algorithm = ['Dimension Reduction']
         self._annotation.tags = ['feature_extraction', 'text']
         return self._annotation
-

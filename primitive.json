@@ -16,7 +16,7 @@
     "installation": [
         {
             "type": "PIP",
-            "package_uri": "git+https://github.com/brekelma/dsbox_corex@ba759e0adc95ef6f449f93dc954fe5cad4e83d70#egg=dsbox-corex"
+            "package_uri": "git+https://github.com/brekelma/dsbox_corex@d09cf893bd313e25988f8a7b8dbda1d3555f8060#egg=dsbox-corex"
         }
     ],
     "algorithm_types": [
@@ -255,5 +255,5 @@
         }
     },
     "structural_type": "corex_text.CorexText",
-    "digest": "1d4b11b233678cc8017287c9cec0983b58a67e751ac634b94ae074a5d6ade4eb"
+    "digest": "087acef609bac3961711e2e68c40829c7d25c6b8a95f746585198a8195105851"
 }
