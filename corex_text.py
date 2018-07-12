@@ -38,6 +38,7 @@ Output = container.DataFrame
 class CorexText_Params(params.Params):
     model_: typing.Union[Corex, None]
     bow_: typing.Union[TfidfVectorizer, None]
+    do_nothing_: typing.Union[Bool, None]
 
 # Set hyperparameters according to https://gitlab.com/datadrivendiscovery/d3m#hyper-parameters
 class CorexText_Hyperparams(hyperparams.Hyperparams):
@@ -140,8 +141,10 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
         self.text_columns = list(set(all_attributes).intersection(text_attributes))
 
         # if no text columns are present don't do anything
+        self.do_nothing = False
         if len(self.text_columns) == 0:
             self.fitted = True
+            self.do_nothing = True
             return CallResult(None, True, 1)
 
         # instantiate a corex model and a bag of words model
@@ -172,8 +175,8 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
 
 
     def produce(self, *, inputs : Input, timeout : float = None, iterations : int = None) -> CallResult[Output]: 
-        # if model was not fitted for any reason (e.g. no text columns present), then just return the input data unchanged
-        if not self.fitted:
+        # if corex didn't run for any reason, just return the given dataset
+        if self.do_nothing:
             return CallResult(inputs, True, 1)
 
         inputs = self._process_files(inputs)
@@ -282,11 +285,12 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
     def get_params(self) -> CorexText_Params:
         if not self.fitted:
             raise ValueError("Fit not performed")
-        return CorexText_Params(model_ = self.model, bow_ = self.bow)
+        return CorexText_Params(model_ = self.model, bow_ = self.bow, do_nothing_ = self.do_nothing)
 
     def set_params(self, *, params: CorexText_Params) -> None:
         self.model = params['model_']
         self.bow = params['bow_']
+        self.do_nothing = params['do_nothing_']
 
     def _annotation(self):
         if self._annotation is not None:
