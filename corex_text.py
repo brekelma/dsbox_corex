@@ -39,6 +39,9 @@ class CorexText_Params(params.Params):
     model_: typing.Union[Corex, None]
     bow_: typing.Union[TfidfVectorizer, None]
     do_nothing_: typing.Union[bool, None]
+    text_columns_: typing.Union[typing.List[int], None]
+    latent_factors_: typing.Union[pd.DataFrame, None]
+    max_iter_: typing.Union[int, None]
 
 # Set hyperparameters according to https://gitlab.com/datadrivendiscovery/d3m#hyper-parameters
 class CorexText_Hyperparams(hyperparams.Hyperparams):
@@ -144,7 +147,14 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
         self.do_nothing = False
         if len(self.text_columns) == 0:
             self.fitted = True
+
+            self.model = None
+            self.bow = None
             self.do_nothing = True
+            self.text_columns = None
+            self.latent_factors = None
+            self.max_iter = None
+            
             return CallResult(None, True, 1)
 
         # instantiate a corex model and a bag of words model
@@ -219,7 +229,7 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
         # remove the initial text column from the df, if we do this before CorEx we can get an empty dataset error
         adjust = 0
         for column_index in self.text_columns:
-            out_df = utils.remove_column(out_df, column_index - adjust)
+            out_df = utils.remove_columns(out_df, [column_index - adjust])
             adjust = adjust + 1
 
         # TO DO : Incorporate timeout, max_iter
@@ -276,7 +286,7 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
         # remove the initial text column from the df, if we do this before concatenating we might get an empty dataset error
         adjust = 0
         for column_index in fn_columns:
-            updated_inputs = utils.remove_column(updated_inputs, column_index - adjust)
+            updated_inputs = utils.remove_columns(updated_inputs, [column_index - adjust])
             adjust = adjust + 1
 
         return updated_inputs
@@ -285,12 +295,23 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
     def get_params(self) -> CorexText_Params:
         if not self.fitted:
             raise ValueError("Fit not performed")
-        return CorexText_Params(model_ = self.model, bow_ = self.bow, do_nothing_ = self.do_nothing)
+
+        return CorexText_Params(
+            model_ = self.model, 
+            bow_ = self.bow, 
+            do_nothing_ = self.do_nothing,
+            text_columns_ = self.text_columns,
+            latent_factors_ = self.latent_factors,
+            max_iter_ = self.max_iter
+            )
 
     def set_params(self, *, params: CorexText_Params) -> None:
         self.model = params['model_']
         self.bow = params['bow_']
         self.do_nothing = params['do_nothing_']
+        self.text_columns = params['text_columns_']
+        self.latent_factors = params['latent_factors_']
+        self.max_iter = params['max_iter_']
 
     def _annotation(self):
         if self._annotation is not None:
