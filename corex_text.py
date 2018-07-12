@@ -141,7 +141,7 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
 
         # if no text columns are present don't do anything
         if len(self.text_columns) == 0:
-            self.fitted = False
+            self.fitted = True
             return CallResult(None, True, 1)
 
         # instantiate a corex model and a bag of words model
