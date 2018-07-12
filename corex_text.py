@@ -38,7 +38,7 @@ Output = container.DataFrame
 class CorexText_Params(params.Params):
     model_: typing.Union[Corex, None]
     bow_: typing.Union[TfidfVectorizer, None]
-    do_nothing_: typing.Union[Bool, None]
+    do_nothing_: typing.Union[bool, None]
 
 # Set hyperparameters according to https://gitlab.com/datadrivendiscovery/d3m#hyper-parameters
 class CorexText_Hyperparams(hyperparams.Hyperparams):
