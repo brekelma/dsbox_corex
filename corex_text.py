@@ -282,11 +282,11 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
     def get_params(self) -> CorexText_Params:
         if not self.fitted:
             raise ValueError("Fit not performed")
-        return CorexText_Params(model = self.model_, bow = self.bow_)
+        return CorexText_Params(model_ = self.model, bow_ = self.bow)
 
     def set_params(self, *, params: CorexText_Params) -> None:
-        self.model_ = params['model_']
-        self.bow_ = params['bow_']
+        self.model = params['model_']
+        self.bow = params['bow_']
 
     def _annotation(self):
         if self._annotation is not None:
