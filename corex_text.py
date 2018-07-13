@@ -36,6 +36,7 @@ Input = container.DataFrame
 Output = container.DataFrame
 
 class CorexText_Params(params.Params):
+    fitted_: typing.Union[bool, None]
     model_: typing.Union[Corex, None]
     bow_: typing.Union[TfidfVectorizer, None]
     do_nothing_: typing.Union[bool, None]
@@ -172,13 +173,18 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
         concat_cols = None
         for column_index in self.text_columns:
             if concat_cols is not None:
-                concat_cols = concat_cols.str.cat(self.training_data.iloc[:,column_index])
+                concat_cols = concat_cols.str.cat(self.training_data.iloc[:,column_index], sep = " ")
             else:
                 concat_cols = copy.deepcopy(self.training_data.iloc[:,column_index])
+
+        print(concat_cols.head())
 
         bow = self.bow.fit_transform(concat_cols.ravel())
 
         self.latent_factors = self.model.fit_transform(bow)
+
+        print(self.latent_factors.head())
+
         self.fitted = True
 
         return CallResult(None, True, 1)
@@ -201,7 +207,7 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
         concat_cols = None
         for column_index in self.text_columns:
             if concat_cols is not None:
-                concat_cols = concat_cols.str.cat(inputs.iloc[:,column_index])
+                concat_cols = concat_cols.str.cat(inputs.iloc[:,column_index], sep = " ")
             else:
                 concat_cols = copy.deepcopy(inputs.iloc[:,column_index])
         bow = self.bow.transform(concat_cols.ravel())
@@ -293,10 +299,8 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
 
 
     def get_params(self) -> CorexText_Params:
-        if not self.fitted:
-            raise ValueError("Fit not performed")
-
         return CorexText_Params(
+            fitted_ = self.fitted,
             model_ = self.model, 
             bow_ = self.bow, 
             do_nothing_ = self.do_nothing,
@@ -306,6 +310,7 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
             )
 
     def set_params(self, *, params: CorexText_Params) -> None:
+        self.fitted = params['fitted_']
         self.model = params['model_']
         self.bow = params['bow_']
         self.do_nothing = params['do_nothing_']
