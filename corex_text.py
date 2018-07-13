@@ -30,7 +30,7 @@ from d3m.primitive_interfaces.unsupervised_learning import UnsupervisedLearnerPr
 import config as cfg_
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
-import pandas as pd
+import string
 
 Input = container.DataFrame
 Output = container.DataFrame
@@ -56,6 +56,26 @@ class CorexText_Hyperparams(hyperparams.Hyperparams):
         semantic_types=["http://schema.org/Integer", 'https://metadata.datadrivendiscovery.org/types/TuningParameter']
     )
 
+    # number of Corex latent factors
+    threshold = Uniform(
+        lower = 0,
+        upper = 1000, 
+        default = 0, 
+        q = 1, 
+        description = 'threshold for number of columns in the tfidf matrix below which we don`t call CorEx', 
+        semantic_types=["http://schema.org/Integer", 'https://metadata.datadrivendiscovery.org/types/TuningParameter']
+    )
+
+    # number of Corex latent factors
+    n_grams = Uniform(
+        lower = 1,
+        upper = 1000, 
+        default = 1, 
+        q = 1, 
+        description = 'n_grams parameter to use before feeding in text to TfidfVectorizer', 
+        semantic_types=["http://schema.org/Integer", 'https://metadata.datadrivendiscovery.org/types/TuningParameter']
+    )
+
     # max_df @ http://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.TfidfVectorizer.html
     max_df = Uniform(
         lower = 0.0, 
@@ -74,30 +94,6 @@ class CorexText_Hyperparams(hyperparams.Hyperparams):
         q = .01, 
         description = 'min percent document frequency of analysed terms', 
         semantic_types=["http://schema.org/Float", 'https://metadata.datadrivendiscovery.org/types/TuningParameter']
-    )
-
-    # max_features @ http://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.TfidfVectorizer.html
-    max_features = Union(
-        OrderedDict([
-            ('none', Enumeration([None], default = None)), 
-            ('int_mf', UniformInt(
-                lower = 1000, 
-                upper = 50000, 
-                default = 50000, 
-                upper_inclusive=True, 
-                description = 'max number of terms to use'))]), 
-        default = 'none', 
-        semantic_types=["http://schema.org/Integer", 'https://metadata.datadrivendiscovery.org/types/TuningParameter']
-    )
-
-    # chunking is only used for text datasets
-    chunking = Uniform(
-        lower = 0, 
-        upper = 2000, 
-        default = 0, 
-        q = 100, 
-        description = 'number of tfidf-filtered terms to include as a document, 0 => no chunking.  last chunk may be > param value to avoid small documents', 
-        semantic_types=["http://schema.org/Integer", 'https://metadata.datadrivendiscovery.org/types/TuningParameter']
     )
 
 
@@ -121,7 +117,7 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
         "installation": [ cfg_.INSTALLATION ],
         "algorithm_types": ["EXPECTATION_MAXIMIZATION_ALGORITHM", "LATENT_DIRICHLET_ALLOCATION"],
         "primitive_family": "FEATURE_CONSTRUCTION",
-        "hyperparams_to_tune": ["n_hidden", "chunking", "max_df", "min_df", "max_features"]
+        "hyperparams_to_tune": ["n_hidden", "threshold", "n_grams", "max_df", "min_df"]
     })
 
     def __init__(self, *, hyperparams : CorexText_Hyperparams) -> None: 
@@ -159,8 +155,8 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
             return CallResult(None, True, 1)
 
         # instantiate a corex model and a bag of words model
-        self.model = Corex(n_hidden= self.hyperparams['n_hidden'], max_iter = iterations, seed = self.random_seed)
-        self.bow = TfidfVectorizer(decode_error='ignore', max_df = self.hyperparams['max_df'], min_df = self.hyperparams['min_df'], max_features = self.hyperparams['max_features'])
+        self.model = Corex(n_hidden = self.hyperparams['n_hidden'], max_iter = iterations, seed = self.random_seed)
+        self.bow = TfidfVectorizer(decode_error='ignore', max_df = self.hyperparams['max_df'], min_df = self.hyperparams['min_df'])
 
         # set the number of iterations (for wrapper and underlying Corex model)
         if iterations is not None:
@@ -177,18 +173,19 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
             else:
                 concat_cols = copy.deepcopy(self.training_data.iloc[:,column_index])
 
-        print(concat_cols.head())
+        bow = self.bow.fit_transform(map(self._get_ngrams, concat_cols.ravel()))
 
-        bow = self.bow.fit_transform(concat_cols.ravel())
-
-        self.latent_factors = self.model.fit_transform(bow)
-
-        print(self.latent_factors.head())
+        # choose between CorEx and the TfIdf matrix
+        if bow.shape[1] > self.hyperparams['threshold']:
+            # use CorEx
+            self.latent_factors = self.model.fit_transform(bow)
+        else:
+            # just use the bag of words representation
+            self.latent_factors = pd.DataFrame(bow.todense())
 
         self.fitted = True
 
         return CallResult(None, True, 1)
-
 
     def produce(self, *, inputs : Input, timeout : float = None, iterations : int = None) -> CallResult[Output]: 
         # if corex didn't run for any reason, just return the given dataset
@@ -210,8 +207,15 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
                 concat_cols = concat_cols.str.cat(inputs.iloc[:,column_index], sep = " ")
             else:
                 concat_cols = copy.deepcopy(inputs.iloc[:,column_index])
-        bow = self.bow.transform(concat_cols.ravel())
-        self.latent_factors = self.model.transform(bow).astype(float)
+        bow = self.bow.transform(map(self._get_ngrams, concat_cols.ravel()))
+
+        # choose between CorEx and the TfIdf matrix
+        if bow.shape[1] > self.hyperparams['threshold']:
+            # use CorEx
+            self.latent_factors = self.model.transform(bow).astype(float)
+        else:
+            # just use the bag of words representation
+            self.latent_factors = pd.DataFrame(bow.todense())
 
         # remove the selected columns from input and add the latent factors given by corex
         out_df = d3m_DataFrame(inputs)
@@ -242,6 +246,15 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
         # return CallResult(d3m_DataFrame(self.latent_factors))
         return CallResult(out_df, True, 1)
 
+    def _get_ngrams(self, text : str = None) -> str:
+        words = text.translate(string.punctuation).lower().rsplit(" ")
+
+        new_text = ""
+        for i in range(len(words)):
+            new_text += "".join(words[i : i+self.hyperparams['n_grams']]) + " "
+
+        return new_text
+
     # remove the FileName columns from the data frame and replace them with text
     def _process_files(self, inputs: Input):
         fn_attributes = utils.list_columns_with_semantic_types(metadata=inputs.metadata, semantic_types=["https://metadata.datadrivendiscovery.org/types/FileName"])
@@ -263,8 +276,7 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
             file_loc = file_loc[7:] # get rid of 'file://' prefix
 
             for row_index in range(curr_column.shape[0]):
-                text_file = curr_column[row_index]
-            # for text_file in curr_column:
+                text_file = curr_column.iloc[row_index]
                 file_path = file_loc + text_file
 
                 with open(file_path, 'rb') as file:
