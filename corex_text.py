@@ -69,7 +69,7 @@ class CorexText_Hyperparams(hyperparams.Hyperparams):
     # number of Corex latent factors
     n_grams = Uniform(
         lower = 1,
-        upper = 1000, 
+        upper = 1000,
         default = 1, 
         q = 1, 
         description = 'n_grams parameter to use before feeding in text to TfidfVectorizer', 
@@ -247,7 +247,8 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
         return CallResult(out_df, True, 1)
 
     def _get_ngrams(self, text : str = None) -> str:
-        words = text.translate(string.punctuation).lower().rsplit(" ")
+        punctuation_table = str.maketrans(dict.fromkeys(string.punctuation))
+        words = text.translate(punctuation_table).lower().rsplit(" ")
 
         new_text = ""
         for i in range(len(words)):
