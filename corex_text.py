@@ -236,11 +236,8 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
 
         out_df = utils.append_columns(out_df, corex_df)
 
-        # remove the initial text column from the df, if we do this before CorEx we can get an empty dataset error
-        adjust = 0
-        for column_index in self.text_columns:
-            out_df = utils.remove_columns(out_df, [column_index - adjust])
-            adjust = adjust + 1
+        # remove the initial text columns from the df, if we do this before CorEx we can get an empty dataset error
+        out_df = utils.remove_columns(out_df, self.text_columns)
 
         # TO DO : Incorporate timeout, max_iter
         # return CallResult(d3m_DataFrame(self.latent_factors))
@@ -302,11 +299,8 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
         # concatenate the input with the newly created columns
         updated_inputs = utils.append_columns(inputs, processed_cols)
 
-        # remove the initial text column from the df, if we do this before concatenating we might get an empty dataset error
-        adjust = 0
-        for column_index in fn_columns:
-            updated_inputs = utils.remove_columns(updated_inputs, [column_index - adjust])
-            adjust = adjust + 1
+        # remove the initial FileName columns from the df, if we do this before concatenating we might get an empty dataset error
+        updated_inputs = utils.remove_columns(updated_inputs, fn_columns)
 
         return updated_inputs
 
