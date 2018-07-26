@@ -173,7 +173,13 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
             else:
                 concat_cols = copy.deepcopy(self.training_data.iloc[:,column_index])
 
-        bow = self.bow.fit_transform(map(self._get_ngrams, concat_cols.ravel()))
+        try:
+            bow = self.bow.fit_transform(map(self._get_ngrams, concat_cols.ravel()))
+        except ValueError:
+            self.bow = TfidfVectorizer(decode_error='ignore', max_df = self.hyperparams['max_df'], min_df = 0)
+            bow = self.bow.fit_transform(map(self._get_ngrams, concat_cols.ravel()))
+
+            print("[WARNING] Setting min_df to 0 to avoid ValueError")
 
         # choose between CorEx and the TfIdf matrix
         if bow.shape[1] > self.hyperparams['threshold']:
