@@ -137,23 +137,21 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
 
         self.training_data = self._process_files(self.training_data)
 
+        text_attributes = utils.list_columns_with_semantic_types(metadata=self.training_data.metadata,\
+            semantic_types=["http://schema.org/Text"])
+        all_attributes = utils.list_columns_with_semantic_types(metadata=self.training_data.metadata,\
+            semantic_types=["https://metadata.datadrivendiscovery.org/types/Attribute"])
+        categorical_attributes = utils.list_columns_with_semantic_types(metadata=self.training_data.metadata,\
+            semantic_types=["https://metadata.datadrivendiscovery.org/types/CategoricalData"])
 
-        self.text_columns = [-1]
-            # text_attributes = utils.list_columns_with_semantic_types(metadata=self.training_data.metadata,\
-            #     semantic_types=["http://schema.org/Text"])
-            # all_attributes = utils.list_columns_with_semantic_types(metadata=self.training_data.metadata,\
-            #     semantic_types=["https://metadata.datadrivendiscovery.org/types/Attribute"])
-            # categorical_attributes = utils.list_columns_with_semantic_types(metadata=self.training_data.metadata,\
-            #     semantic_types=["https://metadata.datadrivendiscovery.org/types/CategoricalData"])
+        # want text columns that are attributes
+        self.text_columns = set(all_attributes).intersection(text_attributes)
 
-            # # want text columns that are attributes
-            # self.text_columns = set(all_attributes).intersection(text_attributes)
+        # but, don't want to edit categorical columns
+        self.text_columns = set(self.text_columns) - set(categorical_attributes)
 
-            # # but, don't want to edit categorical columns
-            # self.text_columns = set(self.text_columns) - set(categorical_attributes)
-
-            # # and, we want the text columns as a list 
-            # self.text_columns = list(self.text_columns)
+        # and, we want the text columns as a list 
+        self.text_columns = list(self.text_columns)
 
         # if no text columns are present don't do anything
         self.do_nothing = False
@@ -182,13 +180,11 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
 
         # concatenate the columns row-wise
         concat_cols = None
-        self.concats = []
         for column_index in self.text_columns:
             if concat_cols is not None:
                 concat_cols = concat_cols.str.cat(self.training_data.iloc[:,column_index], sep = " ")
             else:
                 concat_cols = copy.deepcopy(self.training_data.iloc[:,column_index])
-            self.concats.append(self.training_data.columns[column_index])
 
         try:
             bow = self.bow.fit_transform(map(self._get_ngrams, concat_cols.ravel()))
@@ -257,12 +253,10 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
         # concatenate is --VERY-- slow without this next line
         corex_df.index = out_df.index.copy()
 
-        out_df.join(corex_df)
-        #out_df = utils.append_columns(out_df, corex_df)
+        out_df = utils.append_columns(out_df, corex_df)
 
         # remove the initial text columns from the df, if we do this before CorEx we can get an empty dataset error
-        out_df.drop(labels = self.concats, axis = 1)
-        #out_df = utils.remove_columns(out_df, self.text_columns)
+        out_df = utils.remove_columns(out_df, self.text_columns)
 
         # TO DO : Incorporate timeout, max_iter
         # return CallResult(d3m_DataFrame(self.latent_factors))
@@ -282,11 +276,11 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
 
     # remove the FileName columns from the data frame and replace them with text
     def _process_files(self, inputs: Input):
-        #fn_attributes = utils.list_columns_with_semantic_types(metadata=inputs.metadata, \
-        #    semantic_types=["https://metadata.datadrivendiscovery.org/types/FileName"])
-        #all_attributes = utils.list_columns_with_semantic_types(metadata=inputs.metadata, \
-        #    semantic_types=["https://metadata.datadrivendiscovery.org/types/Attribute"])
-        #fn_columns = list(set(all_attributes).intersection(fn_attributes))
+        fn_attributes = utils.list_columns_with_semantic_types(metadata=inputs.metadata, \
+            semantic_types=["https://metadata.datadrivendiscovery.org/types/FileName"])
+        all_attributes = utils.list_columns_with_semantic_types(metadata=inputs.metadata, \
+            semantic_types=["https://metadata.datadrivendiscovery.org/types/Attribute"])
+        fn_columns = list(set(all_attributes).intersection(fn_attributes))
 
         # if no file name columns are detected, default to regular behavior
         if len(fn_columns) == 0:
