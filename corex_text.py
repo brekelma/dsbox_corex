@@ -107,7 +107,8 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
         "version": "1.0.0",
         "name": "CorexText",
         "description": "Learns latent factors / topics which explain the most multivariate information in bag of words representations of documents. Returns learned topic scores for each document. Also supports hierarchical models and 'anchoring' to encourage topics to concentrate around desired words.",
-        "python_path": "d3m.primitives.feature_construction.corex_text.CorexText",
+        "python_path": "d3m.primitives.dsbox.corex_text.CorexText",
+        #"python_path": "d3m.primitives.feature_construction.corex_text.CorexText",
         "original_python_path": "corextext.corex_text.CorexText",
         "source": {
             "name": "ISI",
