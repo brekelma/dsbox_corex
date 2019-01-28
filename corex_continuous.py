@@ -33,6 +33,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 Input = container.DataFrame
 Output = container.ndarray
 
+
 class CorexContinuous_Params(params.Params):
     model:typing.Union[corex_cont.Corex, None]
     #fitted: bool
@@ -60,7 +61,7 @@ class CorexContinuous(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexConti
       "version": "1.0.0",
       "name": "CorexContinuous",
       "description": "Return components/latent factors that explain the most multivariate mutual information in the data under Linear Gaussian model. For comparison, PCA returns components explaining the most variance in the data.",
-      "python_path": "d3m.primitives.dsbox.CorexContinuous",
+      "python_path": "d3m.primitives.feature_construction.corex_continuous.CorexContinuous",
       "original_python_path": "corexcontinuous.corex_continuous.CorexContinuous",
       "source": {
             "name": "ISI",
@@ -87,7 +88,7 @@ class CorexContinuous(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexConti
         #tol : float = 1e-5, anneal : bool = True, discourage_overlap : bool = True, gaussianize : str = 'standard',  
         #gpu : bool = False, verbose : bool = False, seed : int = None, **kwargs) -> None:
         
-        super().__init__(hyperparams = hyperparams)# random_seed = random_seed, docker_containers = docker_containers)
+        super(CorexContinuous, self).__init__(hyperparams = hyperparams)# random_seed = random_seed, docker_containers = docker_containers)
         
 
 
@@ -145,7 +146,7 @@ class CorexContinuous(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexConti
         self.fitted = True
         return self.latent_factors
 
-    def set_training_data(self, *, inputs : Input, outputs : Output) -> None:
+    def set_training_data(self, *, inputs : Input) -> None:
         self.training_inputs = inputs
         self.fitted = False
 

@@ -33,7 +33,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import string
 
 Input = container.DataFrame
-Output = container.DataFrame
+Output = container.DataFrame #typing.Union[container.DataFrame, None]
 
 class CorexText_Params(params.Params):
     fitted_: typing.Union[bool, None]
@@ -107,7 +107,7 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
         "version": "1.0.0",
         "name": "CorexText",
         "description": "Learns latent factors / topics which explain the most multivariate information in bag of words representations of documents. Returns learned topic scores for each document. Also supports hierarchical models and 'anchoring' to encourage topics to concentrate around desired words.",
-        "python_path": "d3m.primitives.dsbox.CorexText",
+        "python_path": "d3m.primitives.feature_construction.corex_text.CorexText",
         "original_python_path": "corextext.corex_text.CorexText",
         "source": {
             "name": "ISI",
@@ -121,7 +121,7 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
     })
 
     def __init__(self, *, hyperparams : CorexText_Hyperparams) -> None: 
-        super().__init__(hyperparams = hyperparams)
+        super(CorexText, self).__init__(hyperparams = hyperparams)
 
     # instantiate data and create model and bag of words
     def set_training_data(self, *, inputs : Input) -> None:
@@ -260,6 +260,8 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
         # TO DO : Incorporate timeout, max_iter
         # return CallResult(d3m_DataFrame(self.latent_factors))
         return CallResult(out_df, True, 1)
+
+    #def fit_multi_produce(self, ):
 
     def _get_ngrams(self, text : str = None) -> str:
         punctuation_table = str.maketrans(dict.fromkeys(string.punctuation))
