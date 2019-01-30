@@ -71,7 +71,7 @@ class Corex(object):
 
     def __init__(self, n_hidden=10, max_iter=10000, tol=1e-5, anneal=True, missing_values=None,
                  discourage_overlap=True, gaussianize='standard', gpu=False,
-                 verbose=False, seed=None):
+                 verbose=False, seed=None, precision = 10**-8):
         self.m = n_hidden  # Number of latent factors to learn
         self.max_iter = max_iter  # Number of iterations to try
         self.tol = tol  # Threshold for convergence
@@ -91,7 +91,7 @@ class Corex(object):
         if verbose:
             np.set_printoptions(precision=3, suppress=True, linewidth=160)
             print(('Linear CorEx with {:d} latent factors'.format(n_hidden)))
-
+        self.precision = precision*1.0
         # Initialize these when we fit on data
         self.n_samples, self.nv = 0, 0  # Number of samples/variables in input data
         self.ws = np.zeros((0, 0))  # m by nv array of weights
