@@ -2,7 +2,8 @@ from sklearn import preprocessing
 #import primitive
 import sys
 import os
-import corexcontinuous.linearcorex.linearcorex.linearcorex as corex_cont
+import linearcorex.linearcorex.linearcorex as corex_cont
+#import linearcorex.linearcorex.linearcorex as corex_cont
 #import LinearCorex.linearcorex as corex_cont
 from collections import defaultdict, OrderedDict
 from scipy import sparse
@@ -15,20 +16,25 @@ import d3m.container as container
 import d3m.metadata.hyperparams as hyperparams
 import d3m.metadata.params as params
 from d3m.metadata.base import PrimitiveMetadata
+import d3m.metadata.base as mbase
 
 from d3m.primitive_interfaces.unsupervised_learning import UnsupervisedLearnerPrimitiveBase
 from d3m.primitive_interfaces.base import CallResult
 #from d3m.primitive_interfaces.params import Params
 from d3m.metadata.hyperparams import Uniform, UniformInt, Union, Enumeration
+from d3m.container import DataFrame as d3m_DataFrame
 
 from typing import NamedTuple, Optional, Sequence, Any
 import typing
+
+import config as cfg_
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 #from .. import config
 
 Input = container.DataFrame
-Output = container.ndarray
+Output = container.DataFrame
+
 
 class CorexContinuous_Params(params.Params):
     model:typing.Union[corex_cont.Corex, None]
@@ -41,7 +47,9 @@ class CorexContinuous_Params(params.Params):
 class CorexContinuous_Hyperparams(hyperparams.Hyperparams):
     n_hidden = Union(OrderedDict([('n_hidden int' , hyperparams.Uniform(lower = 1, upper = 50, default = 2, q = 1, description = 'number of hidden factors learned')),
         ('n_hidden pct' , hyperparams.Uniform(lower = 0, upper = .50, default = .2, q = .05, description = 'number of hidden factors as percentage of # input columns'))]), 
-        default = 'n_hidden pct')
+        default = 'n_hidden pct', semantic_types=[
+        'https://metadata.datadrivendiscovery.org/types/TuningParameter'
+    ])
 
 
 class CorexContinuous(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexContinuous_Params, CorexContinuous_Hyperparams]):  #(Primitive):
@@ -55,19 +63,20 @@ class CorexContinuous(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexConti
       "version": "1.0.0",
       "name": "CorexContinuous",
       "description": "Return components/latent factors that explain the most multivariate mutual information in the data under Linear Gaussian model. For comparison, PCA returns components explaining the most variance in the data.",
-      "python_path": "d3m.primitives.dsbox.CorexContinuous",
+      #"python_path": "d3m.primitives.dsbox.corex_continuous.CorexContinuous",
+      "python_path": "d3m.primitives.feature_construction.corex_continuous.CorexContinuous",
       "original_python_path": "corexcontinuous.corex_continuous.CorexContinuous",
       "source": {
             "name": "ISI",
             "contact": 'mailto:brekelma@usc.edu',
             "uris": [ 'https://github.com/brekelma/dsbox_corex' ]
             },
-      "installation":
-            {
-             'type': 'PIP', 
-             'package_uri': 'git+https://github.com/brekelma/dsbox_corex.git@7381c3ed2d41a8dbe96bbf267a915a0ec48ee397#egg=dsbox-corex'#+ str(git.Repo(search_parent_directories = True).head.object.hexsha) + '#egg=dsbox-corex'
-            }
-        ,
+      "installation": [ cfg_.INSTALLATION ],
+            #[ {
+            # 'type': 'PIP', 
+            # 'package_uri': 'git+https://github.com/brekelma/dsbox_corex.git@7381c3ed2d41a8dbe96bbf267a915a0ec48ee397#egg=dsbox-corex'#+ str(git.Repo(search_parent_directories = True).head.object.hexsha) + '#egg=dsbox-corex'
+            #}
+      #],
       "algorithm_types": ["EXPECTATION_MAXIMIZATION_ALGORITHM"],
       "primitive_family": "FEATURE_CONSTRUCTION",
       "preconditions": ["NO_MISSING_VALUES", "NO_CATEGORICAL_VALUES"],
@@ -82,7 +91,7 @@ class CorexContinuous(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexConti
         #tol : float = 1e-5, anneal : bool = True, discourage_overlap : bool = True, gaussianize : str = 'standard',  
         #gpu : bool = False, verbose : bool = False, seed : int = None, **kwargs) -> None:
         
-        super().__init__(hyperparams = hyperparams)# random_seed = random_seed, docker_containers = docker_containers)
+        super(CorexContinuous, self).__init__(hyperparams = hyperparams)# random_seed = random_seed, docker_containers = docker_containers)
         
 
 
@@ -112,7 +121,21 @@ class CorexContinuous(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexConti
 
         self.latent_factors = self.model.transform(X_)
 
-        return CallResult(self.latent_factors, True, self.max_iter)
+        out_df = d3m_DataFrame(inputs)
+        corex_df = d3m_DataFrame(self.latent_factors)
+
+        for column_index in range(corex_df.shape[1]):
+            col_dict = dict(corex_df.metadata.query((mbase.ALL_ELEMENTS, column_index)))
+            col_dict['structural_type'] = type(1.0)
+            # FIXME: assume we apply corex only once per template, otherwise column names might duplicate
+            col_dict['name'] = 'corex_' + str(out_df.shape[1] + column_index)
+            col_dict['semantic_types'] = ('http://schema.org/Float', 'https://metadata.datadrivendiscovery.org/types/Attribute')
+
+            corex_df.metadata = corex_df.metadata.update((mbase.ALL_ELEMENTS, column_index), col_dict)
+        corex_df.index = out_df.index.copy()
+
+        out_df = utils.append_columns(out_df, corex_df)
+        return CallResult(out_df, True, self.max_iter)
 
     def _fit_transform(self, inputs : Input, timeout: float = None, iterations : int = None) -> Sequence[Output]:
         
@@ -140,7 +163,7 @@ class CorexContinuous(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexConti
         self.fitted = True
         return self.latent_factors
 
-    def set_training_data(self, *, inputs : Input, outputs : Output) -> None:
+    def set_training_data(self, *, inputs : Input) -> None:
         self.training_inputs = inputs
         self.fitted = False
 
