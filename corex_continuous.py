@@ -21,6 +21,7 @@ from d3m.primitive_interfaces.unsupervised_learning import UnsupervisedLearnerPr
 from d3m.primitive_interfaces.base import CallResult
 #from d3m.primitive_interfaces.params import Params
 from d3m.metadata.hyperparams import Uniform, UniformInt, Union, Enumeration
+from d3m.container import DataFrame as d3m_DataFrame
 
 from typing import NamedTuple, Optional, Sequence, Any
 import typing
@@ -31,7 +32,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 #from .. import config
 
 Input = container.DataFrame
-Output = container.ndarray
+Output = container.DataFrame
 
 
 class CorexContinuous_Params(params.Params):
@@ -119,7 +120,21 @@ class CorexContinuous(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexConti
 
         self.latent_factors = self.model.transform(X_)
 
-        return CallResult(self.latent_factors, True, self.max_iter)
+        out_df = d3m_DataFrame(inputs)
+        corex_df = d3m_DataFrame(self.latent_factors)
+
+        for column_index in range(corex_df.shape[1]):
+            col_dict = dict(corex_df.metadata.query((mbase.ALL_ELEMENTS, column_index)))
+            col_dict['structural_type'] = type(1.0)
+            # FIXME: assume we apply corex only once per template, otherwise column names might duplicate
+            col_dict['name'] = 'corex_' + str(out_df.shape[1] + column_index)
+            col_dict['semantic_types'] = ('http://schema.org/Float', 'https://metadata.datadrivendiscovery.org/types/Attribute')
+
+            corex_df.metadata = corex_df.metadata.update((mbase.ALL_ELEMENTS, column_index), col_dict)
+        corex_df.index = out_df.index.copy()
+
+        out_df = utils.append_columns(out_df, corex_df)
+        return CallResult(out_df, True, self.max_iter)
 
     def _fit_transform(self, inputs : Input, timeout: float = None, iterations : int = None) -> Sequence[Output]:
         
