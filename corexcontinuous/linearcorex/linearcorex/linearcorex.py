@@ -71,7 +71,7 @@ class Corex(object):
 
     def __init__(self, n_hidden=10, max_iter=10000, tol=1e-5, anneal=True, missing_values=None,
                  discourage_overlap=True, gaussianize='standard', gpu=False,
-                 verbose=False, seed=None):
+                 verbose=False, precision = 1e-8, seed=None):
         self.m = n_hidden  # Number of latent factors to learn
         self.max_iter = max_iter  # Number of iterations to try
         self.tol = tol  # Threshold for convergence
@@ -91,7 +91,8 @@ class Corex(object):
         if verbose:
             np.set_printoptions(precision=3, suppress=True, linewidth=160)
             print(('Linear CorEx with {:d} latent factors'.format(n_hidden)))
-
+        
+        self.precision = precision
         # Initialize these when we fit on data
         self.n_samples, self.nv = 0, 0  # Number of samples/variables in input data
         self.ws = np.zeros((0, 0))  # m by nv array of weights
@@ -258,7 +259,7 @@ class Corex(object):
         m["ry"] = ws.dot(m["rho"].T)  # normalized covariance of Y
         m["Y_j^2"] = self.yscale ** 2 / (1. - m["uj"])
         np.fill_diagonal(m["ry"], 1)
-        m["invrho"] = 1. / (1. - m["rho"]**2)
+        m["invrho"] = 1. / (1. - m["rho"]**2+self.precision)
         m["rhoinvrho"] = m["rho"] * m["invrho"]
         m["Qij"] = np.dot(m['ry'], m["rhoinvrho"])
         m["Qi"] = np.einsum('ki,ki->i', m["rhoinvrho"], m["Qij"])
@@ -267,8 +268,8 @@ class Corex(object):
 
         # This is the objective, a lower bound for TC
         m["TC"] = np.sum(np.log(1 + m["Si"])) \
-                     - 0.5 * np.sum(np.log(1 - m["Si"]**2 + m["Qi"])) \
-                     + 0.5 * np.sum(np.log(1 - m["uj"]))
+                     - 0.5 * np.sum(np.log(1 - m["Si"]**2 + m["Qi"]+self.precision)) \
+                     + 0.5 * np.sum(np.log(1 - m["uj"]+self.precision))
 
         if not quick:
             m["MI"] = - 0.5 * np.log1p(-m["rho"]**2)
