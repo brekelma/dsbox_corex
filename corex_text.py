@@ -9,7 +9,7 @@ import pandas as pd
 import numpy as np
 
 from collections import defaultdict, OrderedDict
-#from common_primitives import utils
+from common_primitives import utils
 from corextext.corex_topic import Corex
 from scipy import sparse as sp
 
