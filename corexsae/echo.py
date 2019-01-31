@@ -5,8 +5,18 @@ import tensorflow as tf
 import keras.backend as K
 import numpy as np
 
+# RECOMMENDED PARAMETERS:
+# echo inputs : [f(X), s(X)] with f(X) having tanh_act, s(X) with activation = tf.math.log_sigmoid (or softplus)
+# set d_max = batch
+# clip ensures noise truncates :  choose 2^(-23/batch) for this tanh_act (magnitude <= 1)
+# plus_sx = True if s(X) = log_sigmoid else False, calc_log should be True unless you feed an actual sigmoid s(X)
 
-def permute_neighbor_indices(batch_size, d_max=-1, replace = True):
+
+def tanh_act(x, y = 64):
+	return (K.exp(1.0/y*x)-K.exp(-1.0/y*x))/(K.exp(1.0/y*x)+K.exp(-1.0/y*x)+K.epsilon())
+
+
+def permute_neighbor_indices(batch_size, d_max=-1, replace = False):
       """Produce an index tensor that gives a permuted matrix of other samples in batch, per sample.  
 		 Also adapted to handle sampling with replacement using option replace = True
       
@@ -32,7 +42,7 @@ def permute_neighbor_indices(batch_size, d_max=-1, replace = True):
             inds.append(list(enumerate(np.random.choice(batch_size, size = d_max, replace = True))))
         return inds
 
-def echo_sample(inputs, clip = 0.85,  d_max = 50, batch = 100, multiplicative = False, replace = True, fx_clip = None, plus_sx = False, return_noise = False, fx_act = None, sx_act = None, calc_log = False):
+def echo_sample(inputs, clip = 0.85,  d_max = 100, batch = 100, multiplicative = False, replace = False, fx_clip = None, plus_sx = False, return_noise = False, calc_log = True):
 
 	# inputs should be specified as list : [ f(X), s(X) ] with s(X) in log space if calc_log = True 
 	# plus_sx = True if logsigmoid activation for s(X), False for softplus (equivalent)
