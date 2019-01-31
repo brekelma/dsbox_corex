@@ -42,7 +42,7 @@ def permute_neighbor_indices(batch_size, d_max=-1, replace = False):
             inds.append(list(enumerate(np.random.choice(batch_size, size = d_max, replace = True))))
         return inds
 
-def echo_sample(inputs, clip = 0.85,  d_max = 100, batch = 100, multiplicative = False, replace = False, fx_clip = None, plus_sx = False, return_noise = False, calc_log = True):
+def echo_sample(inputs, clip = 0.85,  d_max = 100, batch = 100, multiplicative = False, replace = False, fx_clip = None, plus_sx = True, return_noise = False, calc_log = True):
 
 	# inputs should be specified as list : [ f(X), s(X) ] with s(X) in log space if calc_log = True 
 	# plus_sx = True if logsigmoid activation for s(X), False for softplus (equivalent)
@@ -106,7 +106,7 @@ def echo_sample(inputs, clip = 0.85,  d_max = 100, batch = 100, multiplicative =
 
 
 
-def echo_loss(inputs, d_max = 50, clip= 0.85, binary_input = True, calc_log = False, plus_sx = False):
+def echo_loss(inputs, d_max = 100, clip= 0.85, binary_input = True, calc_log = True, plus_sx = True):
     # input is either [ f(X), s(X) ] or just s(X)
     if isinstance(inputs, list):
         cap_param = inputs[-1]
