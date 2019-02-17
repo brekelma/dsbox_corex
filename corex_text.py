@@ -289,7 +289,8 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
         # create an empty DataFrame of the required size
         processed_cols = pd.DataFrame("", index = copy.deepcopy(inputs.index), columns = ['text_files_' + str(i) for i in range(len(fn_columns))])
 
-        for column_index in range(len(fn_columns)):
+        # for column_index in range(len(fn_columns)):
+        for column_index in fn_columns:
             curr_column = copy.deepcopy(inputs.iloc[:, column_index])
 
             file_loc = inputs.metadata.query((mbase.ALL_ELEMENTS, column_index))['location_base_uris']
@@ -305,7 +306,7 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
                 doc = "".join(map(chr, doc))
                 doc_tokens = re.compile(r"(?u)\b\w\w+\b").findall(doc) # list of strings
 
-                processed_cols.iloc[row_index, column_index] = " ".join(doc_tokens)
+                processed_cols.iloc[row_index, fn_columns.index(column_index)] = " ".join(doc_tokens)
 
         # construct metadata for the newly generated columns
         processed_cols = d3m_DataFrame(processed_cols)
