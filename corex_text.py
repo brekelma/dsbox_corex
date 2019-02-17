@@ -56,7 +56,7 @@ class CorexText_Hyperparams(hyperparams.Hyperparams):
         semantic_types=["http://schema.org/Integer", 'https://metadata.datadrivendiscovery.org/types/TuningParameter']
     )
 
-    # number of Corex latent factors
+    # 
     threshold = Uniform(
         lower = 0,
         upper = 1000, 
@@ -66,7 +66,7 @@ class CorexText_Hyperparams(hyperparams.Hyperparams):
         semantic_types=["http://schema.org/Integer", 'https://metadata.datadrivendiscovery.org/types/TuningParameter']
     )
 
-    # number of Corex latent factors
+    # 
     n_grams = Uniform(
         lower = 1,
         upper = 1000,
@@ -235,6 +235,8 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
         else:
             # just use the bag of words representation
             self.latent_factors = pd.DataFrame(bow.todense())
+        # make the columns corex adds distinguishable from other columns
+        self.latent_factors.columns = ['corex_' + str(i) for i in range(self.latent_factors.shape[-1])]
 
         # remove the selected columns from input and add the latent factors given by corex
         out_df = d3m_DataFrame(inputs)
@@ -287,7 +289,8 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
             return inputs
 
         # create an empty DataFrame of the required size
-        processed_cols = pd.DataFrame("", index = copy.deepcopy(inputs.index), columns = ['text_files_' + str(i) for i in range(len(fn_columns))])
+        processed_cols = pd.DataFrame("", index = copy.deepcopy(inputs.index), \
+            columns = ['text_files_' + str(i) for i in range(len(fn_columns))])
 
         # for column_index in range(len(fn_columns)):
         for column_index in fn_columns:
