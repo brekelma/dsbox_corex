@@ -13,6 +13,7 @@ import numpy as np
 
 
 def tanh_act(x, y = 64):
+	# tanh with extended linear range based on y
 	return (K.exp(1.0/y*x)-K.exp(-1.0/y*x))/(K.exp(1.0/y*x)+K.exp(-1.0/y*x)+K.epsilon())
 
 
@@ -42,7 +43,7 @@ def permute_neighbor_indices(batch_size, d_max=-1, replace = False):
             inds.append(list(enumerate(np.random.choice(batch_size, size = d_max, replace = True))))
         return inds
 
-def echo_sample(inputs, clip = 0.85,  d_max = 100, batch = 100, multiplicative = False, replace = False, fx_clip = None, plus_sx = True, return_noise = False, calc_log = True):
+def echo_sample(inputs, clip = 0.85,  d_max = 100, batch = 100, multiplicative = False, replace = False, fx_clip = None, plus_sx = True, return_noise = False, noisemc = True, calc_log = True):
 
 	# inputs should be specified as list : [ f(X), s(X) ] with s(X) in log space if calc_log = True 
 	# plus_sx = True if logsigmoid activation for s(X), False for softplus (equivalent)
@@ -51,11 +52,6 @@ def echo_sample(inputs, clip = 0.85,  d_max = 100, batch = 100, multiplicative =
       z_scale_echo = inputs[-1]
     else:
       z_mean = inputs
-
-    try:
-      shp = K.int_shape(z_mean)
-    except:
-      shp = z_mean.shape
       
     # clipping can also be used to limit magnitude of f(x), not used in paper
     if fx_clip is not None: 
@@ -66,6 +62,7 @@ def echo_sample(inputs, clip = 0.85,  d_max = 100, batch = 100, multiplicative =
       # necesssary clip for cumprod gradients
       cap_param = tf.where(tf.abs(cap_param) < K.epsilon(), K.epsilon()*tf.sign(cap_param), cap_param)
     else:
+	# plus_sx based on activation for z_scale_echo = s(x) : true for log_sigmoid , false for softplus
       cap_param = tf.log(clip) + (-1*z_scale_echo if not plus_sx else z_scale_echo)
 
     inds = permute_neighbor_indices(batch, d_max, replace = replace)
@@ -89,7 +86,9 @@ def echo_sample(inputs, clip = 0.85,  d_max = 100, batch = 100, multiplicative =
    
     noise_tensor = tf.reduce_sum(noise_times_sample, axis = 1)
 
-    noise_tensor -= tf.reduce_mean(noise_tensor, axis=0) # 0 mean noise : ends up being 1 x m
+    
+    if noisemc:
+	noise_tensor -= tf.reduce_mean(noise_tensor, axis=0) # 0 mean noise : ends up being 1 x m
     
 
     
