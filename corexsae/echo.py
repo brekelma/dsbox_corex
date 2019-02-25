@@ -12,6 +12,11 @@ import numpy as np
 # plus_sx = True if s(X) = log_sigmoid else False, calc_log should be True unless you feed an actual sigmoid s(X)
 
 
+# you can think about parametrizing an "Echo Block" similarly to a VAE:
+# fx = Dense(latent_dim, activation = tanh_act)(h)
+# sx = Dense(latent_dim, activation = tf.math.log_sigmoid)(h)
+# echo_act = Lambda(echo_sample, arguments = arg_dict)([fx,sx])
+
 def tanh_act(x, y = 64):
 	# tanh with extended linear range based on y
 	return (K.exp(1.0/y*x)-K.exp(-1.0/y*x))/(K.exp(1.0/y*x)+K.exp(-1.0/y*x)+K.epsilon())
