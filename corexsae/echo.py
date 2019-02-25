@@ -89,8 +89,10 @@ def echo_sample(inputs, clip = None,  d_max = 100, batch = 100, multiplicative =
       noise_sx_product = tf.cumprod(stack_dmax, axis = 1, exclusive = True)
     
     noise_sx_product = tf.exp(noise_sx_product) if calc_log else noise_sx_product
+    # calculates S(x0)S(x1)...S(x_l)*f(x_(l+1))
     noise_times_sample = tf.multiply(stack_zmean, noise_sx_product)
    
+    # performs the sum over dmax terms to calculate noise
     noise_tensor = tf.reduce_sum(noise_times_sample, axis = 1)
 
     
