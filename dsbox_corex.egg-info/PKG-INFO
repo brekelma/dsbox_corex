@@ -1,0 +1,14 @@
+Metadata-Version: 1.1
+Name: dsbox-corex
+Version: 1.0.0
+Summary: Return components/latent factors that explain the most multivariate mutual information in the data under Linear Gaussian model. For comparison, PCA returns components explaining the most variance in the data.
+Home-page: https://github.com/brekelma/dsbox_corex
+Author: Rob Brekelmans/Greg Ver Steeg
+Author-email: brekelma@usc.edu
+License: AGPL-3.0
+Download-URL: https://github.com/brekelma/dsbox_corex
+Description: UNKNOWN
+Keywords: d3m_primitive
+Platform: UNKNOWN
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3.5
