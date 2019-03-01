@@ -234,6 +234,7 @@ class Corex(object):
         """Calculate moments based on the weights and samples. We also calculate and save MI, TC, additivity, and
         the value of the objective. Note it is assumed that <X_i^2> = 1! """
         m = {}  # Dictionary of moments
+        eps = 10**-8
         if self.gpu:
             y = cm.empty((self.n_samples, self.m))
             wc = cm.CUDAMatrix(ws)
@@ -256,9 +257,9 @@ class Corex(object):
             tmp_dot = x.T.dot(y)
         m["rho"] = (1 - self.eps**2) * tmp_dot.T / self.n_samples + self.eps**2 * ws  # m by nv
         m["ry"] = ws.dot(m["rho"].T)  # normalized covariance of Y
-        m["Y_j^2"] = self.yscale ** 2 / (1. - m["uj"])
+        m["Y_j^2"] = self.yscale ** 2 / (1. - m["uj"]+eps)
         np.fill_diagonal(m["ry"], 1)
-        m["invrho"] = 1. / (1. - m["rho"]**2)
+        m["invrho"] = 1. / (1. - m["rho"]**2+eps)
         m["rhoinvrho"] = m["rho"] * m["invrho"]
         m["Qij"] = np.dot(m['ry'], m["rhoinvrho"])
         m["Qi"] = np.einsum('ki,ki->i', m["rhoinvrho"], m["Qij"])
@@ -267,8 +268,8 @@ class Corex(object):
 
         # This is the objective, a lower bound for TC
         m["TC"] = np.sum(np.log(1 + m["Si"])) \
-                     - 0.5 * np.sum(np.log(1 - m["Si"]**2 + m["Qi"])) \
-                     + 0.5 * np.sum(np.log(1 - m["uj"]))
+                     - 0.5 * np.sum(np.log(1 - m["Si"]**2 + m["Qi"]+eps)) \
+                     + 0.5 * np.sum(np.log(1 - m["uj"]+eps))
 
         if not quick:
             m["MI"] = - 0.5 * np.log1p(-m["rho"]**2)
@@ -286,13 +287,14 @@ class Corex(object):
     def _update_ns(self, x):
         """Perform one update of the weights and re-calculate moments in the NON-SYNERGISTIC case."""
         m = self.moments
+        eps = 10**-8
         rj = 1. - m["uj"][:, np.newaxis]
-        H = np.dot(m["rhoinvrho"] / (1 + m["Qi"] - m["Si"]**2), m["rhoinvrho"].T)
+        H = np.dot(m["rhoinvrho"] / (1 + m["Qi"] - m["Si"]**2+eps), m["rhoinvrho"].T)
         np.fill_diagonal(H, 0)
         grad = self.ws / rj
-        grad -= 2 * m["invrho"] * m["rhoinvrho"] / (1 + m["Si"])
+        grad -= 2 * m["invrho"] * m["rhoinvrho"] / (1 + m["Si"]+eps)
         grad += m["invrho"]**2 * \
-               ((1 + m["rho"]**2) * m["Qij"] - 2 * m["rho"] * m["Si"]) / (1 - m["Si"]**2 + m["Qi"])
+               ((1 + m["rho"]**2) * m["Qij"] - 2 * m["rho"] * m["Si"]) / (1 - m["Si"]**2 + m["Qi"]+eps)
         grad += np.dot(H, self.ws)
         sig_grad = self._sig(x, grad)
         Bj = np.sum(m["rho"] * grad, axis=1, keepdims=True)
@@ -327,6 +329,7 @@ class Corex(object):
         """Calculate moments based on the weights and samples. We also calculate and save MI, TC, additivity, and
         the value of the objective. Note it is assumed that <X_i^2> = 1! """
         m = {}  # Dictionary of moments
+        eps = 10**-8
         if self.gpu:
             y = cm.empty((self.n_samples, self.m))
             wc = cm.CUDAMatrix(ws)

@@ -1,0 +1,4 @@
+[d3m.primitives]
+feature_construction.corex_continuous.CorexContinuous = corex_continuous:CorexContinuous
+feature_construction.corex_text.CorexText = corex_text:CorexText
+

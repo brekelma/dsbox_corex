@@ -39,7 +39,7 @@ Output = container.DataFrame
 
 class CorexContinuous_Params(params.Params):
     model:typing.Union[corex_cont.Corex, None]
-    #fitted: bool
+    fitted_: bool
     #training_inputs: Input
 
     # add support for resuming training / storing model information
@@ -97,8 +97,9 @@ class CorexContinuous(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexConti
 
 
     def fit(self, *, timeout: float = None, iterations : int = None) -> CallResult[None]:
+        #try:
         if self.fitted:
-            return
+            return CallResult(None, True, 1)
         if not hasattr(self, 'training_inputs'):
             raise ValueError("Missing training data.")
 
@@ -117,8 +118,11 @@ class CorexContinuous(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexConti
         else:
             self.max_iter = 10000
 
+        #try:
         if not self.fitted:
             raise ValueError('Please fit before calling produce')
+        #except:
+        #    pass
 
         self.latent_factors = self.model.transform(X_)
 
@@ -169,11 +173,11 @@ class CorexContinuous(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexConti
         self.fitted = False
 
     def get_params(self) -> CorexContinuous_Params:
-        return CorexContinuous_Params(model = self.model)
+        return CorexContinuous_Params(model = self.model, fitted_ = self.fitted)
 
     def set_params(self, *, params: CorexContinuous_Params) -> None:
         self.model = params['model']
-        #self.fitted = params.fitted
+        self.fitted = params['fitted_']
         #self.training_inputs = params.training_inputs
 
 
