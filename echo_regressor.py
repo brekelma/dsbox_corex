@@ -114,13 +114,13 @@ class EchoLinearRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoReg
         return CallResult(None, True, 1)
 
 
-        def produce(self, *, inputs: Input, timeout: float = None, iterations: int = None) -> CallResult[Output]:
-            result = d3m_DataFrame(self.model.produce(inputs))
-            return CallResult(result, True, 1)
+    def produce(self, *, inputs: Input, timeout: float = None, iterations: int = None) -> CallResult[Output]:
+        result = d3m_DataFrame(self.model.produce(inputs))
+        return CallResult(result, True, 1)
 
 
-        def get_params(self) -> SearchParams:
-                return EchoRegressor_Params(fitted_ = self.fitted, model_= self.model)
+    def get_params(self) -> EchoRegressor_Params:
+        return EchoRegressor_Params(fitted_ = self.fitted, model_= self.model)
 
         """
         Sets all the search parameters from a Params object
@@ -128,10 +128,10 @@ class EchoLinearRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoReg
         :type: boolean
         :type: Double
         """
-        def set_params(self, *, params: SearchParams) -> base.CallResult[None]:
-                self.fitted = params['fitted_']
-                self.model = params['model_']
-                return CallResult(None)
+    def set_params(self, *, params: EchoRegressor_Params) -> CallResult[None]:
+        self.fitted = params['fitted_']
+        self.model = params['model_']
+        return CallResult(None, True, 1)
 
 
 
