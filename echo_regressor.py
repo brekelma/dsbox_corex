@@ -65,8 +65,7 @@ class EchoRegressor_Hyperparams(hyperparams.Hyperparams):
 
 class EchoLinearRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoRegressor_Params, EchoRegressor_Hyperparams]):  #(Primitive):
     """
-    Least squares regression with information capacity constraint from echo noise.
-    Minimizes the objective function::
+    Least squares regression with information capacity constraint from echo noise. Minimizes the objective function::
     E(y - y_hat)^2 + alpha * I(X,y)
     where, X_bar = X + S * echo noise, y_hat = X_bar w + w_0,
     so that I(X,y) <= -log det S,
@@ -97,13 +96,13 @@ class EchoLinearRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoReg
         super().__init__(hyperparams = hyperparams)
 
     # instantiate data and create model and bag of words
-    def set_training_data(self, *, inputs: Input, outputs: Output) -> CallResult:
+    def set_training_data(self, *, inputs: Input, outputs: Output) -> None:
         self.training_data = inputs
         self.labels = outputs
         self.fitted = False
          
     # assumes input as data-frame and do prediction on the 'text' labeled columns
-    def fit(self, *, timeout : float = None, iterations : int = None) -> CallResult:
+    def fit(self, *, timeout : float = None, iterations : int = None) -> CallResult[None]:
         # if already fitted, do nothing
         if self.fitted:
             return CallResult(None, True, 1)
@@ -115,8 +114,9 @@ class EchoLinearRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoReg
         return CallResult(None, True, 1)
 
 
-        def produce(self, *, inputs: Input, timeout: float = None, iterations: int = None) -> CallResult:
-                return CallResult(self.model.produce(inputs), True, 1)
+        def produce(self, *, inputs: Input, timeout: float = None, iterations: int = None) -> CallResult[Output]:
+            result = d3m_DataFrame(self.model.produce(inputs))
+            return CallResult(result, True, 1)
 
 
         def get_params(self) -> SearchParams:

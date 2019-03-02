@@ -192,7 +192,7 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAE_P
         return CallResult(None, True, self.hyperparams["epochs"])
 
     def produce(self, *, inputs : Input, timeout : float = None, iterations : int = None) -> CallResult[Output]: # TAKES IN DF with index column
-        return CallResult(self.model.predict(inputs), True, 0)
+        return CallResult(d3m_DataFrame(self.model.predict(inputs)), True, 0)
 
     def set_training_data(self, *, inputs : Input, outputs: Output) -> None:
         self.training_inputs = inputs
