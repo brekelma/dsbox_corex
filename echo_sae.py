@@ -192,7 +192,7 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAE_P
 
     def set_training_data(self, *, inputs : Input, outputs: Output) -> None:
         self.training_inputs = inputs
-        #target_vals = np.unique(outputs).shape[0]
+        self._label_unique = np.unique(outputs).shape[0]
         self.training_outputs = to_categorical(outputs, num_classes = np.unique(outputs).shape[0])
         self.fitted = False
         
