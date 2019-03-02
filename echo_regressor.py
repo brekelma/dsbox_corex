@@ -94,7 +94,7 @@ class EchoLinearRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoReg
     })
 
     def __init__(self, *, hyperparams : EchoRegressor_Hyperparams) -> None: 
-        super(EchoLinearRegression, self).__init__(hyperparams = hyperparams)
+        super().__init__(hyperparams = hyperparams)
 
     # instantiate data and create model and bag of words
     def set_training_data(self, *, inputs: Input, outputs: Output) -> CallResult:
