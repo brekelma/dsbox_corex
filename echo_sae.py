@@ -26,7 +26,9 @@ from d3m.metadata.hyperparams import Uniform, UniformInt, Union, Enumeration
 from typing import NamedTuple, Optional, Sequence, Any
 import typing
 import config as cfg_
+
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+#os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 Input = container.ndarray #container.DataFrame
 Output = container.ndarray #container.DataFrame
@@ -58,14 +60,16 @@ class EchoSAE_Hyperparams(hyperparams.Hyperparams):
 
 
 class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAE_Params, EchoSAE_Hyperparams]):
-
+    """
+    Keras NN implementing the information bottleneck method with Echo Noise to calculate I(X:Z), where Z also trained to maximize I(X:Y) for label Y.  Control tradeoff using 'label_beta param'
+    """
     metadata = PrimitiveMetadata({
         "schema": "v0",
         "id": "6c95166f-434a-435d-a3d7-bce8d7238061",
         "version": "1.0.0",
-        "name": "EchoClassification",
+        "name": "Echo",
         "description": "Autoencoder implementation of Information Bottleneck using Echo Noise",
-        "python_path": "d3m.primitives.classification.echo.EchoClassification",
+        "python_path": "d3m.primitives.classification.corex_supervised.Echo",
         "original_python_path": "echo_sae.EchoClassification",
         "source": {
             "name": "ISI",
@@ -86,7 +90,7 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAE_P
 
 
 
-    def __init__(self, *, hyperparams : CorexSAE_Hyperparams) -> None: #, random_seed : int =  0, docker_containers: typing.Dict[str, DockerContainer] = None
+    def __init__(self, *, hyperparams : EchoSAE_Hyperparams) -> None: #, random_seed : int =  0, docker_containers: typing.Dict[str, DockerContainer] = None
         super().__init__(hyperparams = hyperparams) # random_seed = random_seed, docker_containers = docker_containers)
 
     def fit(self, *, timeout : float = None, iterations : int = None) -> CallResult[None]:
@@ -118,7 +122,7 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAE_P
             final_enc_act = 'linear'
             sample_function = vae_sample
             latent_loss = gaussian_kl_prior
-        elif self.:
+        elif self._noise == 'ido' or self._noise == 'mult':
             #final_enc_act = 'softplus'
             final_enc_act = 'linear'
             sample_function = ido_sample
@@ -206,13 +210,13 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAE_P
         #self._label_unique = 1 if self._label_unique > self.max_discrete_labels else self._label_unique
 
 
-    def get_params(self) -> CorexSAE_Params:
-        return CorexSAE_Params(model = self.model, max_discrete_labels = self.max_discrete_labels)#args)
+    def get_params(self) -> EchoSAE_Params:
+        return EchoSAE_Params(model = self.model, max_discrete_labels = self.max_discrete_labels)#args)
 
-    def set_params(self, *, params: CorexSAE_Params) -> None:
+    def set_params(self, *, params: EchoSAE_Params) -> None:
         self.max_discrete_labels = params["max_discrete_labels"]
         self.model = params['model']
-        pass
+
 
 
 
@@ -308,7 +312,7 @@ def echo_sample(inputs, clip = 0.85, per_sample = True, init = -5., d_max = 100,
       noise_sx_product = tf.cumsum(stack_dmax, axis = ax, exclusive = True)
     else:
       noise_sx_product = tf.cumprod(stack_dmax, aaxis = ax, exclusive = True)# if not noise == 'rescaled' else False)
-        noise_sx_product = tf.exp(noise_sx_product) if calc_log else noise_sx_product
+      noise_sx_product = tf.exp(noise_sx_product) if calc_log else noise_sx_product
     noise_times_sample = tf.multiply(stack_zmean, noise_sx_product)
 
     noise_tensor = tf.reduce_sum(noise_times_sample, axis = ax)

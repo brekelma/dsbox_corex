@@ -15,7 +15,7 @@ from scipy import linalg
 from sklearn.linear_model.base import LinearModel, RegressorMixin
 from sklearn.utils import check_consistent_length, check_array, check_X_y
 
-from echo_regression import EchoRegression
+from echo_regression.echo_regression import EchoRegression
 
 import d3m.container as container
 import d3m.metadata.base as mbase
@@ -26,12 +26,13 @@ from d3m.container import DataFrame as d3m_DataFrame
 from d3m.metadata.base import PrimitiveMetadata
 from d3m.metadata.hyperparams import Uniform, UniformBool, UniformInt, Union, Enumeration
 from d3m.primitive_interfaces.base import CallResult
-from d3m.primitive_interfaces.unsupervised_learning import SupervisedLearnerPrimitiveBase
-
+from d3m.primitive_interfaces.supervised_learning import SupervisedLearnerPrimitiveBase
+import string
 import config as cfg_
+
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
-import string
+
 
 Input = container.DataFrame
 Output = container.DataFrame #typing.Union[container.DataFrame, None]
@@ -56,25 +57,31 @@ class EchoRegressor_Hyperparams(hyperparams.Hyperparams):
 
     # 
     diagonal = UniformBool(
-    	default = True,
+        default = True,
         description = 'assume diagonal covariance, leading to sparsity in data basis (instead of covariance eigenbasis)', 
         semantic_types=["http://schema.org/Integer", 'https://metadata.datadrivendiscovery.org/types/TuningParameter']
     )
 
 
-class EchoRegressor(SupervisedLearnerPrimitiveBase[Input, Output, EchoRegressor_Params, EchoRegressor_Hyperparams]):  #(Primitive):
+class EchoLinearRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoRegressor_Params, EchoRegressor_Hyperparams]):  #(Primitive):
     """
-    Learns latent factors / topics which explain the most multivariate information in bag of words representations of documents. Returns learned topic scores for each document. Also supports hierarchical models and 'anchoring' to encourage topics to concentrate around desired words.
+    Least squares regression with information capacity constraint from echo noise.
+    Minimizes the objective function::
+    E(y - y_hat)^2 + alpha * I(X,y)
+    where, X_bar = X + S * echo noise, y_hat = X_bar w + w_0,
+    so that I(X,y) <= -log det S,
+    with w the learned weights / coefficients.
+    The objective simplifies and has an analytic solution.
     """
     metadata = PrimitiveMetadata({
         "schema": "v0",
         "id": "18e63b10-c5b7-34bc-a670-f2c831d6b4bf",
         "version": "1.0.0",
-        "name": "EchoRegressor",
+        "name": "EchoLinearRegression",
         "description": "Learns latent factors / topics which explain the most multivariate information in bag of words representations of documents. Returns learned topic scores for each document. Also supports hierarchical models and 'anchoring' to encourage topics to concentrate around desired words.",
         #"python_path": "d3m.primitives.dsbox.echo.EchoRegressor",
-        "python_path": "d3m.primitives.regression.echo.EchoRegressor",
-        "original_python_path": "EchoRegressor.echo.EchoRegressor",
+        "python_path": "d3m.primitives.regression.corex_supervised.EchoLinear",
+        "original_python_path": "echo_regressor.EchoLinearRegression",
         "source": {
             "name": "ISI",
             "contact": "mailto:brekelma@usc.edu",
@@ -87,7 +94,7 @@ class EchoRegressor(SupervisedLearnerPrimitiveBase[Input, Output, EchoRegressor_
     })
 
     def __init__(self, *, hyperparams : EchoRegressor_Hyperparams) -> None: 
-        super(EchoRegressor, self).__init__(hyperparams = hyperparams)
+        super(EchoLinearRegressor, self).__init__(hyperparams = hyperparams)
 
     # instantiate data and create model and bag of words
     def set_training_data(self, *, inputs: Input, outputs: Output) -> CallResult:
@@ -105,26 +112,26 @@ class EchoRegressor(SupervisedLearnerPrimitiveBase[Input, Output, EchoRegressor_
 
         self.model.fit(self.training_data, self.labels)
 
-       	return CallResult(None, True, 1)
+        return CallResult(None, True, 1)
 
 
-	def produce(self, *, inputs: Input, timeout: float = None, iterations: int = None) -> CallResult:
-		return CallResult(self.model.produce(inputs), True, 1)
+        def produce(self, *, inputs: Input, timeout: float = None, iterations: int = None) -> CallResult:
+                return CallResult(self.model.produce(inputs), True, 1)
 
 
-	def get_params(self) -> SearchParams:
-		return EchoRegressor_Params(fitted_ = self.fitted, model_= self.model)
+        def get_params(self) -> SearchParams:
+                return EchoRegressor_Params(fitted_ = self.fitted, model_= self.model)
 
-	"""
-	Sets all the search parameters from a Params object
-	:param is_classifier: True for discrete-class output. False for numeric output.
-	:type: boolean
-	:type: Double
-	"""
-	def set_params(self, *, params: SearchParams) -> base.CallResult[None]:
-		self.fitted = params['fitted_']
-		self.model = params['model_']
-		return CallResult(None)
+        """
+        Sets all the search parameters from a Params object
+        :param is_classifier: True for discrete-class output. False for numeric output.
+        :type: boolean
+        :type: Double
+        """
+        def set_params(self, *, params: SearchParams) -> base.CallResult[None]:
+                self.fitted = params['fitted_']
+                self.model = params['model_']
+                return CallResult(None)
 
 
 

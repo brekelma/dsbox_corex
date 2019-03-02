@@ -29,9 +29,9 @@ setup(
     'd3m.primitives': [
         'feature_construction.corex_continuous.CorexContinuous = corex_continuous:CorexContinuous',
         'feature_construction.corex_text.CorexText = corex_text:CorexText',
-        'regression.echo.EchoLinear = echo_regressor:EchoLinear',
-        'classification.echo.EchoSAE = echo_sae:EchoClassification',
-        #'regression.echo.EchoSAE = echo_sae:EchoRegression'        
+        'regression.corex_supervised.EchoLinear = echo_regressor:EchoLinearRegression',
+        'classification.corex_supervised.Echo = echo_sae:EchoClassification',
+        #'regression.echo.Echo = echo_sae:EchoRegression'        
     ],
     }
 
