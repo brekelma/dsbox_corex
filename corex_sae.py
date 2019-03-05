@@ -28,8 +28,8 @@ import typing
 import config as cfg_
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
-Input = container.ndarray #container.DataFrame
-Output = container.ndarray #container.DataFrame
+Input = container.DataFrame
+Output = container.DataFrame
 
 class CorexSAE_Params(params.Params):
     model: typing.Union[Model, None]

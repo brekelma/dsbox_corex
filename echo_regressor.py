@@ -57,7 +57,7 @@ class EchoRegressor_Hyperparams(hyperparams.Hyperparams):
 
     # 
     diagonal = UniformBool(
-        default = True,
+        default = False,
         description = 'assume diagonal covariance, leading to sparsity in data basis (instead of covariance eigenbasis)', 
         semantic_types=["http://schema.org/Integer", 'https://metadata.datadrivendiscovery.org/types/TuningParameter']
     )
@@ -115,7 +115,7 @@ class EchoLinearRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoReg
 
 
     def produce(self, *, inputs: Input, timeout: float = None, iterations: int = None) -> CallResult[Output]:
-        result = d3m_DataFrame(self.model.produce(inputs))
+        result = d3m_DataFrame(self.model.produce(inputs), index = inputs.index)
         return CallResult(result, True, 1)
 
 

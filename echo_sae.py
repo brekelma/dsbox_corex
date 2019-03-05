@@ -1,18 +1,24 @@
 import os
+import copy
 import numpy as np
 import pandas as pd
 import tensorflow as tf
 from keras import backend as K
-from keras.layers import Concatenate, Input, Dense, merge
+import keras.objectives
+import keras
+import keras.layers
+from keras.layers import Concatenate, Dense, merge
 from keras.layers import Activation, BatchNormalization, Lambda, Reshape
 from keras.callbacks import Callback, TensorBoard, LearningRateScheduler
 from keras.models import Model, Sequential
 from keras.optimizers import Adam, SGD
 from keras.engine.topology import Layer
 from keras.utils import to_categorical
+import tempfile
 
 import git
 from d3m import utils
+from d3m.container import DataFrame as d3m_DataFrame
 import d3m.container as container
 import d3m.metadata.hyperparams as hyperparams
 import d3m.metadata.params as params
@@ -30,8 +36,8 @@ import config as cfg_
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 #os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
-Input = container.ndarray #container.DataFrame
-Output = container.ndarray #container.DataFrame
+Input = container.DataFrame
+Output = container.DataFrame
 
 class EchoSAE_Params(params.Params):
     model: typing.Union[Model, None]
@@ -40,7 +46,7 @@ class EchoSAE_Params(params.Params):
 
 
 class EchoSAE_Hyperparams(hyperparams.Hyperparams):
-    label_beta = Uniform(lower = 0, upper = 1000, default = 1, q = .01, 
+    label_beta = Uniform(lower = 0, upper = 1000, default = 10, q = .01, 
     	description = 'Lagrange multiplier for beta : 1 tradeoff btwn label relevance : compression.', semantic_types=[
         'https://metadata.datadrivendiscovery.org/types/TuningParameter'
     ])
@@ -93,67 +99,76 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAE_P
     def __init__(self, *, hyperparams : EchoSAE_Hyperparams) -> None: #, random_seed : int =  0, docker_containers: typing.Dict[str, DockerContainer] = None
         super().__init__(hyperparams = hyperparams) # random_seed = random_seed, docker_containers = docker_containers)
 
-    def fit(self, *, timeout : float = None, iterations : int = None) -> CallResult[None]:
-
-        # create keras architecture
-        # TODO : Architecture / layers as input hyperparameter
+    def _extra_params(self, latent_dims = None, activation = None, lr = None, batch = None, epochs = None, noise = None):
         self._latent_dims = [100, 100, 20]
-        self._decoder_dims = list(reversed(self.latent_dims[:-1]))
+        self._decoder_dims = list(reversed(self._latent_dims[:-1]))
         
         # TRAINING ARGS... what to do?
         self._activation = 'softplus'
         self._lr = 0.0005
-        self._optimizer = Adam(lr)
+        self._optimizer = Adam(self._lr)
         self._batch = 100
         self._epochs = None # HYPERPARAM?
         self._noise = 'echo'
         self._anneal_sched = None
+        self.output_columns = ['Hall of Fame']
+
+
+    def fit(self, *, timeout : float = None, iterations : int = None) -> CallResult[None]:
+        make_keras_pickleable()
+        # create keras architecture
+        # TODO : Architecture / layers as input hyperparameter
         
+        self._extra_params()
+
         if iterations is not None:
             self.hyperparams["epochs"] = iterations
 
-        x = Input(shape = (self.training_inputs.shape[-1],))
+        x = keras.layers.Input(shape = (self.training_inputs.shape[-1],))
         t = x
 
-        for i in range(len(self.latent_dims[:-1])):
-            t = Dense(self.latent_dims[i], activation = self.activation)(t)
+        for i in range(len(self._latent_dims[:-1])):
+            t = Dense(self._latent_dims[i], activation = self._activation)(t)
         
         if self._noise == 'add' or self._noise == 'vae':
-            final_enc_act = 'linear'
+            z_mean_act = 'linear'
+            z_var_act = 'linear'
             sample_function = vae_sample
             latent_loss = gaussian_kl_prior
         elif self._noise == 'ido' or self._noise == 'mult':
             #final_enc_act = 'softplus'
-            final_enc_act = 'linear'
+            z_mean_act = 'linear'
+            z_var_act = 'linear'
             sample_function = ido_sample
             latent_loss = gaussian_kl_prior 
         elif self._noise == 'echo':
-            final_enc_act = tanh64
+            z_mean_act = tanh64
+            z_var_act = tf.math.log_sigmoid
             sample_function = echo_sample
             latent_loss = echo_loss 
         else:
-            final_enc_act = tanh64
+            z_mean_act = tanh64
+            z_var_act = tf.math.log_sigmoid
             sample_function = echo_sample
             latent_loss = echo_loss
 
 
-        z_mean = Dense(self.latent_dims[:-1], activation = final_enc_act, name = 'z_mean')(t)
-        z_noise = Dense(self.latent_dims[:-1], activation = final_enc_act, name = 'z_noise')(t)
-        z_act = Lambda(echo_sample, output_shape = (self.latent_dims[:-1],))([z_mean, z_var])
-
+        z_mean = Dense(self._latent_dims[-1], activation = z_mean_act, name = 'z_mean')(t)
+        z_noise = Dense(self._latent_dims[-1], activation = z_var_act, name = 'z_noise')(t)
+        z_act = Lambda(echo_sample, output_shape = (self._latent_dims[-1],), name = 'z_act')([z_mean, z_noise])
 
         t = z_act
         for i in range(len(self._decoder_dims)):
-            t = Dense(self._decoder_dims[i], activation = self.activation)(t) 
+            t = Dense(self._decoder_dims[i], name = 'decoder_'+str(i), activation = self._activation)(t) 
         
         # CLASSIFICATION ONLY here
         label_act = 'softmax' if self._label_unique > 1 else 'sigmoid'
-        y_pred = Dense(self._label_unique, activation = 'softmax', name = 'y_pred')
+        y_pred = Dense(self._label_unique, activation = 'softmax', name = 'y_pred')(t)
 
-        if self._input_types:
-            pass
-        else:
-            print("Purely Supervised Bottleneck")
+        #if self._input_types:
+        #    pass
+        #else:
+        #    print("Purely Supervised Bottleneck")
             # no reconstruction layers
         
         outputs = []
@@ -165,13 +180,14 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAE_P
 
         outputs.append(y_pred)
         if label_act == 'softmax':
-            loss_functions.append(objectives.categorical_crossentropy)
+            loss_functions.append(keras.objectives.categorical_crossentropy)
         else: 
-            loss_functions.append(objectives.mean_squared_error)#mse
+            loss_functions.append(keras.objectives.mean_squared_error)#mse
         loss_weights.append(self.hyperparams["label_beta"])
 
-        outputs.append([z_mean, z_noise])
-        loss_functions.append(latent_loss_function)
+        loss_tensor = Lambda(latent_loss)([z_mean,z_noise])
+        outputs.append(loss_tensor)
+        loss_functions.append(dim_sum)
         loss_weights.append(1)
 
 
@@ -183,8 +199,10 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAE_P
         if self._anneal_sched:
             raise NotImplementedError
         else:
-            self.model.fit(self.training_inputs, [self.training_outputs]*len(outputs), 
-                shuffle = True, epochs = self.hyperparams["epochs"], batch_size = self._batch_size) # validation_data = [] early stopping?
+            self.model.fit_generator(generator(self.training_inputs, self.training_outputs, target_len = len(outputs), batch = self._batch),
+                                     steps_per_epoch=int(self.training_inputs.values.shape[0]/self._batch), epochs = self.hyperparams["epochs"])
+            #self.model.fit(self.training_inputs, [self.training_outputs]*len(outputs), 
+            #    shuffle = True, epochs = self.hyperparams["epochs"], batch_size = self._batch) # validation_data = [] early stopping?
 
         #Lambda(ido_sample)
         #Lambda(vae_sample, output_shape = (d,))([z_mean, z_var])
@@ -192,12 +210,47 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAE_P
         return CallResult(None, True, self.hyperparams["epochs"])
 
     def produce(self, *, inputs : Input, timeout : float = None, iterations : int = None) -> CallResult[Output]: # TAKES IN DF with index column
-        return CallResult(d3m_DataFrame(self.model.predict(inputs)), True, 0)
+        self._extra_params()
+        inp = self.model.input
+        outputs = [layer.output for layer in self.model.layers if 'z_mean' in layer.name or 'z_noise' in layer.name]
+        functors = [K.function([inp, K.learning_phase()], [out]) for out in outputs]
+        dec_inp = [layer.input for layer in self.model.layers if 'decoder_0' in layer.name][0]
+        print()
+        print("DEC INPUT ", dec_inp)
+        print()
+        preds = [layer.output for layer in self.model.layers if 'y_pred' in layer.name]
+        pred_function = K.function([dec_inp, K.learning_phase()], [preds[0]])
+        
+        predictions = []
+        for i in range(0, inputs.shape[0], self._batch):
+            data = inputs.values[i:i+self._batch]
+            z_stats = [func([data, 1.])[0] for func in functors]
+            z_act = echo_sample(z_stats).eval(session=K.get_session())
+            y_pred= pred_function([z_act, 1.])[0]#.eval(session=K.get_session())
+            y_pred = np.argmax(y_pred, axis = -1)
+            predictions.extend([y_pred[yp] for yp in range(y_pred.shape[0])])
+            #int_df = d3m_DataFrame(y_pred,index = inputs.index[i:i+self._batch], columns = self.output_columns)
+            #if i == 0:
+            #    predictions = int_df
+            #else:
+            #    predictions.append(int_df)
+            #    print("Predictions SHAPE ", predictions.shape)
+        predictions = np.array(predictions)
+
+        predictions = d3m_DataFrame(predictions, index = inputs.index.copy())# columns = self.output_columns)
+        print("PREDICTIONS SHAPE ", predictions.shape)
+        print(predictions.index)
+        return CallResult(predictions, True, 0)
+        #return CallResult(d3m_DataFrame(self.model.predict(inputs)), True, 0)
 
     def set_training_data(self, *, inputs : Input, outputs: Output) -> None:
         self.training_inputs = inputs
-        self._label_unique = np.unique(outputs).shape[0]
-        self.training_outputs = to_categorical(outputs, num_classes = np.unique(outputs).shape[0])
+        self.output_columns = outputs.columns
+        print()
+        print("OUTPUT COLUMNS ", outputs.columns)
+        print()
+        self._label_unique = np.unique(outputs.values).shape[0]
+        self.training_outputs = to_categorical(outputs, num_classes = np.unique(outputs.values).shape[0])
         self.fitted = False
         
 
@@ -211,14 +264,61 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAE_P
 
 
     def get_params(self) -> EchoSAE_Params:
-        return EchoSAE_Params(model = self.model, max_discrete_labels = self.max_discrete_labels)#args)
+        return EchoSAE_Params(model = self.model)#max_discrete_labels = self.max_discrete_labels)#args)
 
     def set_params(self, *, params: EchoSAE_Params) -> None:
-        self.max_discrete_labels = params["max_discrete_labels"]
+        #self.max_discrete_labels = params["max_discrete_labels"]
+        self._extra_params()
         self.model = params['model']
 
 
+def make_keras_pickleable():
+    def __getstate__(self):
+        model_str = ""
+        with tempfile.NamedTemporaryFile(suffix='.hdf5', delete=True) as fd:
+            keras.models.save_model(self, fd.name, overwrite=True)
+            model_str = fd.read()
+        d = { 'model_str': model_str }
+        return d
 
+    def __setstate__(self, state):
+        with tempfile.NamedTemporaryFile(suffix='.hdf5', delete=True) as fd:
+            fd.write(state['model_str'])
+            fd.flush()
+            model = keras.models.load_model(fd.name, custom_objects = {'tanh64': tanh64, 'log_sigmoid': tf.math.log_sigmoid, 'dim_sum': dim_sum, 
+                                                                       'echo_loss': echo_loss, 'tf': tf, 'permute_neighbor_indices': permute_neighbor_indices})
+        self.__dict__ = model.__dict__
+
+
+    #cls = Sequential
+    #cls.__getstate__ = __getstate__
+    #cls.__setstate__ = __setstate__
+
+    cls = keras.models.Model
+    cls.__getstate__ = __getstate__
+    cls.__setstate__ = __setstate__
+
+
+def generator(data, labels = None, target_len = 1, batch = 100, mode = 'train', unsupervised = False):
+        samples_per_epoch = data.shape[0]
+        number_of_batches = int(samples_per_epoch/batch)
+        counter=0
+        
+        while 1:
+            x_batch = np.array(data.values[batch*counter:batch*(counter+1)]).astype('float32')
+            y_batch = x_batch if unsupervised or labels is None else np.array(labels[batch*counter:batch*(counter+1)]).astype('float32')
+            counter += 1
+            yield x_batch, [y_batch]*target_len
+
+            #restart counter to yeild data in the next epoch as well                                                                                                          
+            if counter >= number_of_batches:
+                counter = 0
+                sd = np.random.randint(data.shape[0])
+                data.sample(frac = 1, random_state = sd)
+                np.random.seed(sd)
+                np.random.shuffle(labels)
+                #labels.sample(frac =1, random_state = sd)
+                
 
 def tanh64(x):
         y = 64
@@ -243,6 +343,12 @@ def ido_sample(args):
     return K.exp(K.log(z_mean) + K.exp(z_noise / 2) * epsilon)
     #return K.exp(K.log(z_mean) + z_noise * epsilon)
 
+
+def dim_sum(true, tensor, keepdims = False):
+    #print('DIMSUM TRUE ', _true)
+    #print('DIMSUM Tensor ', tensor)
+    return K.sum(tensor, axis = -1, keepdims = keepdims)
+
 def gaussian_prior_kl(inputs):
     [mu1, logvar1] = inputs
     mu2 = K.variable(0.0)
@@ -261,9 +367,32 @@ def echo_loss(inputs, d_max = 50, clip= 0.85, binary_input = True, calc_log = Tr
     return capacities
 
 
+def permute_neighbor_indices(batch_size, d_max=-1, replace = True, pop = True):
+      """Produce an index tensor that gives a permuted matrix of other samples in batch, per sample.
+      Parameters
+      ----------
+      batch_size : int
+          Number of samples in the batch.
+      d_max : int
+          The number of blocks, or the number of samples to generate per sample.
+      """
+      if d_max < 0:
+          d_max = batch_size + d_max
+      inds = []
+      if not replace:
+        for i in range(batch_size):
+          sub_batch = list(range(batch_size))
+          if pop:
+            sub_batch.pop(i)
+          shuffle(sub_batch)
+          inds.append(list(enumerate(sub_batch[:d_max])))
+        return inds
+      else:
+        for i in range(batch_size):
+            inds.append(list(enumerate(np.random.choice(batch_size, size = d_max, replace = True))))
+        return inds
 
-def echo_sample(inputs, clip = 0.85, per_sample = True, init = -5., d_max = 100, batch = 100, multiplicative = False, replace = True, fx_clip = None, plus_sx = True, nomc = False, pop = True,
-                neg_log = False, noise = 'additive', trainable = True, periodic = False, return_noise = False, fx_act = None, sx_act = None, encoder = True, calc_log = True, echomc = False, fullmc = False):
+def echo_sample(inputs, clip = None, per_sample = True, init = -5., d_max = 100, batch = 100, multiplicative = False, replace = True, fx_clip = None, plus_sx = True, nomc = True, pop = True, neg_log = False, noise = 'additive', trainable = True, periodic = False, return_noise = False, fx_act = None, sx_act = None, encoder = True, calc_log = True, echomc = False, fullmc = False):
 
     if isinstance(inputs, list):
       z_mean = inputs[0]
@@ -280,16 +409,26 @@ def echo_sample(inputs, clip = 0.85, per_sample = True, init = -5., d_max = 100,
     if not encoder or shp[-1] == 1:
       orig_shape = shp
                                                                                                                                                                                             
+    try:
+        batch = min(batch, z_mean.shape[0])
+    except:
+        pass
+
 
     if fx_clip is not None:
       z_mean = K.clip(z_mean, -fx_clip, fx_clip)
+    else:
+        fx_clip = 1
+
+    if clip is None:
+        clip = (2**(-23)/fx_clip)**(1/batch)
 
     if not calc_log:
       #if not neg_log:                                                                                                                                                                                     
       cap_param = clip*z_scale_echo #if per_sample else clip*K.sigmoid(z_scale_echo)                                                                                                                       
       cap_param = tf.where(tf.abs(cap_param) < K.epsilon(), K.epsilon()*tf.sign(cap_param), cap_param)
     else:
-      cap_param = tf.log(clip) + (-1*z_scale_echo if not plus_sx else z_scale_echo)
+      cap_param = K.log(clip) + (-1*z_scale_echo if not plus_sx else z_scale_echo)
                                                                                             
     inds = permute_neighbor_indices(batch, d_max, replace = replace, pop = pop)
 
@@ -312,7 +451,8 @@ def echo_sample(inputs, clip = 0.85, per_sample = True, init = -5., d_max = 100,
       noise_sx_product = tf.cumsum(stack_dmax, axis = ax, exclusive = True)
     else:
       noise_sx_product = tf.cumprod(stack_dmax, aaxis = ax, exclusive = True)# if not noise == 'rescaled' else False)
-      noise_sx_product = tf.exp(noise_sx_product) if calc_log else noise_sx_product
+    
+    noise_sx_product = tf.exp(noise_sx_product) if calc_log else noise_sx_product
     noise_times_sample = tf.multiply(stack_zmean, noise_sx_product)
 
     noise_tensor = tf.reduce_sum(noise_times_sample, axis = ax)
