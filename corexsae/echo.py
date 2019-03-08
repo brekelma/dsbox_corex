@@ -128,3 +128,7 @@ def echo_loss(inputs, d_max = 100, clip= 0.85, binary_input = True, calc_log = T
 
     capacities = -K.log(K.abs(clip*cap_param)+K.epsilon()) if not calc_log else -(tf.log(clip) + (cap_param if plus_sx else -cap_param)) 
     return capacities
+
+
+# example fit generator
+
