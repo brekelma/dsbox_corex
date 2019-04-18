@@ -38,8 +38,8 @@ Output = container.DataFrame
 
 
 class CorexContinuous_Params(params.Params):
-    model:typing.Union[corex_cont.Corex, None]
-    fitted_: bool
+    model: typing.Union[corex_cont.Corex, None]
+    _fitted: typing.Union[bool, None] #bool
     #training_inputs: Input
 
     # add support for resuming training / storing model information
@@ -173,11 +173,11 @@ class CorexContinuous(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexConti
         self.fitted = False
 
     def get_params(self) -> CorexContinuous_Params:
-        return CorexContinuous_Params(model = self.model, fitted_ = self.fitted)
+        return CorexContinuous_Params(model = self.model, _fitted = self.fitted)
 
     def set_params(self, *, params: CorexContinuous_Params) -> None:
         self.model = params['model']
-        self.fitted = params['fitted_']
+        self.fitted = params['_fitted']
         #self.training_inputs = params.training_inputs
 
 

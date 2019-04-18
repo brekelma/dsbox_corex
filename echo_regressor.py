@@ -29,6 +29,13 @@ from d3m.primitive_interfaces.base import CallResult
 from d3m.primitive_interfaces.supervised_learning import SupervisedLearnerPrimitiveBase
 import string
 import config as cfg_
+from d3m.metadata.base import PrimitiveMetadata
+from d3m.metadata import base as metadata_base
+import common_primitives.utils as common_utils
+from typing import Any, Callable, List, Dict, Union, Optional, Sequence, Tuple, NamedTuple
+import typing
+
+
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
@@ -40,6 +47,7 @@ Output = container.DataFrame #typing.Union[container.DataFrame, None]
 class EchoRegressor_Params(params.Params):
     fitted_: typing.Union[bool, None]
     model_: typing.Union[EchoRegression, None]
+    output_columns_: typing.Union[Any, None]
     #latent_factors_: typing.Union[pd.DataFrame, None]
     #max_iter_: typing.Union[int, None]
 
@@ -99,6 +107,9 @@ class EchoLinearRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoReg
     def set_training_data(self, *, inputs: Input, outputs: Output) -> None:
         self.training_data = inputs
         self.labels = outputs
+        self.output_columns = outputs.columns
+        print()
+        print("LABEL index/COLUMNS ", self.labels.index, self.labels.columns)
         self.fitted = False
          
     # assumes input as data-frame and do prediction on the 'text' labeled columns
@@ -115,12 +126,28 @@ class EchoLinearRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoReg
 
 
     def produce(self, *, inputs: Input, timeout: float = None, iterations: int = None) -> CallResult[Output]:
-        result = d3m_DataFrame(self.model.produce(inputs), index = inputs.index)
-        return CallResult(result, True, 1)
+        output = d3m_DataFrame(self.model.produce(inputs), source = self, generate_metadata = False)
+
+        try:
+            self._output_columns = self._output_columns
+        except:
+            self._output_columns = ['output']*len(list(output))
+        output.metadata = inputs.metadata.clear(source=self, for_value=output, generate_metadata=True)
+        output.metadata = self._add_target_semantic_types(metadata=output.metadata, target_names=self._output_columns, source=self)
+
+
+
+        self._training_indices = [c for c in inputs.columns if isinstance(c, str) and 'index' in c.lower()]
+        outputs = common_utils.combine_columns(return_result='new', #self.hyperparams['return_result'],
+                                               add_index_columns=True,#self.hyperparams['add_index_columns'],
+                                               inputs=inputs, columns_list=[output], source=self, column_indices=self._training_indices)
+
+        return CallResult(outputs, True, 0)
+        
 
 
     def get_params(self) -> EchoRegressor_Params:
-        return EchoRegressor_Params(fitted_ = self.fitted, model_= self.model)
+        return EchoRegressor_Params(fitted_ = self.fitted, model_= self.model, output_columns_ = self._output_columns)
 
         """
         Sets all the search parameters from a Params object
@@ -131,7 +158,23 @@ class EchoLinearRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoReg
     def set_params(self, *, params: EchoRegressor_Params) -> CallResult[None]:
         self.fitted = params['fitted_']
         self.model = params['model_']
+        self._output_columns = params['output_columns_']
+        
         return CallResult(None, True, 1)
 
 
 
+    def _add_target_semantic_types(cls, metadata: metadata_base.DataMetadata,
+                            source: typing.Any,  target_names: List = None,) -> metadata_base.DataMetadata:
+        for column_index in range(metadata.query((metadata_base.ALL_ELEMENTS,))['dimension']['length']):
+            metadata = metadata.add_semantic_type((metadata_base.ALL_ELEMENTS, column_index),
+                                                  'https://metadata.datadrivendiscovery.org/types/Target',
+                                                  source=source)
+            metadata = metadata.add_semantic_type((metadata_base.ALL_ELEMENTS, column_index),
+                                                  'https://metadata.datadrivendiscovery.org/types/PredictedTarget',
+                                                  source=source)
+            if target_names:
+                metadata = metadata.update((metadata_base.ALL_ELEMENTS, column_index), {
+                    'name': target_names[column_index],
+                }, source=source)
+        return metadata

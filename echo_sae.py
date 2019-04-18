@@ -7,14 +7,15 @@ from keras import backend as K
 import keras.objectives
 import keras
 import keras.layers
-from keras.layers import Concatenate, Dense, merge
+from keras.layers import Concatenate, Dense, Input, merge
 from keras.layers import Activation, BatchNormalization, Lambda, Reshape
 from keras.callbacks import Callback, TensorBoard, LearningRateScheduler
-from keras.models import Model, Sequential
+#from keras.models import Model, Sequential
 from keras.optimizers import Adam, SGD
 from keras.engine.topology import Layer
 from keras.utils import to_categorical
 import tempfile
+
 
 import git
 from d3m import utils
@@ -23,14 +24,17 @@ import d3m.container as container
 import d3m.metadata.hyperparams as hyperparams
 import d3m.metadata.params as params
 from d3m.metadata.base import PrimitiveMetadata
+from d3m.metadata import base as metadata_base
+import common_primitives.utils as common_utils
+from typing import Any, Callable, List, Dict, Union, Optional, Sequence, Tuple, NamedTuple
+import typing
 
 from d3m.primitive_interfaces.supervised_learning import SupervisedLearnerPrimitiveBase
 from d3m.primitive_interfaces.base import CallResult
 #from d3m.primitive_interfaces.params import Params
 from d3m.metadata.hyperparams import Uniform, UniformInt, Union, Enumeration
 
-from typing import NamedTuple, Optional, Sequence, Any
-import typing
+
 import config as cfg_
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -40,13 +44,14 @@ Input = container.DataFrame
 Output = container.DataFrame
 
 class EchoSAE_Params(params.Params):
-    model: typing.Union[Model, None]
+    model: typing.Union[keras.models.Model, None]
+    model_weights: typing.Union[Any,None]
     #max_discrete_labels: int
     # add support for resuming training / storing model information
 
 
 class EchoSAE_Hyperparams(hyperparams.Hyperparams):
-    label_beta = Uniform(lower = 0, upper = 1000, default = 10, q = .01, 
+    label_beta = Uniform(lower = 0, upper = 1000, default = 999, q = .01, 
     	description = 'Lagrange multiplier for beta : 1 tradeoff btwn label relevance : compression.', semantic_types=[
         'https://metadata.datadrivendiscovery.org/types/TuningParameter'
     ])
@@ -65,6 +70,47 @@ class EchoSAE_Hyperparams(hyperparams.Hyperparams):
     #            default = 'none')
 
 
+# def build_convolutional_encoder(input_shape, architecture = 'alemi'):
+#     x = keras.layers.Input(shape = (self.training_inputs.shape[-1],))
+#     t = x
+#     reshp = keras.layers.Reshape(inp_shape, input_shape = (d.dim,))(x)
+#     print("INPUT SHAPE ", x, reshp)
+    
+#     if architecture == 'alemi':
+#         h = keras.layers.Conv2D(self._latent_dims[0], activation = 'relu', kernel_size = 5, strides = 1, padding = 'same')(reshp)
+#         h = keras.layers.Conv2D(el[1], activation = 'relu', kernel_size = 5, strides = 2, padding = 'same')(h)
+#         h = keras.layers.Conv2D(el[2], activation = 'relu', kernel_size = 5, strides = 1, padding = 'same')(h)
+#         h = keras.layers.Conv2D(el[3], activation = 'relu', kernel_size = 5, strides = 2, padding = 'same')(h)
+#         h = keras.layers.Conv2D(el[4], activation = 'relu', kernel_size = 7, strides = 2, padding = 'valid')(h)
+
+#     for i in range(len(self._latent_dims[:-1])):
+#         t = Dense(self._latent_dims[i], activation = self._activation)(t)
+        
+#     if self._noise == 'add' or self._noise == 'vae':
+#         z_mean_act = 'linear'
+#         z_var_act = 'linear'
+#         sample_function = vae_sample
+#         latent_loss = gaussian_kl_prior
+#     elif self._noise == 'ido' or self._noise == 'mult':
+#         #final_enc_act = 'softplus'                                                                                                                                           
+#         z_mean_act = 'linear'
+#         z_var_act = 'linear'
+#         sample_function = ido_sample
+#         latent_loss = gaussian_kl_prior
+#     elif self._noise == 'echo':
+#         z_mean_act = tanh64
+#         z_var_act = tf.math.log_sigmoid
+#         sample_function = echo_sample
+#         latent_loss = echo_loss
+#     else:
+#         z_mean_act = tanh64
+#         z_var_act = tf.math.log_sigmoid
+#         sample_function = echo_sample
+#         latent_loss = echo_loss
+
+
+
+
 class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAE_Params, EchoSAE_Hyperparams]):
     """
     Keras NN implementing the information bottleneck method with Echo Noise to calculate I(X:Z), where Z also trained to maximize I(X:Y) for label Y.  Control tradeoff using 'label_beta param'
@@ -75,7 +121,7 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAE_P
         "version": "1.0.0",
         "name": "Echo",
         "description": "Autoencoder implementation of Information Bottleneck using Echo Noise",
-        "python_path": "d3m.primitives.classification.corex_supervised.Echo",
+        "python_path": "d3m.primitives.classification.corex_supervised.EchoIB",
         "original_python_path": "echo_sae.EchoClassification",
         "source": {
             "name": "ISI",
@@ -100,7 +146,253 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAE_P
         super().__init__(hyperparams = hyperparams) # random_seed = random_seed, docker_containers = docker_containers)
 
     def _extra_params(self, latent_dims = None, activation = None, lr = None, batch = None, epochs = None, noise = None):
-        self._latent_dims = [100, 100, 20]
+        self._latent_dims = [200, 200, 200, 20]
+        self._decoder_dims = list(reversed(self._latent_dims[:-1]))
+        
+        # TRAINING ARGS... what to do?
+        self._activation = 'softplus'
+        self._lr = 0.0005
+        self._optimizer = Adam(self._lr)
+        self._batch = 100
+        self._epochs = None # HYPERPARAM?
+        self._noise = 'echo'
+        self._anneal_sched = None
+        self.output_columns = self.output.columns#['Hall of Fame']
+
+
+    def fit(self, *, timeout : float = None, iterations : int = None) -> CallResult[None]:
+        make_keras_pickleable()
+        # create keras architecture
+        # TODO : Architecture / layers as input hyperparameter
+        
+        self._extra_params()
+
+        if iterations is not None:
+            self.hyperparams["epochs"] = iterations
+
+        x = keras.layers.Input(shape = (self.training_inputs.shape[-1],))
+        t = x
+
+        for i in range(len(self._latent_dims[:-1])):
+            t = Dense(self._latent_dims[i], activation = self._activation)(t)
+        
+        if self._noise == 'add' or self._noise == 'vae':
+            z_mean_act = 'linear'
+            z_var_act = 'linear'
+            sample_function = vae_sample
+            latent_loss = gaussian_kl_prior
+        elif self._noise == 'ido' or self._noise == 'mult':
+            #final_enc_act = 'softplus'
+            z_mean_act = 'linear'
+            z_var_act = 'linear'
+            sample_function = ido_sample
+            latent_loss = gaussian_kl_prior 
+        elif self._noise == 'echo':
+            z_mean_act = tanh64
+            z_var_act = tf.math.log_sigmoid
+            sample_function = echo_sample
+            latent_loss = echo_loss 
+        else:
+            z_mean_act = tanh64
+            z_var_act = tf.math.log_sigmoid
+            sample_function = echo_sample
+            latent_loss = echo_loss
+
+
+        z_mean = Dense(self._latent_dims[-1], activation = z_mean_act, name = 'z_mean')(t)
+        z_noise = Dense(self._latent_dims[-1], activation = z_var_act, name = 'z_noise', bias_initializer = 'ones')(t)
+        z_act = Lambda(echo_sample, arguments = {'batch': self._batch, 'nomc': True, 'calc_log': True, 'plus_sx': True}, output_shape = (self._latent_dims[-1],), name = 'z_act')([z_mean, z_noise])
+
+        t = z_act
+        for i in range(len(self._decoder_dims)):
+            t = Dense(self._decoder_dims[i], name = 'decoder_'+str(i), activation = self._activation)(t) 
+        
+        # CLASSIFICATION ONLY here
+        print("LABEL UNIQUE ", self._label_unique)
+        label_act = 'softmax' if self._label_unique > 1 else 'sigmoid'
+        #if self._label_unique == 2:
+        #    y_pred = Dense(1, activation = 'sigmoid', name = 'y_pred')(t)
+        #else:
+        y_pred = Dense(self._label_unique, activation = label_act, name = 'y_pred')(t)
+
+        #if self._input_types:
+        #    pass
+        #else:
+        #    print("Purely Supervised Bottleneck")
+            # no reconstruction layers
+        
+        outputs = []
+        loss_functions = []
+        loss_weights = []
+        
+
+        #beta = Beta(name = 'beta', beta = self.hyperparams["label_beta"])(x)
+
+        outputs.append(y_pred)
+        if label_act == 'softmax':
+            loss_functions.append(keras.objectives.categorical_crossentropy)
+        else: 
+            loss_functions.append(keras.objectives.mean_squared_error)#mse
+        loss_weights.append(self.hyperparams["label_beta"])
+
+        loss_tensor = Lambda(latent_loss)([z_mean,z_noise])
+        outputs.append(loss_tensor)
+        loss_functions.append(dim_sum)
+        loss_weights.append(1)
+
+
+        self.model = keras.models.Model(inputs = x, outputs = outputs)
+        self.model.compile(optimizer = self._optimizer, loss = loss_functions, loss_weights = loss_weights)
+
+
+        # anneal? 
+        if self._anneal_sched:
+            raise NotImplementedError
+        else:
+            self.model.fit_generator(generator(self.training_inputs, self.training_outputs, target_len = len(outputs), batch = self._batch),
+                                     steps_per_epoch=int(self.training_inputs.values.shape[0]/self._batch), epochs = self.hyperparams["epochs"])
+            #self.model.fit(self.training_inputs, [self.training_outputs]*len(outputs), 
+            #    shuffle = True, epochs = self.hyperparams["epochs"], batch_size = self._batch) # validation_data = [] early stopping?
+
+        #Lambda(ido_sample)
+        #Lambda(vae_sample, output_shape = (d,))([z_mean, z_var])
+
+        return CallResult(None, True, self.hyperparams["epochs"])
+
+    def produce(self, *, inputs : Input, timeout : float = None, iterations : int = None) -> CallResult[Output]: # TAKES IN DF with index column
+        self._extra_params()
+        inp = self.model.input
+        outputs = [layer.output for layer in self.model.layers if 'z_mean' in layer.name or 'z_noise' in layer.name]
+        functors = [K.function([inp, K.learning_phase()], [out]) for out in outputs]
+        dec_inp = [layer.input for layer in self.model.layers if 'decoder_0' in layer.name][0]
+        print()
+        print("DEC INPUT ", dec_inp)
+        print()
+        preds = [layer.output for layer in self.model.layers if 'y_pred' in layer.name]
+        pred_function = K.function([dec_inp, K.learning_phase()], [preds[0]])
+        
+        predictions = []
+        for i in range(0, inputs.shape[0], self._batch):
+            data = inputs.values[i:i+self._batch]
+            z_stats = [func([data, 1.])[0] for func in functors]
+            z_act = echo_sample(z_stats).eval(session=K.get_session())
+            y_pred= pred_function([z_act, 1.])[0]#.eval(session=K.get_session())
+            if i == 0:
+                print("Y PRED ", y_pred)
+            #if self._label_unique > 2:
+            y_pred = np.argmax(y_pred, axis = -1)
+            predictions.extend([y_pred[yp] for yp in range(y_pred.shape[0])])
+            #int_df = d3m_DataFrame(y_pred,index = inputs.index[i:i+self._batch], columns = self.output_columns)
+            #if i == 0:
+            #    predictions = int_df
+            #else:
+            #    predictions.append(int_df)
+            #    print("Predictions SHAPE ", predictions.shape)
+        predictions = np.array(predictions)
+
+        output = d3m_DataFrame(predictions, generate_metadata = False, source = self)
+        output.metadata = inputs.metadata.clear(source=self, for_value=output, generate_metadata=True)
+        output.metadata = self._add_target_semantic_types(metadata=output.metadata, target_names=self.output_columns, source=self)
+
+        print("INPUT COLUMNS ", inputs.columns)
+        print(inputs.columns)
+        self._training_indices = [c for c in inputs.columns if isinstance(c, str) and 'index' in c.lower()]
+        print("Traning indices ", self._training_indices)
+        outputs = common_utils.combine_columns(return_result='new', #self.hyperparams['return_result'],
+                                               add_index_columns=True,#self.hyperparams['add_index_columns'],
+                                               inputs=inputs, columns_list=[output], source=self, column_indices=self._training_indices)
+        print("outputs index ", outputs.index)
+        #predictions = d3m_DataFrame(predictions, index = inputs.index.copy())# columns = self.output_columns)
+
+
+        return CallResult(outputs, True, 0)
+        #return CallResult(d3m_DataFrame(self.model.predict(inputs)), True, 0)
+
+    def set_training_data(self, *, inputs : Input, outputs: Output) -> None:
+        self.training_inputs = inputs
+        print("TRAINING INPUTS ", inputs.shape, inputs.columns)
+        print("training index ", inputs.index)
+        print("metadata ", inputs.metadata)
+        
+        self.output_columns = outputs.columns
+        print("Training OUPTUTS ", outputs.shape, outputs.columns)
+        print("training index ", outputs.index)
+        print("metadata ", outputs.metadata)
+        self._label_unique = np.unique(outputs.values).shape[0]
+        self.training_outputs = to_categorical(outputs, num_classes = np.unique(outputs.values).shape[0])
+        self.fitted = False
+        
+
+        # DATA PROFILING? softmax categorical (encoded) X or labels Y 
+        # binary data? np.logical_and(self.training_inputs >= 0, self.training_inputs )
+        
+        # CHECK unique values for determining discrete / continuous
+        #self._input_types = []
+        #self._label_unique = np.unique(outputs).shape[0]
+        #self._label_unique = 1 if self._label_unique > self.max_discrete_labels else self._label_unique
+
+
+    def get_params(self) -> EchoSAE_Params:
+        return EchoSAE_Params(model = self.model, model_weights = self.model.get_weights())#max_discrete_labels = self.max_discrete_labels)#args)
+
+    def set_params(self, *, params: EchoSAE_Params) -> None:
+        #self.max_discrete_labels = params["max_discrete_labels"]
+        self._extra_params()
+        self.model = params['model']
+        self.model.set_weights(params['model_weights'])
+
+    def _add_target_semantic_types(cls, metadata: metadata_base.DataMetadata,
+                            source: typing.Any,  target_names: List = None,) -> metadata_base.DataMetadata:
+        for column_index in range(metadata.query((metadata_base.ALL_ELEMENTS,))['dimension']['length']):
+            metadata = metadata.add_semantic_type((metadata_base.ALL_ELEMENTS, column_index),
+                                                  'https://metadata.datadrivendiscovery.org/types/Target',
+                                                  source=source)
+            metadata = metadata.add_semantic_type((metadata_base.ALL_ELEMENTS, column_index),
+                                                  'https://metadata.datadrivendiscovery.org/types/PredictedTarget',
+                                                  source=source)
+            if target_names:
+                metadata = metadata.update((metadata_base.ALL_ELEMENTS, column_index), {
+                    'name': target_names[column_index],
+                }, source=source)
+        return metadata
+
+
+class EchoRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAE_Params, EchoSAE_Hyperparams]):
+    """
+    Keras NN implementing the information bottleneck method with Echo Noise to calculate I(X:Z), where Z also trained to maximize I(X:Y) for label Y.  Control tradeoff using 'label_beta param'
+    """
+    metadata = PrimitiveMetadata({
+        "schema": "v0",
+        "id": "6c95166f-434a-435d-a3d7-bce8d7238061",
+        "version": "1.0.0",
+        "name": "Echo",
+        "description": "Autoencoder implementation of Information Bottleneck using Echo Noise",
+        "python_path": "d3m.primitives.regression.corex_supervised.EchoIB",
+        "original_python_path": "echo_sae.EchoRegression",
+        "source": {
+            "name": "ISI",
+            "contact": "mailto:brekelma@usc.edu",
+            "uris": [ "https://github.com/brekelma/dsbox_corex" ]
+            },
+        # git+https://github.com/brekelma/corex_continuous#egg=corex_continuous
+        "installation": [ cfg_.INSTALLATION ]
+            #{'type': 'PIP', 
+             #'package_uri': 'git+https://github.com/brekelma/dsbox_corex.git@7381c3ed2d41a8dbe96bbf267a915a0ec48ee397#egg=dsbox-corex'#'+ str(git.Repo(search_parent_directories = True).head.object.hexsha) + '#egg=dsbox-corex'
+            #}
+            #]
+            ,
+      "algorithm_types": ["EXPECTATION_MAXIMIZATION_ALGORITHM"],
+      "primitive_family": "CLASSIFICATION",
+      "hyperparams_to_tune": ["label_beta", "epochs"]
+    })
+
+
+
+    def __init__(self, *, hyperparams : EchoSAE_Hyperparams) -> None: #, random_seed : int =  0, docker_containers: typing.Dict[str, DockerContainer] = None
+        super().__init__(hyperparams = hyperparams) # random_seed = random_seed, docker_containers = docker_containers)
+
+    def _extra_params(self, latent_dims = None, activation = None, lr = None, batch = None, epochs = None, noise = None):
+        self._latent_dims = [200, 200, 200, 20]
         self._decoder_dims = list(reversed(self._latent_dims[:-1]))
         
         # TRAINING ARGS... what to do?
@@ -154,16 +446,20 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAE_P
 
 
         z_mean = Dense(self._latent_dims[-1], activation = z_mean_act, name = 'z_mean')(t)
-        z_noise = Dense(self._latent_dims[-1], activation = z_var_act, name = 'z_noise')(t)
-        z_act = Lambda(echo_sample, output_shape = (self._latent_dims[-1],), name = 'z_act')([z_mean, z_noise])
+        z_noise = Dense(self._latent_dims[-1], activation = z_var_act, name = 'z_noise', bias_initializer = 'ones')(t)
+        z_act = Lambda(echo_sample, arguments = {'batch': self._batch, 'nomc': True, 'calc_log': True, 'plus_sx': True}, output_shape = (self._latent_dims[-1],), name = 'z_act')([z_mean, z_noise])
 
         t = z_act
         for i in range(len(self._decoder_dims)):
             t = Dense(self._decoder_dims[i], name = 'decoder_'+str(i), activation = self._activation)(t) 
         
         # CLASSIFICATION ONLY here
+        print("LABEL UNIQUE ", self._label_unique)
         label_act = 'softmax' if self._label_unique > 1 else 'sigmoid'
-        y_pred = Dense(self._label_unique, activation = 'softmax', name = 'y_pred')(t)
+        #if self._label_unique == 2:
+        #    y_pred = Dense(1, activation = 'sigmoid', name = 'y_pred')(t)
+        #else:
+        y_pred = Dense(self._label_unique, activation = label_act, name = 'y_pred')(t)
 
         #if self._input_types:
         #    pass
@@ -191,7 +487,7 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAE_P
         loss_weights.append(1)
 
 
-        self.model = Model(inputs = x, outputs = outputs)
+        self.model = keras.models.Model(inputs = x, outputs = outputs)
         self.model.compile(optimizer = self._optimizer, loss = loss_functions, loss_weights = loss_weights)
 
 
@@ -227,6 +523,9 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAE_P
             z_stats = [func([data, 1.])[0] for func in functors]
             z_act = echo_sample(z_stats).eval(session=K.get_session())
             y_pred= pred_function([z_act, 1.])[0]#.eval(session=K.get_session())
+            if i == 0:
+                print("Y PRED ", y_pred)
+            #if self._label_unique > 2:
             y_pred = np.argmax(y_pred, axis = -1)
             predictions.extend([y_pred[yp] for yp in range(y_pred.shape[0])])
             #int_df = d3m_DataFrame(y_pred,index = inputs.index[i:i+self._batch], columns = self.output_columns)
@@ -246,9 +545,6 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAE_P
     def set_training_data(self, *, inputs : Input, outputs: Output) -> None:
         self.training_inputs = inputs
         self.output_columns = outputs.columns
-        print()
-        print("OUTPUT COLUMNS ", outputs.columns)
-        print()
         self._label_unique = np.unique(outputs.values).shape[0]
         self.training_outputs = to_categorical(outputs, num_classes = np.unique(outputs.values).shape[0])
         self.fitted = False
@@ -264,12 +560,31 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAE_P
 
 
     def get_params(self) -> EchoSAE_Params:
-        return EchoSAE_Params(model = self.model)#max_discrete_labels = self.max_discrete_labels)#args)
+        return EchoSAE_Params(model = self.model, model_weights = self.model.get_weights())#max_discrete_labels = self.max_discrete_labels)#args)
 
     def set_params(self, *, params: EchoSAE_Params) -> None:
         #self.max_discrete_labels = params["max_discrete_labels"]
         self._extra_params()
         self.model = params['model']
+        self.model.set_weights(params['model_weights'])
+    
+    def _add_target_semantic_types(cls, metadata: metadata_base.DataMetadata,
+                            source: typing.Any,  target_names: List = None,) -> metadata_base.DataMetadata:
+        for column_index in range(metadata.query((metadata_base.ALL_ELEMENTS,))['dimension']['length']):
+            metadata = metadata.add_semantic_type((metadata_base.ALL_ELEMENTS, column_index),
+                                                  'https://metadata.datadrivendiscovery.org/types/Target',
+                                                  source=source)
+            metadata = metadata.add_semantic_type((metadata_base.ALL_ELEMENTS, column_index),
+                                                  'https://metadata.datadrivendiscovery.org/types/PredictedTarget',
+                                                  source=source)
+            if target_names:
+                metadata = metadata.update((metadata_base.ALL_ELEMENTS, column_index), {
+                    'name': target_names[column_index],
+                }, source=source)
+        return metadata
+
+
+
 
 
 def make_keras_pickleable():
@@ -278,15 +593,14 @@ def make_keras_pickleable():
         with tempfile.NamedTemporaryFile(suffix='.hdf5', delete=True) as fd:
             keras.models.save_model(self, fd.name, overwrite=True)
             model_str = fd.read()
-        d = { 'model_str': model_str }
+        d = {'model_str': model_str}
         return d
 
     def __setstate__(self, state):
         with tempfile.NamedTemporaryFile(suffix='.hdf5', delete=True) as fd:
             fd.write(state['model_str'])
             fd.flush()
-            model = keras.models.load_model(fd.name, custom_objects = {'tanh64': tanh64, 'log_sigmoid': tf.math.log_sigmoid, 'dim_sum': dim_sum, 
-                                                                       'echo_loss': echo_loss, 'tf': tf, 'permute_neighbor_indices': permute_neighbor_indices})
+            model = keras.models.load_model(fd.name, custom_objects = {'tanh64': tanh64, 'log_sigmoid': tf.math.log_sigmoid, 'dim_sum': dim_sum, 'echo_loss': echo_loss, 'tf': tf, 'permute_neighbor_indices': permute_neighbor_indices})
         self.__dict__ = model.__dict__
 
 

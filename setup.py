@@ -30,7 +30,8 @@ setup(
         'feature_construction.corex_continuous.CorexContinuous = corex_continuous:CorexContinuous',
         'feature_construction.corex_text.CorexText = corex_text:CorexText',
         'regression.corex_supervised.EchoLinear = echo_regressor:EchoLinearRegression',
-        'classification.corex_supervised.Echo = echo_sae:EchoClassification',
+        'regression.corex_supervised.EchoIB = echo_sae:EchoRegression',
+        'classification.corex_supervised.EchoIB = echo_sae:EchoClassification',
         #'regression.echo.Echo = echo_sae:EchoRegression'        
     ],
     }
