@@ -38,20 +38,19 @@ Output = container.DataFrame
 
 
 class CorexContinuous_Params(params.Params):
-    model: typing.Union[corex_cont.Corex, None]
     _fitted: typing.Union[bool, None] #bool
+    model: typing.Union[corex_cont.Corex, None]
     #training_inputs: Input
 
     # add support for resuming training / storing model information
 
 
 class CorexContinuous_Hyperparams(hyperparams.Hyperparams):
-    n_hidden = Union(OrderedDict([('n_hidden int' , hyperparams.Uniform(lower = 1, upper = 50, default = 2, q = 1, description = 'number of hidden factors learned')),
+    n_hidden = Union(OrderedDict([('n_hidden int' , hyperparams.Uniform(lower = 1, upper = 50, default = 10, q = 1, description = 'number of hidden factors learned')),
         ('n_hidden pct' , hyperparams.Uniform(lower = 0, upper = .50, default = .2, q = .05, description = 'number of hidden factors as percentage of # input columns'))]), 
         default = 'n_hidden pct', semantic_types=[
         'https://metadata.datadrivendiscovery.org/types/TuningParameter'
     ])
-
 
 class CorexContinuous(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexContinuous_Params, CorexContinuous_Hyperparams]):  #(Primitive):
     
@@ -126,8 +125,8 @@ class CorexContinuous(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexConti
 
         self.latent_factors = self.model.transform(X_)
 
-        out_df = d3m_DataFrame(inputs)
-        corex_df = d3m_DataFrame(self.latent_factors)
+        out_df = d3m_DataFrame(inputs, generate_metadata = True)
+        corex_df = d3m_DataFrame(self.latent_factors, generate_metadata = True)
 
         for column_index in range(corex_df.shape[1]):
             col_dict = dict(corex_df.metadata.query((mbase.ALL_ELEMENTS, column_index)))
@@ -138,8 +137,11 @@ class CorexContinuous(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexConti
 
             corex_df.metadata = corex_df.metadata.update((mbase.ALL_ELEMENTS, column_index), col_dict)
         corex_df.index = out_df.index.copy()
-
+        
         out_df = utils.append_columns(out_df, corex_df)
+        print()
+        print("COREX CONTINUOUS COL NAME ", list(out_df))
+        print()
         return CallResult(out_df, True, self.max_iter)
 
     def _fit_transform(self, inputs : Input, timeout: float = None, iterations : int = None) -> Sequence[Output]:
@@ -176,8 +178,16 @@ class CorexContinuous(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexConti
         return CorexContinuous_Params(model = self.model, _fitted = self.fitted)
 
     def set_params(self, *, params: CorexContinuous_Params) -> None:
+        print("PARAM KEYS ", dir(params))
         self.model = params['model']
-        self.fitted = params['_fitted']
+        try:
+            self.fitted = params['_fitted']
+        except:
+            try:
+                print("PARAM KEYS ", params.keys())
+            except:
+                print(params)
+            pass
         #self.training_inputs = params.training_inputs
 
 

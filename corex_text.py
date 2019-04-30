@@ -239,10 +239,10 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
         self.latent_factors.columns = ['corex_' + str(i) for i in range(self.latent_factors.shape[-1])]
 
         # remove the selected columns from input and add the latent factors given by corex
-        out_df = d3m_DataFrame(inputs)
+        out_df = d3m_DataFrame(inputs, generate_metadata = True)
 
         # create metadata for the corex columns
-        corex_df = d3m_DataFrame(self.latent_factors)
+        corex_df = d3m_DataFrame(self.latent_factors, generate_metadata = True)
         for column_index in range(corex_df.shape[1]):
             col_dict = dict(corex_df.metadata.query((mbase.ALL_ELEMENTS, column_index)))
             col_dict['structural_type'] = type(1.0)

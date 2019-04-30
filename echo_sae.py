@@ -2,6 +2,7 @@ import os
 import copy
 import numpy as np
 import pandas as pd
+#CUDA_VISIBLE_DEVICES = ""
 import tensorflow as tf
 from keras import backend as K
 import keras.objectives
@@ -15,7 +16,7 @@ from keras.optimizers import Adam, SGD
 from keras.engine.topology import Layer
 from keras.utils import to_categorical
 import tempfile
-
+from sklearn import preprocessing
 
 import git
 from d3m import utils
@@ -43,22 +44,41 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 Input = container.DataFrame
 Output = container.DataFrame
 
-class EchoSAE_Params(params.Params):
+class EchoSAEc_Params(params.Params):
     model: typing.Union[keras.models.Model, None]
     model_weights: typing.Union[Any,None]
+    fitted: typing.Union[bool, None] #bool
+    label_encode: typing.Union[preprocessing.LabelEncoder, None]
+    output_columns: typing.Union[list, pd.Index, None]
     #max_discrete_labels: int
     # add support for resuming training / storing model information
 
+class EchoSAEr_Params(params.Params):
+    model: typing.Union[keras.models.Model, None]
+    model_weights: typing.Union[Any,None]
+    fitted: typing.Union[bool, None] #bool
+    output_columns: typing.Union[list, pd.Index, None]
 
 class EchoSAE_Hyperparams(hyperparams.Hyperparams):
     label_beta = Uniform(lower = 0, upper = 1000, default = 999, q = .01, 
     	description = 'Lagrange multiplier for beta : 1 tradeoff btwn label relevance : compression.', semantic_types=[
         'https://metadata.datadrivendiscovery.org/types/TuningParameter'
     ])
-    epochs = Uniform(lower = 1, upper = 1000, default = 100, description = 'number of epochs to train', semantic_types=[
+    epochs = Uniform(lower = 1, upper = 1000, default = 50, description = 'number of epochs to train', semantic_types=[
         'https://metadata.datadrivendiscovery.org/types/TuningParameter'
     ])
-
+    error_on_no_input = hyperparams.UniformBool(
+        default=True,
+        semantic_types=['https://metadata.datadrivendiscovery.org/types/ControlParameter'],
+        description="Throw an exception if no input column is selected/provided. Defaults to true to behave like sklearn. To prevent pipelines from breaking set this to False."
+    )
+    gpus = Uniform(lower = 0, upper = 5, q = 1, 
+                   default = 0,
+                   semantic_types = ['https://metadata.datadrivendiscovery.org/types/ResourcesUseParameter'],
+                   description = 'GPUs to Use'
+    )
+                
+                      
 
     #n_hidden = Uniform(lower = 0, upper = 100, default = 10, q = 1, description = 'number of topics')
     #max_df = Uniform(lower = .10, upper = 1.01, default = .9, q = .05, description = 'max percent document frequency of analysed terms')
@@ -70,48 +90,60 @@ class EchoSAE_Hyperparams(hyperparams.Hyperparams):
     #            default = 'none')
 
 
-# def build_convolutional_encoder(input_shape, architecture = 'alemi'):
-#     x = keras.layers.Input(shape = (self.training_inputs.shape[-1],))
-#     t = x
-#     reshp = keras.layers.Reshape(inp_shape, input_shape = (d.dim,))(x)
-#     print("INPUT SHAPE ", x, reshp)
-    
-#     if architecture == 'alemi':
-#         h = keras.layers.Conv2D(self._latent_dims[0], activation = 'relu', kernel_size = 5, strides = 1, padding = 'same')(reshp)
-#         h = keras.layers.Conv2D(el[1], activation = 'relu', kernel_size = 5, strides = 2, padding = 'same')(h)
-#         h = keras.layers.Conv2D(el[2], activation = 'relu', kernel_size = 5, strides = 1, padding = 'same')(h)
-#         h = keras.layers.Conv2D(el[3], activation = 'relu', kernel_size = 5, strides = 2, padding = 'same')(h)
-#         h = keras.layers.Conv2D(el[4], activation = 'relu', kernel_size = 7, strides = 2, padding = 'valid')(h)
-
-#     for i in range(len(self._latent_dims[:-1])):
-#         t = Dense(self._latent_dims[i], activation = self._activation)(t)
-        
-#     if self._noise == 'add' or self._noise == 'vae':
-#         z_mean_act = 'linear'
-#         z_var_act = 'linear'
-#         sample_function = vae_sample
-#         latent_loss = gaussian_kl_prior
-#     elif self._noise == 'ido' or self._noise == 'mult':
-#         #final_enc_act = 'softplus'                                                                                                                                           
-#         z_mean_act = 'linear'
-#         z_var_act = 'linear'
-#         sample_function = ido_sample
-#         latent_loss = gaussian_kl_prior
-#     elif self._noise == 'echo':
-#         z_mean_act = tanh64
-#         z_var_act = tf.math.log_sigmoid
-#         sample_function = echo_sample
-#         latent_loss = echo_loss
-#     else:
-#         z_mean_act = tanh64
-#         z_var_act = tf.math.log_sigmoid
-#         sample_function = echo_sample
-#         latent_loss = echo_loss
+def build_convolutional_encoder(input_shape, architecture = 'alemi', encoder_layers = [], decoder_layers = []):
+    x = keras.layers.Input(shape = (self.training_inputs.shape[-1],))
+    t = x
+    reshp = keras.layers.Reshape(inp_shape, input_shape = (d.dim,))(x)
+    print()
+    print("IMAGE TRAINING INPUT SHAPE ", x, reshp)
+    print()
+    if architecture == 'alemi':
+        el = [32, 32, 64, 64, 256, 64]
+        dl = [64, 64, 64, 32, 32, 32, 1]
+    else:
+        el = encoder_layers if encoder_layers else [32, 32, 64, 64, 256, 64]
+        dl = decoder_layers if decoder_layers else [64, 64, 64, 32, 32, 32, 1]
 
 
+    if architecture == 'alemi':
+        h = keras.layers.Conv2D(el[0], activation = 'relu', kernel_size = 5, strides = 1, padding = 'same')(reshp)
+        h = keras.layers.Conv2D(el[1], activation = 'relu', kernel_size = 5, strides = 2, padding = 'same')(h)
+        h = keras.layers.Conv2D(el[2], activation = 'relu', kernel_size = 5, strides = 1, padding = 'same')(h)
+        h = keras.layers.Conv2D(el[3], activation = 'relu', kernel_size = 5, strides = 2, padding = 'same')(h)
+        h = keras.layers.Conv2D(el[4], activation = 'relu', kernel_size = 7, strides = 2, padding = 'valid')(h)
+
+    #for i in range(len(self._latent_dims[:-1])):
+    #    t = Dense(self._latent_dims[i], activation = self._activation)(t)
+   
+    # if self._noise == 'add' or self._noise == 'vae':
+    #     z_mean_act = 'linear'
+    #     z_var_act = 'linear'
+    #     sample_function = vae_sample
+    #     latent_loss = gaussian_kl_prior
+    # elif self._noise == 'ido' or self._noise == 'mult':
+    #     #final_enc_act = 'softplus'                                                                                                                                           
+    #     z_mean_act = 'linear'
+    #     z_var_act = 'linear'
+    #     sample_function = ido_sample
+    #     latent_loss = gaussian_kl_prior
+    # elif self._noise == 'echo':
+    #     z_mean_act = tanh64
+    #     z_var_act = tf.math.log_sigmoid
+    #     sample_function = echo_sample
+    #     latent_loss = echo_loss
+    #else:
+    z_mean_act = tanh64
+    z_var_act = tf.math.log_sigmoid
+    sample_function = echo_sample
+    latent_loss = echo_loss
+
+    fx = Dense(el[-1], activation = z_mean_act)(h)
+    sx = Dense(el[-1], activation = z_var_act)(h)
+    z_act = Lambda(sample_function, name = 'latent_act')([fx,sx])
+    return keras.models.Model(inputs = x, outputs = z_act)
 
 
-class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAE_Params, EchoSAE_Hyperparams]):
+class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEc_Params, EchoSAE_Hyperparams]):
     """
     Keras NN implementing the information bottleneck method with Echo Noise to calculate I(X:Z), where Z also trained to maximize I(X:Y) for label Y.  Control tradeoff using 'label_beta param'
     """
@@ -137,7 +169,7 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAE_P
             ,
       "algorithm_types": ["EXPECTATION_MAXIMIZATION_ALGORITHM"],
       "primitive_family": "CLASSIFICATION",
-      "hyperparams_to_tune": ["label_beta", "epochs"]
+        "hyperparams_to_tune": ["label_beta", "epochs"]
     })
 
 
@@ -146,19 +178,25 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAE_P
         super().__init__(hyperparams = hyperparams) # random_seed = random_seed, docker_containers = docker_containers)
 
     def _extra_params(self, latent_dims = None, activation = None, lr = None, batch = None, epochs = None, noise = None):
-        self._latent_dims = [200, 200, 200, 20]
+        self._latent_dims = [200, 200, 200, 50]
         self._decoder_dims = list(reversed(self._latent_dims[:-1]))
         
         # TRAINING ARGS... what to do?
         self._activation = 'softplus'
-        self._lr = 0.0005
+        self._lr = 0.0003
         self._optimizer = Adam(self._lr)
         self._batch = 100
         self._epochs = None # HYPERPARAM?
         self._noise = 'echo'
         self._anneal_sched = None
-        self.output_columns = self.output.columns#['Hall of Fame']
-
+        try:
+            self.label_encode = self.label_encode
+        except:
+            self.label_encode = None
+        try:
+            self.output_columns = self.output_columns#['Hall of Fame']
+        except:
+            pass
 
     def fit(self, *, timeout : float = None, iterations : int = None) -> CallResult[None]:
         make_keras_pickleable()
@@ -231,6 +269,8 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAE_P
         outputs.append(y_pred)
         if label_act == 'softmax':
             loss_functions.append(keras.objectives.categorical_crossentropy)
+        elif label_act == 'sigmoid':
+            loss_functions.append(keras.objectives.binary_crossentropy)
         else: 
             loss_functions.append(keras.objectives.mean_squared_error)#mse
         loss_weights.append(self.hyperparams["label_beta"])
@@ -256,6 +296,7 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAE_P
 
         #Lambda(ido_sample)
         #Lambda(vae_sample, output_shape = (d,))([z_mean, z_var])
+        self.fitted = True
 
         return CallResult(None, True, self.hyperparams["epochs"])
 
@@ -289,10 +330,10 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAE_P
             #    predictions.append(int_df)
             #    print("Predictions SHAPE ", predictions.shape)
         predictions = np.array(predictions)
-
-        output = d3m_DataFrame(predictions, generate_metadata = False, source = self)
-        output.metadata = inputs.metadata.clear(source=self, for_value=output, generate_metadata=True)
-        output.metadata = self._add_target_semantic_types(metadata=output.metadata, target_names=self.output_columns, source=self)
+        predictions = self.label_encode.inverse_transform(predictions)
+        output = d3m_DataFrame(predictions, columns = self.output_columns, generate_metadata = True, source = self)
+        #output.metadata = inputs.metadata.clear(source=self, for_value=output, generate_metadata=True)
+        #output.metadata = self._add_target_semantic_types(metadata=output.metadata, target_names=self.output_columns, source=self)
 
         print("INPUT COLUMNS ", inputs.columns)
         print(inputs.columns)
@@ -302,6 +343,7 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAE_P
                                                add_index_columns=True,#self.hyperparams['add_index_columns'],
                                                inputs=inputs, columns_list=[output], source=self, column_indices=self._training_indices)
         print("outputs index ", outputs.index)
+        print("OUTPUT COLUMNS ", outputs.columns)
         #predictions = d3m_DataFrame(predictions, index = inputs.index.copy())# columns = self.output_columns)
 
 
@@ -318,8 +360,11 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAE_P
         print("Training OUPTUTS ", outputs.shape, outputs.columns)
         print("training index ", outputs.index)
         print("metadata ", outputs.metadata)
+
         self._label_unique = np.unique(outputs.values).shape[0]
-        self.training_outputs = to_categorical(outputs, num_classes = np.unique(outputs.values).shape[0])
+        self.label_encode = preprocessing.LabelEncoder()
+        self.training_outputs = to_categorical(self.label_encode.fit_transform(outputs), num_classes = np.unique(outputs.values).shape[0])
+        #self.training_outputs = to_categorical(outputs, num_classes = np.unique(outputs.values).shape[0])
         self.fitted = False
         
 
@@ -332,14 +377,17 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAE_P
         #self._label_unique = 1 if self._label_unique > self.max_discrete_labels else self._label_unique
 
 
-    def get_params(self) -> EchoSAE_Params:
-        return EchoSAE_Params(model = self.model, model_weights = self.model.get_weights())#max_discrete_labels = self.max_discrete_labels)#args)
+    def get_params(self) -> EchoSAEc_Params:
+        return EchoSAEc_Params(model = self.model, model_weights = self.model.get_weights(), fitted = self.fitted, label_encode = self.label_encode, output_columns = self.output_columns)#max_discrete_labels = self.max_discrete_labels)#args)
 
-    def set_params(self, *, params: EchoSAE_Params) -> None:
+    def set_params(self, *, params: EchoSAEc_Params) -> None:
         #self.max_discrete_labels = params["max_discrete_labels"]
         self._extra_params()
         self.model = params['model']
         self.model.set_weights(params['model_weights'])
+        self.fitted = params['fitted']
+        self.label_encode = params['label_encode']
+        self.output_columns = params['output_columns']
 
     def _add_target_semantic_types(cls, metadata: metadata_base.DataMetadata,
                             source: typing.Any,  target_names: List = None,) -> metadata_base.DataMetadata:
@@ -357,7 +405,7 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAE_P
         return metadata
 
 
-class EchoRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAE_Params, EchoSAE_Hyperparams]):
+class EchoRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEr_Params, EchoSAE_Hyperparams]):
     """
     Keras NN implementing the information bottleneck method with Echo Noise to calculate I(X:Z), where Z also trained to maximize I(X:Y) for label Y.  Control tradeoff using 'label_beta param'
     """
@@ -403,7 +451,8 @@ class EchoRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAE_Param
         self._epochs = None # HYPERPARAM?
         self._noise = 'echo'
         self._anneal_sched = None
-        self.output_columns = ['Hall of Fame']
+
+        #self.output_columns = ['Hall of Fame']
 
 
     def fit(self, *, timeout : float = None, iterations : int = None) -> CallResult[None]:
@@ -456,10 +505,10 @@ class EchoRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAE_Param
         # CLASSIFICATION ONLY here
         print("LABEL UNIQUE ", self._label_unique)
         label_act = 'softmax' if self._label_unique > 1 else 'sigmoid'
-        #if self._label_unique == 2:
-        #    y_pred = Dense(1, activation = 'sigmoid', name = 'y_pred')(t)
-        #else:
-        y_pred = Dense(self._label_unique, activation = label_act, name = 'y_pred')(t)
+        if self._label_unique == 2:
+            y_pred = Dense(1, activation = 'sigmoid', name = 'y_pred')(t)
+        else:
+            y_pred = Dense(self._label_unique, activation = label_act, name = 'y_pred')(t)
 
         #if self._input_types:
         #    pass
@@ -502,6 +551,7 @@ class EchoRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAE_Param
 
         #Lambda(ido_sample)
         #Lambda(vae_sample, output_shape = (d,))([z_mean, z_var])
+        self.fitted = True
 
         return CallResult(None, True, self.hyperparams["epochs"])
 
@@ -536,7 +586,7 @@ class EchoRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAE_Param
             #    print("Predictions SHAPE ", predictions.shape)
         predictions = np.array(predictions)
 
-        predictions = d3m_DataFrame(predictions, index = inputs.index.copy())# columns = self.output_columns)
+        predictions = d3m_DataFrame(predictions, index = inputs.index.copy(), columns = self.output_columns, generate_metadata = True)# columns = self.output_columns)
         print("PREDICTIONS SHAPE ", predictions.shape)
         print(predictions.index)
         return CallResult(predictions, True, 0)
@@ -559,14 +609,16 @@ class EchoRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAE_Param
         #self._label_unique = 1 if self._label_unique > self.max_discrete_labels else self._label_unique
 
 
-    def get_params(self) -> EchoSAE_Params:
-        return EchoSAE_Params(model = self.model, model_weights = self.model.get_weights())#max_discrete_labels = self.max_discrete_labels)#args)
+    def get_params(self) -> EchoSAEr_Params:
+        return EchoSAEr_Params(model = self.model, model_weights = self.model.get_weights(), fitted = self.fitted, output_columns = self.output_columns)#max_discrete_labels = self.max_discrete_labels)#args)
 
-    def set_params(self, *, params: EchoSAE_Params) -> None:
+    def set_params(self, *, params: EchoSAEr_Params) -> None:
         #self.max_discrete_labels = params["max_discrete_labels"]
         self._extra_params()
         self.model = params['model']
         self.model.set_weights(params['model_weights'])
+        self.fitted = params['fitted']
+        self.output_columns = params['output_columns']
     
     def _add_target_semantic_types(cls, metadata: metadata_base.DataMetadata,
                             source: typing.Any,  target_names: List = None,) -> metadata_base.DataMetadata:
