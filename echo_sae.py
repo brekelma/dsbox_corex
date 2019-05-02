@@ -588,10 +588,27 @@ class EchoRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEr_Para
         predictions = np.array(predictions)
 
         predictions = d3m_DataFrame(predictions, index = inputs.index.copy(), columns = self.output_columns, generate_metadata = True)# columns = self.output_columns)
-        print("PREDICTIONS SHAPE ", predictions.shape)
-        print(predictions.index)
-        return CallResult(predictions, True, 0)
-        #return CallResult(d3m_DataFrame(self.model.predict(inputs)), True, 0)
+
+
+
+
+
+
+        predictions = np.array(predictions)
+        predictions = self.label_encode.inverse_transform(predictions)
+        output = d3m_DataFrame(predictions, columns = self.output_columns, generate_metadata = True, source = self)
+        #output.metadata = inputs.metadata.clear(source=self, for_value=output, generate_metadata=True)                                                                                                       
+        #output.metadata = self._add_target_semantic_types(metadata=output.metadata, target_names=self.output_columns, source=self)                                                                           
+
+        self._training_indices = [c for c in inputs.columns if isinstance(c, str) and 'index' in c.lower()]
+
+        outputs = common_utils.combine_columns(return_result='new', #self.hyperparams['return_result'],                                                                                                      
+                                               add_index_columns=True,#self.hyperparams['add_index_columns'],                                                                                                
+                                               inputs=inputs, columns_list=[output], source=self, column_indices=self._training_indices)
+
+        print("ECHO REGRESSOR OUTPUTS ", outputs.columns)
+        print(outputs.values[:10])
+        return CallResult(outputs, True, 0)
 
     def set_training_data(self, *, inputs : Input, outputs: Output) -> None:
         self.training_inputs = inputs
