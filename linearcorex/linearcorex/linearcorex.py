@@ -131,6 +131,7 @@ class Corex(object):
             self.moments = self._calculate_moments(x, self.ws, quick=True)
 
             for i_loop in range(self.max_iter):
+                
                 last_tc = self.tc  # Save this TC to compare to possible updates
                 if self.discourage_overlap:
                     self.ws, self.moments = self._update_ns(x)
@@ -245,8 +246,8 @@ class Corex(object):
             y = x.dot(ws.T)
             tmp_sum = np.einsum('lj,lj->j', y, y)
         m["uj"] = (1 - self.eps**2) * tmp_sum / self.n_samples + self.eps**2 * np.sum(ws**2, axis=1)
-        if quick and np.max(m["uj"]) >= 1.:
-            return False
+        #if quick and np.max(m["uj"]) >= 1.:
+        #    return False
         if self.gpu:
             tmp = cm.empty((self.nv, self.m))
             cm.dot(x.T, y, target=tmp)

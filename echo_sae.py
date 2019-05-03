@@ -178,12 +178,12 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEc_
         super().__init__(hyperparams = hyperparams) # random_seed = random_seed, docker_containers = docker_containers)
 
     def _extra_params(self, latent_dims = None, activation = None, lr = None, batch = None, epochs = None, noise = None):
-        self._latent_dims = [200, 200, 200, self.hyperparams['n_hidden']]
+        self._latent_dims = [200, 200, self.hyperparams['n_hidden']]
         self._decoder_dims = list(reversed(self._latent_dims[:-1]))
         
         # TRAINING ARGS... what to do?
         self._activation = 'softplus'
-        self._lr = 0.0003
+        self._lr = 0.001
         self._optimizer = Adam(self._lr)
         self._batch = 100
         self._epochs = None # HYPERPARAM?
@@ -438,12 +438,12 @@ class EchoRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEr_Para
         super().__init__(hyperparams = hyperparams) # random_seed = random_seed, docker_containers = docker_containers)
 
     def _extra_params(self, latent_dims = None, activation = None, lr = None, batch = None, epochs = None, noise = None):
-        self._latent_dims = [200, 200, 200, self.hyperparams['n_hidden']]
+        self._latent_dims = [200, 200, self.hyperparams['n_hidden']]
         self._decoder_dims = list(reversed(self._latent_dims[:-1]))
         
         # TRAINING ARGS... what to do?
         self._activation = 'softplus'
-        self._lr = 0.0005
+        self._lr = 0.001
         self._optimizer = Adam(self._lr)
         self._batch = 100
         self._epochs = None # HYPERPARAM?
@@ -595,7 +595,7 @@ class EchoRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEr_Para
 
 
         predictions = np.array(predictions)
-        predictions = self.label_encode.inverse_transform(predictions)
+        #predictions = self.label_encode.inverse_transform(predictions)
         output = d3m_DataFrame(predictions, columns = self.output_columns, generate_metadata = True, source = self)
         #output.metadata = inputs.metadata.clear(source=self, for_value=output, generate_metadata=True)                                                                                                       
         #output.metadata = self._add_target_semantic_types(metadata=output.metadata, target_names=self.output_columns, source=self)                                                                           
