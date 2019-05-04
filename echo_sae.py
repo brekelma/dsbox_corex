@@ -185,7 +185,7 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEc_
         self._activation = 'softplus'
         self._lr = 0.0005
         self._optimizer = Adam(self._lr)
-        self._batch = 100
+        self._batch = 10
         self._epochs = None # HYPERPARAM?
         self._noise = 'echo'
         self._anneal_sched = None
@@ -243,7 +243,7 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEc_
 
             z_mean = Dense(self._latent_dims[-1], activation = z_mean_act, name = 'z_mean')(t)
             z_noise = Dense(self._latent_dims[-1], activation = z_var_act, name = 'z_noise', bias_initializer = 'ones')(t)
-            z_act = Lambda(echo_sample, arguments = {'batch': self._batch, 'nomc': True, 'calc_log': True, 'plus_sx': True}, output_shape = (self._latent_dims[-1],), name = 'z_act')([z_mean, z_noise])
+            z_act = Lambda(echo_sample, arguments = {'batch': self._batch, 'd_max': self._batch, 'nomc': True, 'calc_log': True, 'plus_sx': True}, output_shape = (self._latent_dims[-1],), name = 'z_act')([z_mean, z_noise])
 
         t = z_act
         for i in range(len(self._decoder_dims)):
@@ -301,7 +301,7 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEc_
         #Lambda(ido_sample)
         #Lambda(vae_sample, output_shape = (d,))([z_mean, z_var])
         self.fitted = True
-
+        
         return CallResult(None, True, self.hyperparams["epochs"])
 
     def produce(self, *, inputs : Input, timeout : float = None, iterations : int = None) -> CallResult[Output]: # TAKES IN DF with index column
@@ -445,7 +445,7 @@ class EchoRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEr_Para
         self._activation = 'softplus'
         self._lr = 0.0005
         self._optimizer = Adam(self._lr)
-        self._batch = 100
+        self._batch = 10
         self._epochs = None # HYPERPARAM?
         self._noise = 'echo'
         self._anneal_sched = None
@@ -499,14 +499,14 @@ class EchoRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEr_Para
 
         z_mean = Dense(self._latent_dims[-1], activation = z_mean_act, name = 'z_mean')(t)
         z_noise = Dense(self._latent_dims[-1], activation = z_var_act, name = 'z_noise', bias_initializer = 'ones')(t)
-        z_act = Lambda(echo_sample, arguments = {'batch': self._batch, 'nomc': True, 'calc_log': True, 'plus_sx': True}, output_shape = (self._latent_dims[-1],), name = 'z_act')([z_mean, z_noise])
+        z_act = Lambda(echo_sample, arguments = {'batch': self._batch, 'd_max': self._batch, 'nomc': True, 'calc_log': True, 'plus_sx': True}, output_shape = (self._latent_dims[-1],), name = 'z_act')([z_mean, z_noise])
 
         t = z_act
         for i in range(len(self._decoder_dims)):
             t = Dense(self._decoder_dims[i], name = 'decoder_'+str(i), activation = self._activation)(t) 
         
         # CLASSIFICATION ONLY here
-        print("LABEL UNIQUE ", self._label_unique)
+        
         label_act = 'softmax' if self._label_unique > 1 else 'sigmoid'
         if self._label_unique == 2:
             y_pred = Dense(1, activation = 'sigmoid', name = 'y_pred')(t)
@@ -542,7 +542,7 @@ class EchoRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEr_Para
         self.model = keras.models.Model(inputs = x, outputs = outputs)
         self.model.compile(optimizer = self._optimizer, loss = loss_functions, loss_weights = loss_weights)
 
-
+        self.model_weights = self.model.get_weights()
         # anneal? 
         if self._anneal_sched:
             raise NotImplementedError
@@ -574,9 +574,8 @@ class EchoRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEr_Para
             z_stats = [func([data, 1.])[0] for func in functors]
             z_act = echo_sample(z_stats).eval(session=K.get_session())
             y_pred= pred_function([z_act, 1.])[0]#.eval(session=K.get_session())
-            if i == 0:
-                print("Y PRED ", y_pred)
-            #if self._label_unique > 2:
+            
+            
             y_pred = np.argmax(y_pred, axis = -1)
             predictions.extend([y_pred[yp] for yp in range(y_pred.shape[0])])
             #int_df = d3m_DataFrame(y_pred,index = inputs.index[i:i+self._batch], columns = self.output_columns)
@@ -606,8 +605,6 @@ class EchoRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEr_Para
                                                add_index_columns=True,#self.hyperparams['add_index_columns'],                                                                                                
                                                inputs=inputs, columns_list=[output], source=self, column_indices=self._training_indices)
 
-        print("ECHO REGRESSOR OUTPUTS ", outputs.columns)
-        print(outputs.values[:10])
         return CallResult(outputs, True, 0)
 
     def set_training_data(self, *, inputs : Input, outputs: Output) -> None:
