@@ -5,6 +5,7 @@ import pandas as pd
 #CUDA_VISIBLE_DEVICES = ""
 import tensorflow as tf
 from keras import backend as K
+from keras.backend import get_session
 import keras.objectives
 import keras
 import keras.layers
@@ -86,6 +87,22 @@ class EchoSAE_Hyperparams(hyperparams.Hyperparams):
                    semantic_types = ['https://metadata.datadrivendiscovery.org/types/ResourcesUseParameter'],
                    description = 'GPUs to Use'
     )
+
+
+class ZeroAnneal(Callback):
+    def __init__(self, lw = 1, index = 0, epochs = 10, scaled = 0.01):
+        self.lw = tf.constant(lw, dtype = tf.float32)
+        self.zero_epochs = epochs
+        self.ind = index
+        self.replace = scaled*lw
+        
+    def on_epoch_begin(self, epoch, logs={}):
+        if epoch < self.zero_epochs:
+            tf.assign(self.model.loss_weights[self.ind], tf.constant(self.replace, dtype = tf.float32)).eval(session=get_session())
+        else:
+            tf.assign(self.model.loss_weights[self.ind],self.lw).eval(session=get_session())
+
+
                 
 
 def build_convolutional_encoder(n_hidden, sq_dim = None, architecture = 'alemi', encoder_layers = [], decoder_layers = []):
@@ -188,7 +205,9 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEc_
         self._batch = 20
         self._epochs = None # HYPERPARAM?
         self._noise = 'echo'
-        self._anneal_sched = None
+        self._kl_warmup = 10 # .1 * kl reg for first _ epochs
+        self._anneal_sched = None # not supported
+
         try:
             self.label_encode = self.label_encode
         except:
@@ -282,9 +301,12 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEc_
         loss_tensor = Lambda(latent_loss)([z_mean,z_noise])
         outputs.append(loss_tensor)
         loss_functions.append(dim_sum)
-        loss_weights.append(self.hyperparams["beta"])
+        loss_weights.append(tf.Variable(self.hyperparams["beta"], dtype = tf.float32, trainable = False))
 
-
+        if self._kl_warmup is not None and self._kl_warmup > 0:
+            my_callbacks = [ZeroAnneal(lw = self.hyperparams['beta'], index = -1, epochs = self._kl_warmup)] 
+        else:
+            my_callbacks = []
         self.model = keras.models.Model(inputs = x, outputs = outputs)
         self.model.compile(optimizer = self._optimizer, loss = loss_functions, loss_weights = loss_weights)
 
@@ -294,6 +316,7 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEc_
             raise NotImplementedError
         else:
             self.model.fit_generator(generator(self.training_inputs, self.training_outputs, target_len = len(outputs), batch = self._batch),
+                                     callbacks = my_callbacks,
                                      steps_per_epoch=int(self.training_inputs.values.shape[0]/self._batch), epochs = self.hyperparams["epochs"])
             #self.model.fit(self.training_inputs, [self.training_outputs]*len(outputs), 
             #    shuffle = True, epochs = self.hyperparams["epochs"], batch_size = self._batch) # validation_data = [] early stopping?
@@ -449,7 +472,7 @@ class EchoRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEr_Para
         self._epochs = None # HYPERPARAM?
         self._noise = 'echo'
         self._anneal_sched = None
-
+        self._kl_warmup = 10
         #self.output_columns = ['Hall of Fame']
 
 
@@ -536,7 +559,12 @@ class EchoRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEr_Para
         loss_tensor = Lambda(latent_loss)([z_mean,z_noise])
         outputs.append(loss_tensor)
         loss_functions.append(dim_sum)
-        loss_weights.append(self.hyperparams["beta"])
+        loss_weights.append(tf.Variable(self.hyperparams["beta"], dtype = tf.float32, trainable = False))
+
+        if self._kl_warmup is not None and self._kl_warmup > 0:
+            my_callbacks = [ZeroAnneal(lw = self.hyperparams['beta'], index = -1, epochs = self._kl_warmup)] 
+        else:
+            my_callbacks = []
 
 
         self.model = keras.models.Model(inputs = x, outputs = outputs)
@@ -548,6 +576,7 @@ class EchoRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEr_Para
             raise NotImplementedError
         else:
             self.model.fit_generator(generator(self.training_inputs, self.training_outputs, target_len = len(outputs), batch = self._batch),
+                                     callbacks = my_callbacks,
                                      steps_per_epoch=int(self.training_inputs.values.shape[0]/self._batch), epochs = self.hyperparams["epochs"])
             #self.model.fit(self.training_inputs, [self.training_outputs]*len(outputs), 
             #    shuffle = True, epochs = self.hyperparams["epochs"], batch_size = self._batch) # validation_data = [] early stopping?
