@@ -312,7 +312,7 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
                 processed_cols.iloc[row_index, fn_columns.index(column_index)] = " ".join(doc_tokens)
 
         # construct metadata for the newly generated columns
-        processed_cols = d3m_DataFrame(processed_cols)
+        processed_cols = d3m_DataFrame(processed_cols, generate_metadata = True)
 
         for column_index in range(processed_cols.shape[1]):
             col_dict = dict(processed_cols.metadata.query((mbase.ALL_ELEMENTS, column_index)))
