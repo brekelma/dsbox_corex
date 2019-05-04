@@ -185,7 +185,7 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEc_
         self._activation = 'softplus'
         self._lr = 0.0005
         self._optimizer = Adam(self._lr)
-        self._batch = 10
+        self._batch = 20
         self._epochs = None # HYPERPARAM?
         self._noise = 'echo'
         self._anneal_sched = None
@@ -445,7 +445,7 @@ class EchoRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEr_Para
         self._activation = 'softplus'
         self._lr = 0.0005
         self._optimizer = Adam(self._lr)
-        self._batch = 10
+        self._batch = 20
         self._epochs = None # HYPERPARAM?
         self._noise = 'echo'
         self._anneal_sched = None
