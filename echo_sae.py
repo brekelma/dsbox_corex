@@ -63,8 +63,8 @@ class EchoSAE_Hyperparams(hyperparams.Hyperparams):
     n_hidden = Uniform(lower = 1, upper = 50, default = 10, q = 1, description = 'number of hidden factors learned', semantic_types=[
         'https://metadata.datadrivendiscovery.org/types/TuningParameter'
     ])
-    label_beta = Uniform(lower = 0, upper = 1000, default = .5, q = .01, 
-    	description = 'Lagrange multiplier for beta : 1 tradeoff btwn label relevance : compression.', semantic_types=[
+    beta = Uniform(lower = 0, upper = 1000, default = .5, q = .01, 
+    	description = 'Lagrange multiplier for beta (applied to regularizer I(X:Z)): defining tradeoff btwn label relevance : compression.', semantic_types=[
         'https://metadata.datadrivendiscovery.org/types/TuningParameter'
     ])
     epochs = Uniform(lower = 1, upper = 1000, default = 100, description = 'number of epochs to train', semantic_types=[
@@ -169,7 +169,7 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEc_
             ,
       "algorithm_types": ["EXPECTATION_MAXIMIZATION_ALGORITHM"],
       "primitive_family": "CLASSIFICATION",
-        "hyperparams_to_tune": ["n_hidden", "label_beta", "epochs"]
+        "hyperparams_to_tune": ["n_hidden", "beta", "epochs"]
     })
 
 
@@ -241,9 +241,9 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEc_
                 latent_loss = echo_loss
 
 
-                z_mean = Dense(self._latent_dims[-1], activation = z_mean_act, name = 'z_mean')(t)
-                z_noise = Dense(self._latent_dims[-1], activation = z_var_act, name = 'z_noise', bias_initializer = 'ones')(t)
-                z_act = Lambda(echo_sample, arguments = {'batch': self._batch, 'nomc': True, 'calc_log': True, 'plus_sx': True}, output_shape = (self._latent_dims[-1],), name = 'z_act')([z_mean, z_noise])
+            z_mean = Dense(self._latent_dims[-1], activation = z_mean_act, name = 'z_mean')(t)
+            z_noise = Dense(self._latent_dims[-1], activation = z_var_act, name = 'z_noise', bias_initializer = 'ones')(t)
+            z_act = Lambda(echo_sample, arguments = {'batch': self._batch, 'nomc': True, 'calc_log': True, 'plus_sx': True}, output_shape = (self._latent_dims[-1],), name = 'z_act')([z_mean, z_noise])
 
         t = z_act
         for i in range(len(self._decoder_dims)):
@@ -268,7 +268,7 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEc_
         loss_weights = []
         
 
-        #beta = Beta(name = 'beta', beta = self.hyperparams["label_beta"])(x)
+        #beta = Beta(name = 'beta', beta = self.hyperparams["beta"])(x)
 
         outputs.append(y_pred)
         if label_act == 'softmax':
@@ -277,12 +277,12 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEc_
             loss_functions.append(keras.objectives.binary_crossentropy)
         else: 
             loss_functions.append(keras.objectives.mean_squared_error)#mse
-        loss_weights.append(self.hyperparams["label_beta"])
+        loss_weights.append(1)
 
         loss_tensor = Lambda(latent_loss)([z_mean,z_noise])
         outputs.append(loss_tensor)
         loss_functions.append(dim_sum)
-        loss_weights.append(1)
+        loss_weights.append(self.hyperparams["beta"])
 
 
         self.model = keras.models.Model(inputs = x, outputs = outputs)
@@ -429,7 +429,7 @@ class EchoRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEr_Para
             ,
       "algorithm_types": ["EXPECTATION_MAXIMIZATION_ALGORITHM"],
       "primitive_family": "CLASSIFICATION",
-      "hyperparams_to_tune": ["n_hidden", "label_beta", "epochs"]
+      "hyperparams_to_tune": ["n_hidden", "beta", "epochs"]
     })
 
 
@@ -531,12 +531,12 @@ class EchoRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEr_Para
             loss_functions.append(keras.objectives.categorical_crossentropy)
         else: 
             loss_functions.append(keras.objectives.mean_squared_error)#mse
-        loss_weights.append(self.hyperparams["label_beta"])
+        loss_weights.append(1)
 
         loss_tensor = Lambda(latent_loss)([z_mean,z_noise])
         outputs.append(loss_tensor)
         loss_functions.append(dim_sum)
-        loss_weights.append(1)
+        loss_weights.append(self.hyperparams["beta"])
 
 
         self.model = keras.models.Model(inputs = x, outputs = outputs)
