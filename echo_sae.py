@@ -63,7 +63,7 @@ class EchoSAE_Hyperparams(hyperparams.Hyperparams):
     n_hidden = Uniform(lower = 1, upper = 50, default = 10, q = 1, description = 'number of hidden factors learned', semantic_types=[
         'https://metadata.datadrivendiscovery.org/types/TuningParameter'
     ])
-    beta = Uniform(lower = 0, upper = 1000, default = .5, q = .01, 
+    beta = Uniform(lower = 0, upper = 1000, default = .1, q = .01, 
     	description = 'Lagrange multiplier for beta (applied to regularizer I(X:Z)): defining tradeoff btwn label relevance : compression.', semantic_types=[
         'https://metadata.datadrivendiscovery.org/types/TuningParameter'
     ])
