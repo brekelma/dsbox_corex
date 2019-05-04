@@ -167,7 +167,7 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEc_
             #}
             #]
             ,
-      "algorithm_types": ["EXPECTATION_MAXIMIZATION_ALGORITHM"],
+      "algorithm_types": ["STOCHASTIC_NEURAL_NETWORK"],#"EXPECTATION_MAXIMIZATION_ALGORITHM"],
       "primitive_family": "CLASSIFICATION",
         "hyperparams_to_tune": ["n_hidden", "beta", "epochs"]
     })
@@ -427,7 +427,7 @@ class EchoRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEr_Para
             #}
             #]
             ,
-      "algorithm_types": ["EXPECTATION_MAXIMIZATION_ALGORITHM"],
+      "algorithm_types": ["STOCHASTIC_NEURAL_NETWORK"],#"EXPECTATION_MAXIMIZATION_ALGORITHM"],
       "primitive_family": "CLASSIFICATION",
       "hyperparams_to_tune": ["n_hidden", "beta", "epochs"]
     })
