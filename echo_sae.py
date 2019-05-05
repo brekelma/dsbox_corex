@@ -374,7 +374,7 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEc_
         #predictions = d3m_DataFrame(predictions, index = inputs.index.copy())# columns = self.output_columns)
 
 
-        return CallResult(outputs, True, 0)
+        return CallResult(outputs, True, 1)
         #return CallResult(d3m_DataFrame(self.model.predict(inputs)), True, 0)
 
     def set_training_data(self, *, inputs : Input, outputs: Output) -> None:
@@ -634,7 +634,7 @@ class EchoRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEr_Para
                                                add_index_columns=True,#self.hyperparams['add_index_columns'],                                                                                                
                                                inputs=inputs, columns_list=[output], source=self, column_indices=self._training_indices)
 
-        return CallResult(outputs, True, 0)
+        return CallResult(outputs, True, 1)
 
     def set_training_data(self, *, inputs : Input, outputs: Output) -> None:
         self.training_inputs = inputs

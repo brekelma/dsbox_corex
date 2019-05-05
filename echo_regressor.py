@@ -146,7 +146,7 @@ class EchoLinearRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoReg
             print('FINAL OUTPUTS ', list(outputs))
         except:
             print(outputs)
-        return CallResult(outputs, True, 0)
+        return CallResult(outputs, True, 1)
         
 
 
