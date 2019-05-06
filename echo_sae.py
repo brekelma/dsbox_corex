@@ -166,7 +166,7 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEc_
     """
     metadata = PrimitiveMetadata({
         "schema": "v0",
-        "id": "6c95166f-434a-435d-a3d7-bce8d7238061",
+        "id": "393f9de8-a5b9-4d92-aaff-8808d563b6c4",
         "version": "1.0.0",
         "name": "Echo",
         "description": "Autoencoder implementation of Information Bottleneck using Echo Noise",
@@ -432,7 +432,7 @@ class EchoRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEr_Para
     """
     metadata = PrimitiveMetadata({
         "schema": "v0",
-        "id": "6c95166f-434a-435d-a3d7-bce8d7238061",
+        "id": "eb145d24-8833-4ed7-96be-ee5c7df61b41",
         "version": "1.0.0",
         "name": "Echo",
         "description": "Autoencoder implementation of Information Bottleneck using Echo Noise",
@@ -451,7 +451,7 @@ class EchoRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEr_Para
             #]
             ,
       "algorithm_types": ["STOCHASTIC_NEURAL_NETWORK"],#"EXPECTATION_MAXIMIZATION_ALGORITHM"],
-      "primitive_family": "CLASSIFICATION",
+      "primitive_family": "REGRESSION",
       "hyperparams_to_tune": ["n_hidden", "beta", "epochs"]
     })
 
@@ -530,11 +530,12 @@ class EchoRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEr_Para
         
         # CLASSIFICATION ONLY here
         
-        label_act = 'softmax' if self._label_unique > 1 else 'sigmoid'
-        if self._label_unique == 2:
-            y_pred = Dense(1, activation = 'sigmoid', name = 'y_pred')(t)
-        else:
-            y_pred = Dense(self._label_unique, activation = label_act, name = 'y_pred')(t)
+        #label_act = 'softmax' if self._label_unique > 1 else 'sigmoid'
+        #if self._label_unique == 2:
+        #    y_pred = Dense(1, activation = 'sigmoid', name = 'y_pred')(t)
+        #else:
+        label_act = 'linear'
+        y_pred = Dense(self.training_outputs.shape[-1], activation = label_act, name = 'y_pred')(t)
 
         #if self._input_types:
         #    pass
@@ -550,10 +551,10 @@ class EchoRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEr_Para
         #beta = Beta(name = 'beta', beta = self.hyperparams["label_beta"])(x)
 
         outputs.append(y_pred)
-        if label_act == 'softmax':
-            loss_functions.append(keras.objectives.categorical_crossentropy)
-        else: 
-            loss_functions.append(keras.objectives.mean_squared_error)#mse
+        #if label_act == 'softmax':
+        #    loss_functions.append(keras.objectives.categorical_crossentropy)
+        #else: 
+        loss_functions.append(keras.objectives.mean_squared_error)#mse
         loss_weights.append(1)
 
         loss_tensor = Lambda(latent_loss)([z_mean,z_noise])
@@ -639,8 +640,8 @@ class EchoRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEr_Para
     def set_training_data(self, *, inputs : Input, outputs: Output) -> None:
         self.training_inputs = inputs
         self.output_columns = outputs.columns
-        self._label_unique = np.unique(outputs.values).shape[0]
-        self.training_outputs = to_categorical(outputs, num_classes = np.unique(outputs.values).shape[0])
+        #self._label_unique = np.unique(outputs.values).shape[0]
+        self.training_outputs = outputs.values #to_categorical(outputs, num_classes = np.unique(outputs.values).shape[0])
         self.fitted = False
         
 
