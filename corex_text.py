@@ -240,7 +240,7 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
 
         # remove the selected columns from input and add the latent factors given by corex
         out_df = d3m_DataFrame(inputs, generate_metadata = True)
-
+        
         # create metadata for the corex columns
         corex_df = d3m_DataFrame(self.latent_factors, generate_metadata = True)
         for column_index in range(corex_df.shape[1]):
@@ -251,11 +251,15 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
             col_dict['semantic_types'] = ('http://schema.org/Float', 'https://metadata.datadrivendiscovery.org/types/Attribute')
 
             corex_df.metadata = corex_df.metadata.update((mbase.ALL_ELEMENTS, column_index), col_dict)
-
+       
+        
         # concatenate is --VERY-- slow without this next line
         corex_df.index = out_df.index.copy()
 
         out_df = utils.append_columns(out_df, corex_df)
+        print("*"*50)
+        print(out_df.metadata.query((metadata_base.ALL_ELEMENTS, 27)))
+        print("*"*50)
 
         # remove the initial text columns from the df, if we do this before CorEx we can get an empty dataset error
         out_df = utils.remove_columns(out_df, self.text_columns)

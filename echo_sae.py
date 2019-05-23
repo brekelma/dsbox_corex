@@ -12,6 +12,7 @@ import keras.layers
 from keras.layers import Concatenate, Dense, Input, merge
 from keras.layers import Activation, BatchNormalization, Lambda, Reshape
 from keras.callbacks import Callback, TensorBoard, LearningRateScheduler
+import keras.callbacks
 #from keras.models import Model, Sequential
 from keras.optimizers import Adam, SGD
 from keras.engine.topology import Layer
@@ -61,7 +62,7 @@ class EchoSAEr_Params(params.Params):
     output_columns: typing.Union[list, pd.Index, None]
 
 class EchoSAE_Hyperparams(hyperparams.Hyperparams):
-    n_hidden = Uniform(lower = 1, upper = 50, default = 10, q = 1, description = 'number of hidden factors learned', semantic_types=[
+    n_hidden = Uniform(lower = 1, upper = 201, default = 200, q = 1, description = 'number of hidden factors learned', semantic_types=[
         'https://metadata.datadrivendiscovery.org/types/TuningParameter'
     ])
     beta = Uniform(lower = 0, upper = 1000, default = .1, q = .01, 
@@ -90,7 +91,7 @@ class EchoSAE_Hyperparams(hyperparams.Hyperparams):
 
 
 class ZeroAnneal(Callback):
-    def __init__(self, lw = 1, index = 0, epochs = 10, scaled = 0.01):
+    def __init__(self, lw = 1, index = 0, epochs = 10, scaled = 0.0):#1):
         self.lw = tf.constant(lw, dtype = tf.float32)
         self.zero_epochs = epochs
         self.ind = index
@@ -128,9 +129,9 @@ def build_convolutional_encoder(n_hidden, sq_dim = None, architecture = 'alemi',
         h = keras.layers.Conv2D(el[2], activation = 'relu', kernel_size = 5, strides = 1, padding = 'same')(h)
         h = keras.layers.Conv2D(el[3], activation = 'relu', kernel_size = 5, strides = 2, padding = 'same')(h)
         h = keras.layers.Conv2D(el[4], activation = 'relu', kernel_size = 7, strides = 2, padding = 'valid')(h)
-
-    #for i in range(len(self._latent_dims[:-1])):
-    #    t = Dense(self._latent_dims[i], activation = self._activation)(t)
+    #else:
+    #    for i in range(len(self._latent_dims[:-1])):
+    #        t = Dense(self._latent_dims[i], activation = self._activation)(t)
    
     # if self._noise == 'add' or self._noise == 'vae':
     #     z_mean_act = 'linear'
@@ -156,7 +157,7 @@ def build_convolutional_encoder(n_hidden, sq_dim = None, architecture = 'alemi',
 
     fx = Dense(el[-1], activation = z_mean_act)(h)
     sx = Dense(el[-1], activation = z_var_act)(h)
-    z_act = Lambda(sample_function, name = 'latent_act')([fx,sx])
+    z_act = Lambda(sample_function, name = 'latent_act', arguments = self._echo_args)([fx,sx])
     return keras.models.Model(inputs = x, outputs = z_act)
 
 
@@ -170,7 +171,7 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEc_
         "version": "1.0.0",
         "name": "Echo",
         "description": "Autoencoder implementation of Information Bottleneck using Echo Noise",
-        "python_path": "d3m.primitives.classification.corex_supervised.EchoIB",
+        "python_path": "d3m.primitives.feature_construction.corex_supervised.EchoIBClf",
         "original_python_path": "echo_sae.EchoClassification",
         "source": {
             "name": "ISI",
@@ -207,6 +208,7 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEc_
         self._noise = 'echo'
         self._kl_warmup = 10 # .1 * kl reg for first _ epochs
         self._anneal_sched = None # not supported
+        self._echo_args = {'batch': self._batch, 'd_max': self._batch, 'nomc': True, 'calc_log': True, 'plus_sx': True}
 
         try:
             self.label_encode = self.label_encode
@@ -259,10 +261,10 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEc_
                 sample_function = echo_sample
                 latent_loss = echo_loss
 
-
+            z_var_act = log_sigmoid_64
             z_mean = Dense(self._latent_dims[-1], activation = z_mean_act, name = 'z_mean')(t)
             z_noise = Dense(self._latent_dims[-1], activation = z_var_act, name = 'z_noise', bias_initializer = 'ones')(t)
-            z_act = Lambda(echo_sample, arguments = {'batch': self._batch, 'd_max': self._batch, 'nomc': True, 'calc_log': True, 'plus_sx': True}, output_shape = (self._latent_dims[-1],), name = 'z_act')([z_mean, z_noise])
+            z_act = Lambda(echo_sample, arguments = self._echo_args, output_shape = (self._latent_dims[-1],), name = 'z_act')([z_mean, z_noise])
 
         t = z_act
         for i in range(len(self._decoder_dims)):
@@ -307,6 +309,7 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEc_
             my_callbacks = [ZeroAnneal(lw = self.hyperparams['beta'], index = -1, epochs = self._kl_warmup)] 
         else:
             my_callbacks = []
+        my_callbacks.append(keras.callbacks.TerminateOnNaN())
         self.model = keras.models.Model(inputs = x, outputs = outputs)
         self.model.compile(optimizer = self._optimizer, loss = loss_functions, loss_weights = loss_weights)
 
@@ -343,7 +346,11 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEc_
         for i in range(0, inputs.shape[0], self._batch):
             data = inputs.values[i:i+self._batch]
             z_stats = [func([data, 1.])[0] for func in functors]
-            z_act = echo_sample(z_stats).eval(session=K.get_session())
+            print('Z STATS ', [zz.shape for zz in z_stats])
+            try:
+                z_act = echo_sample(z_stats, **self._echo_args).eval(session=K.get_session())
+            except:
+                z_act = echo_sample([tf.convert_to_tensor(zz) for zz in z_stats], **self._echo_args).eval(session=K.get_session())
             y_pred= pred_function([z_act, 1.])[0]#.eval(session=K.get_session())
             if i == 0:
                 print("Y PRED ", y_pred)
@@ -436,7 +443,7 @@ class EchoRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEr_Para
         "version": "1.0.0",
         "name": "Echo",
         "description": "Autoencoder implementation of Information Bottleneck using Echo Noise",
-        "python_path": "d3m.primitives.regression.corex_supervised.EchoIB",
+        "python_path": "d3m.primitives.feature_construction.corex_supervised.EchoIBReg",
         "original_python_path": "echo_sae.EchoRegression",
         "source": {
             "name": "ISI",
@@ -522,7 +529,8 @@ class EchoRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEr_Para
 
         z_mean = Dense(self._latent_dims[-1], activation = z_mean_act, name = 'z_mean')(t)
         z_noise = Dense(self._latent_dims[-1], activation = z_var_act, name = 'z_noise', bias_initializer = 'ones')(t)
-        z_act = Lambda(echo_sample, arguments = {'batch': self._batch, 'd_max': self._batch, 'nomc': True, 'calc_log': True, 'plus_sx': True}, output_shape = (self._latent_dims[-1],), name = 'z_act')([z_mean, z_noise])
+        self._echo_args = {'batch': self._batch, 'd_max': self._batch, 'nomc': True, 'calc_log': True, 'plus_sx': True}
+        z_act = Lambda(echo_sample, arguments = self._echo_args, output_shape = (self._latent_dims[-1],), name = 'z_act')([z_mean, z_noise])
 
         t = z_act
         for i in range(len(self._decoder_dims)):
@@ -566,7 +574,7 @@ class EchoRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEr_Para
             my_callbacks = [ZeroAnneal(lw = self.hyperparams['beta'], index = -1, epochs = self._kl_warmup)] 
         else:
             my_callbacks = []
-
+        my_callbacks.append(keras.callbacks.TerminateOnNaN())
 
         self.model = keras.models.Model(inputs = x, outputs = outputs)
         self.model.compile(optimizer = self._optimizer, loss = loss_functions, loss_weights = loss_weights)
@@ -602,7 +610,7 @@ class EchoRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEr_Para
         for i in range(0, inputs.shape[0], self._batch):
             data = inputs.values[i:i+self._batch]
             z_stats = [func([data, 1.])[0] for func in functors]
-            z_act = echo_sample(z_stats).eval(session=K.get_session())
+            z_act = echo_sample(z_stats, **self.echo_args).eval(session=K.get_session())
             y_pred= pred_function([z_act, 1.])[0]#.eval(session=K.get_session())
             
             
@@ -732,8 +740,12 @@ def generator(data, labels = None, target_len = 1, batch = 100, mode = 'train', 
                 
 
 def tanh64(x):
-        y = 64
-        return (K.exp(1.0/y*x)-K.exp(-1.0/y*x))/(K.exp(1.0/y*x)+K.exp(-1.0/y*x)+K.epsilon())
+    y = 64
+    return (K.exp(1.0/y*x)-K.exp(-1.0/y*x))/(K.exp(1.0/y*x)+K.exp(-1.0/y*x)+K.epsilon())
+
+def log_sigmoid_64(x):
+    y = 1.0/64
+    return K.log(1.0/(1.0+K.exp(-y*x)))
 
 def vae_sample(args):
     z_mean, z_noise = args
@@ -766,7 +778,7 @@ def gaussian_prior_kl(inputs):
     logvar2 = K.variable(0.0)
     return gaussian_kl([mu1, logvar1, mu2, logvar2])
 
-def echo_loss(inputs, d_max = 50, clip= 0.85, binary_input = True, calc_log = True, plus_sx = True, neg_log = False, fx_clip = None):
+def echo_loss(inputs, d_max = 100, clip= 0.85, binary_input = True, calc_log = True, plus_sx = True, neg_log = False, fx_clip = None):
     if isinstance(inputs, list):
         #cap_param = inputs[0]                                                                                                                                                                             
         cap_param = inputs[-1]
@@ -778,7 +790,15 @@ def echo_loss(inputs, d_max = 50, clip= 0.85, binary_input = True, calc_log = Tr
     return capacities
 
 
-def permute_neighbor_indices(batch_size, d_max=-1, replace = True, pop = True):
+def random_indices(n, d):
+    return tf.random.uniform((n * d,), minval=0, maxval=n, dtype=tf.int32)
+
+def gather_nd_reshape(t, indices, final_shape):
+    h = tf.gather_nd(t, indices)
+    return K.reshape(h, final_shape)
+
+
+def permute_neighbor_indices(batch_size, d_max=-1, replace = False, pop = True):
       """Produce an index tensor that gives a permuted matrix of other samples in batch, per sample.
       Parameters
       ----------
@@ -794,8 +814,10 @@ def permute_neighbor_indices(batch_size, d_max=-1, replace = True, pop = True):
         for i in range(batch_size):
           sub_batch = list(range(batch_size))
           if pop:
+            # pop = False includes training sample for echo 
+            # (i.e. dmax = batch instead of dmax = batch - 1)
             sub_batch.pop(i)
-          shuffle(sub_batch)
+          np.random.shuffle(sub_batch)
           inds.append(list(enumerate(sub_batch[:d_max])))
         return inds
       else:
@@ -803,127 +825,114 @@ def permute_neighbor_indices(batch_size, d_max=-1, replace = True, pop = True):
             inds.append(list(enumerate(np.random.choice(batch_size, size = d_max, replace = True))))
         return inds
 
-def echo_sample(inputs, clip = None, per_sample = True, init = -5., d_max = 100, batch = 100, multiplicative = False, replace = True, fx_clip = None, plus_sx = True, nomc = True, pop = True, neg_log = False, noise = 'additive', trainable = True, periodic = False, return_noise = False, fx_act = None, sx_act = None, encoder = True, calc_log = True, echomc = False, fullmc = False):
 
+
+def echo_sample(inputs, clip=None, d_max=100, batch=100, multiplicative=False, echo_mc = False,
+                replace=True, fx_clip=None, plus_sx=True, calc_log=True, return_noise=False, **kwargs):
+    # kwargs unused
+
+    # inputs should be specified as list:
+    #   [ f(X), s(X) ] with s(X) in log space if calc_log = True 
+    # plus_sx =
+    #   True if logsigmoid activation for s(X)
+    #   False for softplus (equivalent)
     if isinstance(inputs, list):
-      z_mean = inputs[0]
-      z_scale_echo = inputs[-1]
-      # TURN INTO LOG INPUTS?                                                                                                                                                                              
+        fx = inputs[0]
+        sx = inputs[-1]
     else:
-      z_mean = inputs
-    
+        fx = inputs
+
+    # TO DO : CALC_LOG currently determines both whether to do log space calculations AND whether sx is a log
+ 
     try:
-      shp = K.int_shape(z_mean)
+        fx_shape = fx.get_shape()
+        sx_shape = sx.get_shape()
     except:
-      shp = z_mean.shape
-
-    if not encoder or shp[-1] == 1:
-      orig_shape = shp
-                                                                                                                                                                                            
-    try:
-        batch = min(batch, z_mean.shape[0])
-    except:
-        pass
-
-
-    if fx_clip is not None:
-      z_mean = K.clip(z_mean, -fx_clip, fx_clip)
-    else:
-        fx_clip = 1
+        fx_shape = fx.shape
+        sx_shape = sx.shape
 
     if clip is None:
-        clip = (2**(-23)/fx_clip)**(1/batch)
+    # clip is multiplied times s(x) to ensure that last sampled term:
+    #   (clip^d_max)*f(x) < machine precision 
+        max_fx = fx_clip if fx_clip is not None else 1.0
+        clip = (2**(-23)/max_fx)**(1.0/d_max)
+    
+    # fx_clip can be used to restrict magnitude of f(x), not used in paper
+    # defaults to no clipping and M = 1 (e.g. with tanh activation for f(x))
+    if fx_clip is not None: 
+        fx = K.clip(fx, -fx_clip, fx_clip)
+    
 
     if not calc_log:
-      #if not neg_log:                                                                                                                                                                                     
-      cap_param = clip*z_scale_echo #if per_sample else clip*K.sigmoid(z_scale_echo)                                                                                                                       
-      cap_param = tf.where(tf.abs(cap_param) < K.epsilon(), K.epsilon()*tf.sign(cap_param), cap_param)
+        sx = tf.multiply(clip,sx)
+        sx = tf.where(tf.abs(sx) < K.epsilon(), K.epsilon()*tf.sign(sx), sx)
+    #raise ValueError('calc_log=False is not supported; sx has to be log_sigmoid')
     else:
-      cap_param = K.log(clip) + (-1*z_scale_echo if not plus_sx else z_scale_echo)
-                                                                                            
-    inds = permute_neighbor_indices(batch, d_max, replace = replace, pop = pop)
-
-    if echomc:
-      z_mean = z_mean - K.mean(z_mean, axis = 0, keepdims = True)
-
-                                                                                                                                                               
-    c_z_stack = tf.stack([cap_param for k in range(d_max)])  # no phase                                                                                                                                    
-                                                                                                                
-    f_z_stack = tf.stack([z_mean for k in range(d_max)])  # no phase                                                                                                                                       
-
-    stack_dmax = tf.gather_nd(c_z_stack, inds)
-    stack_zmean = tf.gather_nd(f_z_stack, inds)
-
-
-    ax = 1
-    #stack_dmax= tf.where(tf.abs(stack_dmax) < K.epsilon(), K.epsilon()*tf.sign(stack_dmax), stack_dmax)                                                                                                   
-    # cum product over dmax axis. exclusive => element 0 =                                                                                                                                                 
-    if calc_log:
-      noise_sx_product = tf.cumsum(stack_dmax, axis = ax, exclusive = True)
-    else:
-      noise_sx_product = tf.cumprod(stack_dmax, aaxis = ax, exclusive = True)# if not noise == 'rescaled' else False)
+        # plus_sx based on activation for sx = s(x):
+        #   True for log_sigmoid
+        #   False for softplus
+        sx = tf.log(clip) + (-1*sx if not plus_sx else sx)
     
-    noise_sx_product = tf.exp(noise_sx_product) if calc_log else noise_sx_product
-    noise_times_sample = tf.multiply(stack_zmean, noise_sx_product)
+    if echo_mc is not None:    
+      # use mean centered fx for noise
+      fx = fx - K.mean(fx, axis = 0, keepdims = True)
 
-    noise_tensor = tf.reduce_sum(noise_times_sample, axis = ax)
+    #batch_size = K.shape(fx)[0]
+    z_dim = K.int_shape(fx)[-1]
+    
+    if replace: # replace doesn't set batch size (using permute_neighbor_indices does)
+        sx = K.batch_flatten(sx) if len(sx_shape) > 2 else sx 
+        fx = K.batch_flatten(fx) if len(fx_shape) > 2 else fx 
+        inds = K.reshape(random_indices(batch, d_max), (-1, 1))
+        select_sx = gather_nd_reshape(sx, inds, (-1, d_max, z_dim))
+        select_fx = gather_nd_reshape(fx, inds, (-1, d_max, z_dim))
 
-    if return_noise and nomc:
-      return noise_tensor
-                                                                                                     
-    if not nomc:
-      noise_tensor = noise_tensor - K.mean(noise_tensor, axis=0, keepdims = True) # 0 mean noise : ends up being 1 x m                                                                                     
-                                                                                                                                                         
+        if len(sx_shape)>2:
+          select_sx = K.expand_dims(K.expand_dims(select_sx, 2), 2)
+          sx = K.expand_dims(K.expand_dims(sx, 1),1)
+        if len(fx_shape)>2:
+          select_fx = K.expand_dims(K.expand_dims(select_fx, 2), 2)
+          fx = K.expand_dims(K.expand_dims(fx, 1),1)
 
-                                                                                                                                                                                                
-    sx = cap_param if not calc_log else tf.exp(cap_param)
-    full_sx_noise = tf.multiply(sx, noise_tensor)  # batch x Am                                                                                                                                            
-    if fullmc:
-      full_sx_noise = full_sx_noise - K.mean(full_sx_noise, axis = 0, keepdims = True)
-    noisy_encoder = z_mean + full_sx_noise # tf.multiply(sx, noise_tensor)  # batch x Am                                                                                                                   
-                                                                                                                                          
-    return noisy_encoder #if not return_noise else noise_tensor 
+    else:
+        # batch x batch x z_dim 
+        # for all i, stack_sx[i, :, :] = sx
+        repeat = tf.multiply(tf.ones_like(tf.expand_dims(fx, 0)), tf.ones_like(tf.expand_dims(fx, 1)))
+        stack_fx = tf.multiply(fx, repeat)
+        stack_sx = tf.multiply(sx, repeat)
 
-class Beta(Layer):
+        # select a set of dmax examples from original fx / sx for each batch entry
+        inds = permute_neighbor_indices(batch, d_max, replace = replace)
+        
+        # note that permute_neighbor_indices sets the batch_size dimension != None
+        # this necessitates the use of fit_generator, e.g. in training to avoid 'remainder' batches if data_size % batch > 0
+        
+        select_sx = tf.gather_nd(stack_sx, inds)
+        select_fx = tf.gather_nd(stack_fx, inds)
+      
+    if calc_log:
+        sx_echoes = tf.cumsum(select_sx, axis = 1, exclusive = True)
+    else:
+        sx_echoes = tf.cumprod(select_sx, axis = 1, exclusive = True)
+    
+    # calculates S(x0)S(x1)...S(x_l)*f(x_(l+1))
+    sx_echoes = tf.exp(sx_echoes) if calc_log else sx_echoes 
+    fx_sx_echoes = tf.multiply(select_fx, sx_echoes) 
+    
+    # performs the sum over dmax terms to calculate noise
+    noise = tf.reduce_sum(fx_sx_echoes, axis = 1) 
+    
+    
+    #if multiplicative:
+        # unused in paper, not extensively tested
+        #sx = sx if not calc_log else tf.exp(sx) 
+        #output = tf.multiply(fx, tf.multiply(sx, noise))
+        
+    #else:
+    sx = sx if not calc_log else tf.exp(sx) 
+    output = fx + tf.multiply(sx, noise) 
 
-    def __init__(self, shape = 1, beta = None, trainable = False, **kwargs):
-        self.shape = shape
-        self.trainable = trainable
-        #self.n_dims = n_dims
-        if beta is not None:
-          self.set_beta(beta)
-        else:
-          self.set_beta(1.0)
-        #self.output_dim = output_dim
-        super(Beta, self).__init__(**kwargs)
-
-    def build(self, input_shape):
-        # Create a trainable weight variable for this layer.
-        self.dim = input_shape[1]
-        if self.trainable:
-            self.betas = self.add_weight(name='beta', 
-                                          shape = (self.shape,),
-                                          initializer= Constant(value = self.beta),
-                                          trainable= True)
-        else:
-            self.betas = self.add_weight(name='beta', 
-                          shape = (self.shape,),
-                          initializer= Constant(value = self.beta),
-                          trainable= False)
-
-        super(Beta, self).build(input_shape)  # Be sure to call this somewhere!
-
-    def call(self, x):
-          return K.repeat_elements(K.expand_dims(self.betas,1), 1, -1)
-
-    #not used externally
-    def set_beta(self, beta):
-        self.beta = beta
-
-    def compute_output_shape(self, input_shape):
-        return (1, 1)
-
-
+    return output if not return_noise else noise
 
 
 
