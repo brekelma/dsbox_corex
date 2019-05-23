@@ -22,7 +22,7 @@ import d3m.metadata.hyperparams as hyperparams
 import d3m.metadata.params as params
 
 from d3m.container import DataFrame as d3m_DataFrame
-from d3m.metadata.base import PrimitiveMetadata
+from d3m.metadata.base import PrimitiveMetadata, DataMetadata
 from d3m.metadata.hyperparams import Uniform, UniformBool, UniformInt, Union, Enumeration
 from d3m.primitive_interfaces.base import CallResult
 from d3m.primitive_interfaces.unsupervised_learning import UnsupervisedLearnerPrimitiveBase
@@ -137,11 +137,11 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
 
         self.training_data = self._process_files(self.training_data)
 
-        text_attributes = utils.list_columns_with_semantic_types(metadata=self.training_data.metadata,\
+        text_attributes = DataMetadata.list_columns_with_semantic_types(self=self.training_data.metadata,\
             semantic_types=["http://schema.org/Text"])
-        all_attributes = utils.list_columns_with_semantic_types(metadata=self.training_data.metadata,\
+        all_attributes = DataMetadata.list_columns_with_semantic_types(self=self.training_data.metadata,\
             semantic_types=["https://metadata.datadrivendiscovery.org/types/Attribute"])
-        categorical_attributes = utils.list_columns_with_semantic_types(metadata=self.training_data.metadata,\
+        categorical_attributes = DataMetadata.list_columns_with_semantic_types(self=self.training_data.metadata,\
             semantic_types=["https://metadata.datadrivendiscovery.org/types/CategoricalData"])
 
         # want text columns that are attributes
@@ -282,9 +282,9 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
 
     # remove the FileName columns from the data frame and replace them with text
     def _process_files(self, inputs: Input):
-        fn_attributes = utils.list_columns_with_semantic_types(metadata=inputs.metadata, \
+        fn_attributes = DataMetadata.list_columns_with_semantic_types(self=inputs.metadata, \
             semantic_types=["https://metadata.datadrivendiscovery.org/types/FileName"])
-        all_attributes = utils.list_columns_with_semantic_types(metadata=inputs.metadata, \
+        all_attributes = DataMetadata.list_columns_with_semantic_types(self=inputs.metadata, \
             semantic_types=["https://metadata.datadrivendiscovery.org/types/Attribute"])
         fn_columns = list(set(all_attributes).intersection(fn_attributes))
 
