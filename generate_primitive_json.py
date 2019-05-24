@@ -19,11 +19,11 @@ arguments = parser.parse_args()
 
 PREFIX = 'd3m.primitives.'
 PRIMITIVES = [(p, config) for p in [
-        'feature_construction.corex_continuous.CorexContinuous = corex_continuous:CorexContinuous',
-        'feature_construction.corex_text.CorexText = corex_text:CorexText',
-        'regression.corex_supervised.EchoLinear = echo_regressor:EchoLinearRegression',
-        'feature_construction.corex_supervised.EchoIBReg = echo_sae:EchoRegression',
-        'feature_construction.corex_supervised.EchoIBClf = echo_sae:EchoClassification'
+        'feature_construction.corex_continuous.CorexContinuous',
+        'feature_construction.corex_text.CorexText',
+        'regression.corex_supervised.EchoLinear',
+        'feature_construction.corex_supervised.EchoIBReg',
+        'feature_construction.corex_supervised.EchoIBClf'
 ]
 ]
 
