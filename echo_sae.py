@@ -66,17 +66,26 @@ class EchoSAE_Hyperparams(hyperparams.Hyperparams):
         'https://metadata.datadrivendiscovery.org/types/TuningParameter'
     ])
     beta = Uniform(lower = 0, upper = 1000, default = .1, q = .01, 
-    	description = 'Lagrange multiplier for beta (applied to regularizer I(X:Z)): defining tradeoff btwn label relevance : compression.', semantic_types=[
+        description = 'Lagrange multiplier for beta (applied to regularizer I(X:Z)): defining tradeoff btwn label relevance : compression.', semantic_types=[
         'https://metadata.datadrivendiscovery.org/types/TuningParameter'
     ])
     epochs = Uniform(lower = 1, upper = 1000, default = 100, description = 'number of epochs to train', semantic_types=[
         'https://metadata.datadrivendiscovery.org/types/TuningParameter'
     ])
+
     convolutional = UniformBool(default=False,
         semantic_types=['https://metadata.datadrivendiscovery.org/types/ControlParameter'],
         description="whether to use a convolutional architecture"
     )
 
+    task = Enumeration(values = ['CLASSIFICATION', 'REGRESSION'], default = 'REGRESSION', 
+                       semantic_types=['https://metadata.datadrivendiscovery.org/types/ControlParameter'],
+                       description='task type')
+
+    return_predictions = UniformBool(default=False,
+        semantic_types=['https://metadata.datadrivendiscovery.org/types/ControlParameter'],
+        description="whether to return constructed features AND predictions (else, used for modeling i.e. only predictions"
+    )
 
     error_on_no_input = hyperparams.UniformBool(
         default=True,
@@ -271,7 +280,6 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEc_
             t = Dense(self._decoder_dims[i], name = 'decoder_'+str(i), activation = self._activation)(t) 
         
         # CLASSIFICATION ONLY here
-        #print("LABEL UNIQUE ", self._label_unique)
         label_act = 'softmax' if self._label_unique > 1 else 'sigmoid'
         #if self._label_unique == 2:
         #    y_pred = Dense(1, activation = 'sigmoid', name = 'y_pred')(t)
@@ -332,6 +340,8 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEc_
 
     def produce(self, *, inputs : Input, timeout : float = None, iterations : int = None) -> CallResult[Output]: # TAKES IN DF with index column
         self._extra_params()
+        
+        modeling = self.hyperparams['return_predictions']
         inp = self.model.input
         outputs = [layer.output for layer in self.model.layers if 'z_mean' in layer.name or 'z_noise' in layer.name]
         functors = [K.function([inp, K.learning_phase()], [out]) for out in outputs]
@@ -343,6 +353,7 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEc_
         pred_function = K.function([dec_inp, K.learning_phase()], [preds[0]])
         
         predictions = []
+        features = []
         for i in range(0, inputs.shape[0], self._batch):
             data = inputs.values[i:i+self._batch]
             z_stats = [func([data, 1.])[0] for func in functors]
@@ -352,6 +363,7 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEc_
             except:
                 z_act = echo_sample([tf.convert_to_tensor(zz) for zz in z_stats], **self._echo_args).eval(session=K.get_session())
             y_pred= pred_function([z_act, 1.])[0]#.eval(session=K.get_session())
+            features.extend([z_act[yp] for yp in range(z_act.shape[0])])
             if i == 0:
                 print("Y PRED ", y_pred)
             #if self._label_unique > 2:
@@ -365,19 +377,45 @@ class EchoClassification(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEc_
             #    print("Predictions SHAPE ", predictions.shape)
         predictions = np.array(predictions)
         predictions = self.label_encode.inverse_transform(predictions)
-        output = d3m_DataFrame(predictions, columns = self.output_columns, generate_metadata = True, source = self)
+        
         #output.metadata = inputs.metadata.clear(source=self, for_value=output, generate_metadata=True)
         #output.metadata = self._add_target_semantic_types(metadata=output.metadata, target_names=self.output_columns, source=self)
+        
+        if modeling:
+            output = d3m_DataFrame(predictions, columns = self.output_columns, generate_metadata = True, source = self)
+        else:
+            out_df = d3m_DataFrame(inputs, generate_metadata = True)
 
-        print("INPUT COLUMNS ", inputs.columns)
-        print(inputs.columns)
-        self._training_indices = [c for c in inputs.columns if isinstance(c, str) and 'index' in c.lower()]
-        print("Traning indices ", self._training_indices)
-        outputs = common_utils.combine_columns(return_result='new', #self.hyperparams['return_result'],
-                                               add_index_columns=True,#self.hyperparams['add_index_columns'],
-                                               inputs=inputs, columns_list=[output], source=self, column_indices=self._training_indices)
-        print("outputs index ", outputs.index)
-        print("OUTPUT COLUMNS ", outputs.columns)
+            # create metadata for the corex columns                                                                                                                                        
+            features = np.array(features)
+            constructed = np.concatenate([features, predictions], axis = -1)
+            corex_df = d3m_DataFrame(constructed, generate_metadata = True)
+
+            for column_index in range(corex_df.shape[1]):
+                col_dict = dict(corex_df.metadata.query((mbase.ALL_ELEMENTS, column_index)))
+                col_dict['structural_type'] = type(1.0)
+                # FIXME: assume we apply corex only once per template, otherwise column names might duplicate                                                                                    
+                col_dict['name'] = 'echoib_'+('pred_' if column_index < self.hyperparams['n_hidden'] else 'feature_') + str(out_df.shape[1] + column_index)
+                col_dict['semantic_types'] = ('http://schema.org/Float', 'https://metadata.datadrivendiscovery.org/types/Attribute')
+                
+                corex_df.metadata = corex_df.metadata.update((mbase.ALL_ELEMENTS, column_index), col_dict)
+
+
+            # concatenate is --VERY-- slow without this next line                                                                                                                                
+            corex_df.index = out_df.index.copy()
+            
+            outputs = utils.append_columns(out_df, corex_df)
+
+
+        #print("INPUT COLUMNS ", inputs.columns)
+        #print(inputs.columns)
+        if modeling:
+            self._training_indices = [c for c in inputs.columns if isinstance(c, str) and 'index' in c.lower()]
+            print("Traning indices ", self._training_indices)
+            outputs = common_utils.combine_columns(return_result='new', #self.hyperparams['return_result'],
+                                                   add_index_columns=True,#self.hyperparams['add_index_columns'],
+                                                   inputs=inputs, columns_list=[output], source=self, column_indices=self._training_indices)
+
         #predictions = d3m_DataFrame(predictions, index = inputs.index.copy())# columns = self.output_columns)
 
 
@@ -536,7 +574,8 @@ class EchoRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEr_Para
         for i in range(len(self._decoder_dims)):
             t = Dense(self._decoder_dims[i], name = 'decoder_'+str(i), activation = self._activation)(t) 
         
-        # CLASSIFICATION ONLY here
+
+        # Regression here (linear output)
         
         #label_act = 'softmax' if self._label_unique > 1 else 'sigmoid'
         #if self._label_unique == 2:
@@ -598,6 +637,8 @@ class EchoRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEr_Para
 
     def produce(self, *, inputs : Input, timeout : float = None, iterations : int = None) -> CallResult[Output]: # TAKES IN DF with index column
         self._extra_params()
+
+        modeling = self.hyperparams['return_predictions']
         inp = self.model.input
         outputs = [layer.output for layer in self.model.layers if 'z_mean' in layer.name or 'z_noise' in layer.name]
         functors = [K.function([inp, K.learning_phase()], [out]) for out in outputs]
@@ -623,25 +664,47 @@ class EchoRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoSAEr_Para
             #    predictions.append(int_df)
             #    print("Predictions SHAPE ", predictions.shape)
         predictions = np.array(predictions)
+        
+        if modeling:
+            output = d3m_DataFrame(predictions, columns = self.output_columns, generate_metadata = True, source = self)
+        else:
+            out_df = d3m_DataFrame(inputs, generate_metadata = True)
 
-        predictions = d3m_DataFrame(predictions, index = inputs.index.copy(), columns = self.output_columns, generate_metadata = True)# columns = self.output_columns)
+            # create metadata for the corex columns                                                                                                                                          
+            features = np.array(features)
+            constructed = np.concatenate([features, predictions], axis = -1)
+            corex_df = d3m_DataFrame(constructed, generate_metadata = True)
+        
+            for column_index in range(corex_df.shape[1]):
+                col_dict = dict(corex_df.metadata.query((mbase.ALL_ELEMENTS, column_index)))
+                col_dict['structural_type'] = type(1.0)
+                # FIXME: assume we apply corex only once per template, otherwise column names might duplicate                                                                               \
+                    
+                col_dict['name'] = 'echoib_'+('pred_' if column_index < self.hyperparams['n_hidden'] else 'feature_') + str(out_df.shape[1] + column_index)
+                col_dict['semantic_types'] = ('http://schema.org/Float', 'https://metadata.datadrivendiscovery.org/types/Attribute')
+                
+            corex_df.metadata = corex_df.metadata.update((mbase.ALL_ELEMENTS, column_index), col_dict)
+            # concatenate is --VERY-- slow without this next line                                                                                                                           \
+            corex_df.index = out_df.index.copy()
+            
+            outputs = utils.append_columns(out_df, corex_df)
 
 
 
+        
+        
+        
 
-
-
-        predictions = np.array(predictions)
+        
         #predictions = self.label_encode.inverse_transform(predictions)
-        output = d3m_DataFrame(predictions, columns = self.output_columns, generate_metadata = True, source = self)
         #output.metadata = inputs.metadata.clear(source=self, for_value=output, generate_metadata=True)                                                                                                       
         #output.metadata = self._add_target_semantic_types(metadata=output.metadata, target_names=self.output_columns, source=self)                                                                           
-
-        self._training_indices = [c for c in inputs.columns if isinstance(c, str) and 'index' in c.lower()]
-
-        outputs = common_utils.combine_columns(return_result='new', #self.hyperparams['return_result'],                                                                                                      
-                                               add_index_columns=True,#self.hyperparams['add_index_columns'],                                                                                                
-                                               inputs=inputs, columns_list=[output], source=self, column_indices=self._training_indices)
+        if modeling:
+            self._training_indices = [c for c in inputs.columns if isinstance(c, str) and 'index' in c.lower()]
+            
+            outputs = common_utils.combine_columns(return_result='new', #self.hyperparams['return_result'],                                                                                 
+                                                   add_index_columns=True,#self.hyperparams['add_index_columns'],                                                                           
+                                                   inputs=inputs, columns_list=[output], source=self, column_indices=self._training_indices)
 
         return CallResult(outputs, True, 1)
 
