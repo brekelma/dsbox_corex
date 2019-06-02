@@ -272,7 +272,10 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
 
     def _get_ngrams(self, text : str = None) -> str:
         punctuation_table = str.maketrans(dict.fromkeys(string.punctuation))
-        words = text.translate(punctuation_table).lower().rsplit(" ")
+        try:
+            words = text.translate(punctuation_table).lower().rsplit(" ")
+        except:
+            words = text.str.translate(punctuation_table).lower().rsplit(" ")
 
         new_text = ""
         for i in range(len(words)):
