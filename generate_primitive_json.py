@@ -22,10 +22,12 @@ PRIMITIVES = [(p, config) for p in [
         'feature_construction.corex_continuous.CorexContinuous',
         'feature_construction.corex_text.CorexText',
         'regression.corex_supervised.EchoLinear',
-        'feature_construction.corex_supervised.EchoIBReg',
-        'feature_construction.corex_supervised.EchoIBClf'
+        #'feature_construction.corex_supervised.EchoIBReg',
+        'feature_construction.corex_supervised.EchoIB'
 ]
 ]
+
+arguments.dirname = arguments.dirname if arguments.dirname is not None else 'primitives'
 
 for p, config in PRIMITIVES:
     print('Generating json for primitive ' + p)
