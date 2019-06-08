@@ -103,12 +103,12 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
     """
     metadata = PrimitiveMetadata({
         "schema": "v0",
-        "id": "18e63b10-c5b7-34bc-a670-f2c831d6b4bf",
+        "id": "0c64ffd6-cb9e-49f0-b7cb-abd70a5a8261",
         "version": "1.0.0",
         "name": "CorexText",
         "description": "Learns latent factors / topics which explain the most multivariate information in bag of words representations of documents. Returns learned topic scores for each document. Also supports hierarchical models and 'anchoring' to encourage topics to concentrate around desired words.",
         #"python_path": "d3m.primitives.dsbox.corex_text.CorexText",
-        "python_path": "d3m.primitives.feature_construction.corex_text.CorexText",
+        "python_path": "d3m.primitives.feature_construction.corex_text.DSBOX",
         "original_python_path": "corextext.corex_text.CorexText",
         "source": {
             "name": "ISI",
@@ -257,9 +257,6 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
         corex_df.index = out_df.index.copy()
 
         out_df = utils.append_columns(out_df, corex_df)
-        print("*"*50)
-        print(out_df.metadata.query((metadata_base.ALL_ELEMENTS, 27)))
-        print("*"*50)
 
         # remove the initial text columns from the df, if we do this before CorEx we can get an empty dataset error
         out_df = utils.remove_columns(out_df, self.text_columns)

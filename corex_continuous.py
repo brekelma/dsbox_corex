@@ -64,7 +64,7 @@ class CorexContinuous(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexConti
       "name": "CorexContinuous",
       "description": "Return components/latent factors that explain the most multivariate mutual information in the data under Linear Gaussian model. For comparison, PCA returns components explaining the most variance in the data.",
       #"python_path": "d3m.primitives.dsbox.corex_continuous.CorexContinuous",
-      "python_path": "d3m.primitives.feature_construction.corex_continuous.CorexContinuous",
+      "python_path": "d3m.primitives.feature_construction.corex_continuous.DSBOX",
       "original_python_path": "corexcontinuous.corex_continuous.CorexContinuous",
       "source": {
             "name": "ISI",

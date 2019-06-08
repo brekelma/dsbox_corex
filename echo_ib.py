@@ -174,7 +174,7 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
         "version": "1.0.0",
         "name": "Echo",
         "description": "Autoencoder implementation of Information Bottleneck using Echo Noise",
-        "python_path": "d3m.primitives.feature_construction.corex_supervised.EchoIB",
+        "python_path": "d3m.primitives.feature_construction.echo_ib.DSBOX",
         "original_python_path": "echo_ib.EchoIB",
         "source": {
             "name": "ISI",

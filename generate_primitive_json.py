@@ -19,11 +19,11 @@ arguments = parser.parse_args()
 
 PREFIX = 'd3m.primitives.'
 PRIMITIVES = [(p, config) for p in [
-        'feature_construction.corex_continuous.CorexContinuous',
-        'feature_construction.corex_text.CorexText',
-        'regression.corex_supervised.EchoLinear',
+        'feature_construction.corex_continuous.DSBOX',
+        'feature_construction.corex_text.DSBOX',
+        'regression.echo_linear.DSBOX',
         #'feature_construction.corex_supervised.EchoIBReg',
-        'feature_construction.corex_supervised.EchoIB'
+        'feature_construction.echo_ib.DSBOX'
 ]
 ]
 
@@ -39,7 +39,8 @@ for p, config in PRIMITIVES:
 
     json_filename = os.path.join(outdir, 'primitive.json')
     print('    at ' + json_filename)
-    command = ['python', '-m', 'd3m.index',
-               'describe', '-i', '4', primitive_name]
+#    command = ['python', '-m', 'd3m.index',
+#               'describe', '-i', '4', primitive_name]
+    command = ['python3', '-m', 'd3m', 'index', 'describe', primitive_name]
     with open(json_filename, 'w') as out:
         subprocess.run(command, stdout=out)

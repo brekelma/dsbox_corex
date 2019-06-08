@@ -27,10 +27,10 @@ setup(
     ], 
     entry_points = {
     'd3m.primitives': [
-        'feature_construction.corex_continuous.CorexContinuous = corex_continuous:CorexContinuous',
-        'feature_construction.corex_text.CorexText = corex_text:CorexText',
-        'regression.corex_supervised.EchoLinear = echo_regressor:EchoLinearRegression',
-        'feature_construction.corex_supervised.EchoIB = echo_ib:EchoIB'
+        'feature_construction.corex_continuous.DSBOX = corex_continuous:CorexContinuous',
+        'feature_construction.corex_text.DSBOX = corex_text:CorexText',
+        'regression.echo_linear.DSBOX = echo_regressor:EchoLinearRegression',
+        'feature_construction.echo_ib.DSBOX = echo_ib:EchoIB'
         #'feature_construction.corex_supervised.EchoIBReg = echo_sae:EchoRegression',        
         #'feature_construction.corex_supervised.EchoIBClf = echo_sae:EchoClassification'
     ],

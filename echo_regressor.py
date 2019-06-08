@@ -87,7 +87,7 @@ class EchoLinearRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoReg
         "name": "EchoLinearRegression",
         "description": "Learns latent factors / topics which explain the most multivariate information in bag of words representations of documents. Returns learned topic scores for each document. Also supports hierarchical models and 'anchoring' to encourage topics to concentrate around desired words.",
         #"python_path": "d3m.primitives.dsbox.echo.EchoRegressor",
-        "python_path": "d3m.primitives.regression.corex_supervised.EchoLinear",
+        "python_path": "d3m.primitives.regression.echo_linear.DSBOX",
         "original_python_path": "echo_regressor.EchoLinearRegression",
         "source": {
             "name": "ISI",
