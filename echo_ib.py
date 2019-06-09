@@ -343,9 +343,7 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
         outputs = [layer.output for layer in self.model.layers if 'z_mean' in layer.name or 'z_noise' in layer.name]
         functors = [K.function([inp, K.learning_phase()], [out]) for out in outputs]
         dec_inp = [layer.input for layer in self.model.layers if 'decoder_0' in layer.name][0]
-        print()
-        print("DEC INPUT ", dec_inp)
-        print()
+        
         preds = [layer.output for layer in self.model.layers if 'y_pred' in layer.name]
         pred_function = K.function([dec_inp, K.learning_phase()], [preds[0]])
         
@@ -354,15 +352,14 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
         for i in range(0, inputs.shape[0], self._batch):
             data = inputs.values[i:i+self._batch]
             z_stats = [func([data, 1.])[0] for func in functors]
-            print('Z STATS ', [zz.shape for zz in z_stats])
+        
             try:
                 z_act = echo_sample(z_stats, **self._echo_args).eval(session=K.get_session())
             except:
                 z_act = echo_sample([tf.convert_to_tensor(zz) for zz in z_stats], **self._echo_args).eval(session=K.get_session())
             y_pred= pred_function([z_act, 1.])[0]#.eval(session=K.get_session())
             features.extend([z_act[yp] for yp in range(z_act.shape[0])])
-            if i == 0:
-                print("Y PRED ", y_pred)
+        
             #if self._label_unique > 2:
             y_pred = np.argmax(y_pred, axis = -1)
             predictions.extend([y_pred[yp] for yp in range(y_pred.shape[0])])
@@ -408,7 +405,7 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
         #print(inputs.columns)
         if modeling:
             self._training_indices = [c for c in inputs.columns if isinstance(c, str) and 'index' in c.lower()]
-            print("Traning indices ", self._training_indices)
+            #print("Traning indices ", self._training_indices)
             outputs = common_utils.combine_columns(return_result='new', #self.hyperparams['return_result'],
                                                    add_index_columns=True,#self.hyperparams['add_index_columns'],
                                                    inputs=inputs, columns_list=[output], source=self, column_indices=self._training_indices)

@@ -33,7 +33,6 @@ setup(
         'feature_construction.echo_ib.DSBOX = echo_ib:EchoIB'
         #'feature_construction.corex_supervised.EchoIBReg = echo_sae:EchoRegression',        
         #'feature_construction.corex_supervised.EchoIBClf = echo_sae:EchoClassification'
-    ],
+    ]
     }
-
 )

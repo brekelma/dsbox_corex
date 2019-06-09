@@ -139,9 +139,7 @@ class CorexContinuous(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexConti
         corex_df.index = out_df.index.copy()
         
         out_df = utils.append_columns(out_df, corex_df)
-        print()
-        print("COREX CONTINUOUS COL NAME ", list(out_df))
-        print()
+
         return CallResult(out_df, True, self.max_iter)
 
     def _fit_transform(self, inputs : Input, timeout: float = None, iterations : int = None) -> Sequence[Output]:
@@ -178,16 +176,11 @@ class CorexContinuous(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexConti
         return CorexContinuous_Params(model = self.model, _fitted = self.fitted)
 
     def set_params(self, *, params: CorexContinuous_Params) -> None:
-        print("PARAM KEYS ", dir(params))
+
         self.model = params['model']
-        try:
-            self.fitted = params['_fitted']
-        except:
-            try:
-                print("PARAM KEYS ", params.keys())
-            except:
-                print(params)
-            pass
+        
+        self.fitted = params['_fitted']
+
         #self.training_inputs = params.training_inputs
 
 

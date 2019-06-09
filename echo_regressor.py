@@ -108,8 +108,6 @@ class EchoLinearRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoReg
         self.training_data = inputs
         self.labels = outputs
         self._output_columns = outputs.columns
-        print()
-        print("LABEL index/COLUMNS ", self.labels.index, self.labels.columns)
         self.fitted = False
          
     # assumes input as data-frame and do prediction on the 'text' labeled columns
@@ -132,7 +130,6 @@ class EchoLinearRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoReg
             self._output_columns = ['output']*len(list(output))
         output = d3m_DataFrame(self.model.produce(inputs), columns = self._output_columns, source = self, generate_metadata = True)
         output.metadata = inputs.metadata.clear(source=self, for_value=output, generate_metadata=True)
-        print("OUTPUT COLUMNS (echo regressor) ", self._output_columns)
         #output.metadata = self._add_target_semantic_types(metadata=output.metadata, target_names=self._output_columns, source=self)
 
 
@@ -141,11 +138,6 @@ class EchoLinearRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoReg
         outputs = common_utils.combine_columns(return_result='new', #self.hyperparams['return_result'],
                                                add_index_columns=True,#self.hyperparams['add_index_columns'],
                                                inputs=inputs, columns_list=[output], source=self, column_indices=self._training_indices)
-        print()
-        try:
-            print('FINAL OUTPUTS ', list(outputs))
-        except:
-            print(outputs)
         return CallResult(outputs, True, 1)
         
 
