@@ -174,7 +174,8 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
         "version": "1.0.0",
         "name": "Echo",
         "description": "Autoencoder implementation of Information Bottleneck using Echo Noise: https://arxiv.org/abs/1904.07199.  Can be used for feature construction with the task of classification or regression.  Image featurization and collaborative filtering in prep.  Returns embedding of size n_hidden, alongside predictions (which can be used with downstream modeling primitive).  Beta hyperparam controls regularization: Loss = task_loss - beta * I(X:Z)",
-        "python_path": "d3m.primitives.feature_construction.corex_supervised.EchoIB", #"d3m.primitives.feature_construction.corex_supervised.DSBOX",
+        "python_path": "d3m.primitives.feature_construction.corex_supervised.EchoIB", 
+        #"d3m.primitives.feature_construction.corex_supervised.DSBOX",
         "original_python_path": "echo_ib.EchoIB",
         "source": {
             "name": "ISI",
