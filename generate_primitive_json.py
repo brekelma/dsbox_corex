@@ -41,6 +41,6 @@ for p, config in PRIMITIVES:
     print('    at ' + json_filename)
 #    command = ['python', '-m', 'd3m.index',
 #               'describe', '-i', '4', primitive_name]
-    command = ['python3', '-m', 'd3m', 'index', 'describe', primitive_name]
+    command = ['python3', '-m', 'd3m', 'index', 'describe', '-i', '4', primitive_name]
     with open(json_filename, 'w') as out:
         subprocess.run(command, stdout=out)
