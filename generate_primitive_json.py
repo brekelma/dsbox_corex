@@ -21,9 +21,9 @@ PREFIX = 'd3m.primitives.'
 PRIMITIVES = [(p, config) for p in [
         'feature_construction.corex_continuous.DSBOX',
         'feature_construction.corex_text.DSBOX',
-        'regression.echo_linear.DSBOX',
+        'regression.corex_supervised.EchoLinear',
         #'feature_construction.corex_supervised.EchoIBReg',
-        'feature_construction.echo_ib.DSBOX'
+        'feature_construction.corex_supervised.EchoIB'
 ]
 ]
 
