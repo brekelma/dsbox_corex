@@ -5,7 +5,8 @@ D3M_API_VERSION = 'v2019.6.7'
 VERSION = "1.0.0"
 TAG_NAME = "{git_commit}".format(git_commit=utils.current_git_commit(os.path.dirname(__file__)), )
 
-REPOSITORY = "https://github.com/brekelma/dsbox_corex/tree/old_primitive_names" #https://github.com/brekelma/dsbox_corex"
+#REPOSITORY = "https://github.com/brekelma/dsbox_corex/tree/old_primitive_names" #
+REPOSITORY = "https://github.com/brekelma/dsbox_corex"
 PACAKGE_NAME = "dsbox-corex"
 
 D3M_PERFORMER_TEAM = 'ISI'
