@@ -60,7 +60,7 @@ class CorexContinuous(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexConti
     metadata = PrimitiveMetadata({
       "schema": "v0",
       "id": "d2d4fefc-0859-3522-91df-7e445f61a69b",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "name": "CorexContinuous",
       "description": "Return components/latent factors that explain the most multivariate mutual information in the data under Linear Gaussian model. For comparison, PCA returns components explaining the most variance in the data.",
       #"python_path": "d3m.primitives.dsbox.corex_continuous.CorexContinuous",
