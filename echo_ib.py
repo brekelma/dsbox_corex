@@ -171,7 +171,7 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
     metadata = PrimitiveMetadata({
         "schema": "v0",
         "id": "393f9de8-a5b9-4d92-aaff-8808d563b6c4",
-        "version": "1.0.1",
+        "version": "1.0.0",
         "name": "Echo",
         "description": "Autoencoder implementation of Information Bottleneck using Echo Noise: https://arxiv.org/abs/1904.07199.  Can be used for feature construction with the task of classification or regression.  Image featurization and collaborative filtering in prep.  Returns embedding of size n_hidden, alongside predictions (which can be used with downstream modeling primitive).  Beta hyperparam controls regularization: Loss = task_loss - beta * I(X:Z)",
         "python_path": "d3m.primitives.feature_construction.corex_supervised.EchoIB", 
@@ -212,7 +212,7 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
         self._noise = 'echo'
         self._kl_warmup = 10 # .1 * kl reg for first _ epochs
         self._anneal_sched = None # not supported
-        self._echo_args = {'batch': self._batch, 'd_max': self._batch, 'nomc': True, 'calc_log': True, 'plus_sx': True}
+        self._echo_args = {'batch': self._batch, 'd_max': self._batch, 'nomc': True, 'calc_log': True, 'plus_sx': True, 'replace': True}
 
         try:
             self.label_encode = self.label_encode
