@@ -47,7 +47,7 @@ class CorexContinuous_Params(params.Params):
 
 class CorexContinuous_Hyperparams(hyperparams.Hyperparams):
     n_hidden = Union(OrderedDict([('n_hidden int' , hyperparams.Uniform(lower = 1, upper = 50, default = 10, q = 1, description = 'number of hidden factors learned')),
-        ('n_hidden pct' , hyperparams.Uniform(lower = 0, upper = .50, default = .2, q = .05, description = 'number of hidden factors as percentage of # input columns'))]), 
+        ('n_hidden pct' , hyperparams.Uniform(lower = 0, upper = 1.0, default = .5, q = .05, description = 'number of hidden factors as percentage of # input columns'))]), 
         default = 'n_hidden pct', semantic_types=[
         'https://metadata.datadrivendiscovery.org/types/TuningParameter'
     ])

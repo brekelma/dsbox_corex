@@ -60,6 +60,7 @@ class EchoIB_Params(params.Params):
     fitted: typing.Union[bool, None] #bool
     label_encode: typing.Union[preprocessing.LabelEncoder, None]
     output_columns: typing.Union[list, pd.Index, None]
+    embed: typing.Union[keras.models.Model, None]
     #max_discrete_labels: int
     # add support for resuming training / storing model information
 
@@ -91,17 +92,37 @@ class EchoIB_Hyperparams(hyperparams.Hyperparams):
         'https://metadata.datadrivendiscovery.org/types/ControlParameter'
     ])
 
-    warm_up = UniformInt(lower = 1, upper = 20, default = 5, description = 'epochs of reduced MI regularization', semantic_types=[
+    warm_up = UniformInt(lower = 0, upper = 20, default = 0, description = 'epochs of reduced MI regularization', semantic_types=[
         'https://metadata.datadrivendiscovery.org/types/ControlParameter'
     ])
 
-    final_kernel = UniformInt(lower = 1, upper = 20, default = 5, description = 'epochs of reduced MI regularization', semantic_types=[
+
+    sgd = UniformBool(default=False,
+        semantic_types=['https://metadata.datadrivendiscovery.org/types/ControlParameter'],
+        description="whether to use sgd (alternatively, Adam)"
+    )
+    clipnorm = Uniform(lower = 0.5, upper = 100, default = 1., q = .5,
+        description = 'gradient norm clipping ', semantic_types=[
         'https://metadata.datadrivendiscovery.org/types/ControlParameter'
     ])
+
     convolutional = UniformBool(default=False,
         semantic_types=['https://metadata.datadrivendiscovery.org/types/ControlParameter'],
         description="whether to use a convolutional architecture"
     )
+
+    final_kernel = UniformInt(lower = 1, upper = 20, default = 5, description = 'epochs of reduced MI regularization', semantic_types=[
+        'https://metadata.datadrivendiscovery.org/types/ControlParameter'
+    ])
+
+    img_dim_1 = UniformInt(lower = 2, upper = 256, default = 28, description = 'img dim 1 ', semantic_types=[
+        'https://metadata.datadrivendiscovery.org/types/ControlParameter'
+    ])
+
+    img_dim_2 = UniformInt(lower = 2, upper = 256, default = 28, description = 'img dim 2 ', semantic_types=[
+        'https://metadata.datadrivendiscovery.org/types/ControlParameter'
+    ])
+
     strides = UniformInt(lower = 1, upper = 5, default = 2, description = 'last argument of convolutional strides for fitting img size', semantic_types=[
         'https://metadata.datadrivendiscovery.org/types/ControlParameter'
     ])
@@ -143,14 +164,20 @@ class ZeroAnneal(Callback):
 
                 
 
-def build_convolutional_encoder(n_hidden, sq_dim = None, architecture = 'alemi', encoder_layers = [], decoder_layers = [], strides = None, final_kernel = 7):
+def build_convolutional_encoder(n_hidden, sq_dim = None, architecture = 'alemi', encoder_layers = [], decoder_layers = [], strides = None, final_kernel = 7, inp_shape = None):
     x = keras.layers.Input(shape = self.training_inputs.shape[1:])
     t = x
-    if sq_dim is None:
-        sq_dim = int(np.sqrt(self.training_inputs.shape[-1]))
-    if not len(self.training_inputs.shape) > 2:
-        reshp = keras.layers.Reshape(inp_shape, input_shape = (sq_dim, sq_dim))(x)
-  
+    try:
+        reshp = keras.layers.Reshape(inp_shape, input_shape = (np.prod(inp_shape),))(x)
+    except:
+        reshp = x
+        #try:
+        #    if sq_dim is None:
+        #        sq_dim = int(np.sqrt(self.training_inputs.shape[-1]))
+        #    if not len(self.training_inputs.shape) > 2:
+        #        reshp = keras.layers.Reshape((sq_dim,sq_dim), input_shape = (sq_dim, sq_dim))(x)
+        #except:
+        
     if architecture == 'alemi':
         el = [32, 32, 64, 64, 256, n_hidden]
         dl = [64, 64, 64, 32, 32, 32, 1]
@@ -250,17 +277,23 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
             self._lr = self.hyperparams['lr']
         except:
             self._lr = 0.0005
-        self._optimizer = Adam(self._lr)
+        try:
+            if self.hyperparams['sgd']:
+                self._optimizer = SGD(self._lr, momentum= 0.9, nesterov=True, decay=1e-6, clipnorm = self.hyperparams['clipnorm']) 
+            else:
+                self._optimizer = Adam(self._lr, clipnorm = self.hyperparams['clipnorm'])
+        except:
+            self._optimizer = Adam(self._lr, clipnorm = self.hyperparams['clipnorm'])
         try:
             self._batch = self.hyperparams['batch']
         except:
             self._batch = 50
-        self._epochs = None # HYPERPARAM?
+        self._epochs = self.hyperparams['epochs'] # HYPERPARAM?
         self._noise = 'echo'
         try:
             self._kl_warmup = self.hyperparms['warm_up'] # .1 * kl reg for first _ epochs
         except:
-            self._kl_warmup = 10 # .1 * kl reg for first _ epochs
+            self._kl_warmup = 0 # .1 * kl reg for first _ epochs
         self._anneal_sched = None # not supported
         self._echo_args = {'batch': self._batch, 'd_max': self._batch, 'nomc': True, 'calc_log': True, 'plus_sx': True, 'replace': True}
 
@@ -285,10 +318,14 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
             
         y_true = keras.layers.Input(shape = (self.training_outputs.shape[-1],), name = 'labels')
         if self.hyperparams['convolutional']:
+            inp_shape = [self.hyperparams['img_dim_1'], self.hyperparams['img_dim_2'], 1]
             try:
-                encoder = build_convolutional_encoder(self.hyperparams['n_hidden'], strides = self.hyperparams['strides'], final_kernel = self.hyperparams['final_kernel'])
+                encoder = build_convolutional_encoder(self.hyperparams['n_hidden'], strides = self.hyperparams['strides'], final_kernel = self.hyperparams['final_kernel'], inp_shape = inp_shape)
             except:
-                encoder = build_convolutional_encoder(self.hyperparams['n_hidden'], final_kernel = self.hyperparams['final_kernel'])
+                try:
+                    encoder = build_convolutional_encoder(self.hyperparams['n_hidden'], final_kernel = self.hyperparams['final_kernel'], inp_shape = inp_shape)
+                except:
+                    encoder = build_convolutional_encoder(self.hyperparams['n_hidden'], final_kernel = self.hyperparams['final_kernel'])
             z_act = encoder.outputs[0]
         else:
             x = keras.layers.Input(shape = (self.training_inputs.shape[-1],))
@@ -357,9 +394,10 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
         outputs.append(y_pred) 
         #outputs.append([y_true, y_pred])
         if label_act == 'softmax':
-            loss_functions.append(partial(my_loss, keras.objectives.categorical_crossentropy))
+            loss_functions.append(keras.objectives.categorical_crossentropy)
+            #loss_functions.append(partial(my_loss, keras.objectives.categorical_crossentropy))
         elif label_act == 'sigmoid':
-            loss_functions.append(partial(my_loss, keras.objectives.binary_crossentropy))
+            loss_functions.append(keras.objectives.binary_crossentropy)
         else: 
             loss_functions.append(keras.objectives.mean_squared_error)
             #loss_functions.append(partial(my_loss, keras.objectives.mean_squared_error))#mse
@@ -377,14 +415,16 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
         my_callbacks.append(keras.callbacks.TerminateOnNaN())
         self.model = keras.models.Model(inputs = x, outputs = outputs)
         self.model.compile(optimizer = self._optimizer, loss = loss_functions, loss_weights = loss_weights)
-        print(self.model.summary())
 
+
+        self.embed = keras.models.Model(inputs = x, outputs = z_act)
+        
         # anneal? 
         if self._anneal_sched:
             raise NotImplementedError
         else:
             self.model.fit_generator(generator(self.training_inputs, self.training_outputs, target_len = len(outputs), batch = self._batch),
-                                     callbacks = my_callbacks,
+                                     callbacks = my_callbacks, verbose = 0,
                                      steps_per_epoch=int(self.training_inputs.values.shape[0]/self._batch), epochs = self.hyperparams["epochs"])
             #self.model.fit(self.training_inputs, [self.training_outputs]*len(outputs), 
             #    shuffle = True, epochs = self.hyperparams["epochs"], batch_size = self._batch) # validation_data = [] early stopping?
@@ -400,8 +440,12 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
         
         modeling = self.hyperparams['use_as_modeling']
         inp = self.model.input
-        outputs = [layer.output for layer in self.model.layers if 'z_mean' in layer.name or 'z_noise' in layer.name]
-        functors = [K.function([inp, K.learning_phase()], [out]) for out in outputs]
+        
+        try:
+            outputs = [layer.output for layer in self.model.layers if 'z_mean' in layer.name or 'z_noise' in layer.name]
+            functors = [K.function([inp, K.learning_phase()], [out]) for out in outputs]
+        except:
+            pass
         dec_inp = [layer.input for layer in self.model.layers if 'decoder_0' in layer.name][0]
         
         preds = [layer.output for layer in self.model.layers if 'y_pred' in layer.name]
@@ -409,28 +453,40 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
         
         predictions = []
         features = []
-        for i in range(0, inputs.shape[0], self._batch):
-            data = inputs.values[i:i+self._batch]
-            z_stats = [func([data, 1.])[0] for func in functors]
+
+        z_act = self.embed.predict(inputs, batch_size = self._batch)
+        y_pred= pred_function([z_act, 1.])[0]#.eval(session=K.get_session())
+        if 'classification' in self.hyperparams['task'].lower():
+            y_pred = np.argmax(y_pred, axis = -1)
+
+        # for i in range(0, inputs.shape[0], self._batch):
+        #     data = inputs.values[i:i+self._batch]
+        #     print("Produce data : ", produce)
+
+
+
+        #     z_stats = [func([data, 1.])[0] for func in functors]
         
-            try:
-                z_act = echo_sample(z_stats, **self._echo_args).eval(session=K.get_session())
-            except:
-                z_act = echo_sample([tf.convert_to_tensor(zz) for zz in z_stats], **self._echo_args).eval(session=K.get_session())
-            y_pred= pred_function([z_act, 1.])[0]#.eval(session=K.get_session())
-            features.extend([z_act[yp] for yp in range(z_act.shape[0])])
+        #     try:
+        #         z_act = echo_sample(z_stats, **self._echo_args).eval(session=K.get_session())
+        #     except:
+        #         z_act = echo_sample([tf.convert_to_tensor(zz) for zz in z_stats], **self._echo_args).eval(session=K.get_session())
+            
+        #     y_pred= pred_function([z_act, 1.])[0]#.eval(session=K.get_session())
+        #     features.extend([z_act[yp] for yp in range(z_act.shape[0])])
         
-            #if self._label_unique > 2:
-            if 'classification' in self.hyperparams['task'].lower():
-                y_pred = np.argmax(y_pred, axis = -1)
-            predictions.extend([y_pred[yp] for yp in range(y_pred.shape[0])])
-            #int_df = d3m_DataFrame(y_pred,index = inputs.index[i:i+self._batch], columns = self.output_columns)
-            #if i == 0:
-            #    predictions = int_df
-            #else:
-            #    predictions.append(int_df)
+        #     #if self._label_unique > 2:
+        #     if 'classification' in self.hyperparams['task'].lower():
+        #         y_pred = np.argmax(y_pred, axis = -1)
+        #     predictions.extend([y_pred[yp] for yp in range(y_pred.shape[0])])
+        #     #int_df = d3m_DataFrame(y_pred,index = inputs.index[i:i+self._batch], columns = self.output_columns)
+        #     #if i == 0:
+        #     #    predictions = int_df
+        #     #else:
+        #     #    predictions.append(int_df)
             #    print("Predictions SHAPE ", predictions.shape)
-        predictions = np.array(predictions)
+        features = np.array(z_act)
+        predictions = np.array(y_pred)
         if self.label_encode is not None:
             predictions = self.label_encode.inverse_transform(predictions)
         
@@ -445,8 +501,7 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
 
             # create metadata for the corex columns                                                                                                                             
             features = np.array(features)
-            print(features.shape)
-            print(predictions.shape)
+            
             try:
                 constructed = np.concatenate([features, predictions], axis = -1)
             except:
@@ -510,7 +565,7 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
 
 
     def get_params(self) -> EchoIB_Params:
-        return EchoIB_Params(model = self.model, model_weights = self.model.get_weights(), fitted = self.fitted, label_encode = self.label_encode, output_columns = self.output_columns)#max_discrete_labels = self.max_discrete_labels)#args)
+        return EchoIB_Params(model = self.model, model_weights = self.model.get_weights(), fitted = self.fitted, label_encode = self.label_encode, output_columns = self.output_columns, embed = self.embed)#max_discrete_labels = self.max_discrete_labels)#args)
 
     def set_params(self, *, params: EchoIB_Params) -> None:
         #self.max_discrete_labels = params["max_discrete_labels"]
@@ -520,6 +575,7 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
         self.fitted = params['fitted']
         self.label_encode = params['label_encode']
         self.output_columns = params['output_columns']
+        self.embed = params['embed']
 
     def _add_target_semantic_types(cls, metadata: metadata_base.DataMetadata,
                             source: typing.Any,  target_names: List = None,) -> metadata_base.DataMetadata:
@@ -576,7 +632,7 @@ def generator(data, labels = None, target_len = 1, batch = 100, mode = 'train', 
             yield x_batch, [y_batch]*target_len
 
             #restart counter to yeild data in the next epoch as well                                                                                                          
-            if counter >= number_of_batches:
+            if counter >= number_of_batches-1:
                 counter = 0
                 sd = np.random.randint(data.shape[0])
                 data.sample(frac = 1, random_state = sd)
@@ -719,10 +775,11 @@ def echo_sample(inputs, clip=None, d_max=100, batch=100, multiplicative=False, e
       # use mean centered fx for noise
       fx = fx - K.mean(fx, axis = 0, keepdims = True)
 
-    #batch_size = K.shape(fx)[0]
+    #
     z_dim = K.int_shape(fx)[-1]
     
     if replace: # replace doesn't set batch size (using permute_neighbor_indices does)
+        batch = K.shape(fx)[0]   
         sx = K.batch_flatten(sx) if len(sx_shape) > 2 else sx 
         fx = K.batch_flatten(fx) if len(fx_shape) > 2 else fx 
         inds = K.reshape(random_indices(batch, d_max), (-1, 1))
@@ -761,10 +818,11 @@ def echo_sample(inputs, clip=None, d_max=100, batch=100, multiplicative=False, e
     sx_echoes = tf.exp(sx_echoes) if calc_log else sx_echoes 
     fx_sx_echoes = tf.multiply(select_fx, sx_echoes) 
     
+
     # performs the sum over dmax terms to calculate noise
     noise = tf.reduce_sum(fx_sx_echoes, axis = 1) 
-    
-    
+
+
     #if multiplicative:
         # unused in paper, not extensively tested
         #sx = sx if not calc_log else tf.exp(sx) 
