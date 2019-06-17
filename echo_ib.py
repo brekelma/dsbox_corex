@@ -96,13 +96,12 @@ class EchoIB_Hyperparams(hyperparams.Hyperparams):
         'https://metadata.datadrivendiscovery.org/types/ControlParameter'
     ])
 
-
     sgd = UniformBool(default=False,
         semantic_types=['https://metadata.datadrivendiscovery.org/types/ControlParameter'],
         description="whether to use sgd (alternatively, Adam)"
     )
 
-    clipnorm = Uniform(lower = 0.5, upper = 100, default = 1.,
+    clipnorm = Uniform(lower = 0.5, upper = 100, default = 1.0,
         description = 'gradient norm clipping ', semantic_types=[
         'https://metadata.datadrivendiscovery.org/types/ControlParameter'
     ])
@@ -287,7 +286,7 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
             try:
                 self._optimizer = Adam(self._lr, clipnorm = self.hyperparams['clipnorm'])
             except:
-                self._optimizer = Adam(self._lr, clipnorm = 1.)
+                self._optimizer = Adam(self._lr, clipnorm = 1.0)
         try:
             self._batch = self.hyperparams['batch']
         except:
