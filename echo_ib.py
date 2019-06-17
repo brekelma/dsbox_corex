@@ -31,12 +31,13 @@ from d3m.metadata import base as metadata_base
 import common_primitives.utils as common_utils
 from typing import Any, Callable, List, Dict, Union, Optional, Sequence, Tuple, NamedTuple
 import typing
+from functools import partial
 
 from d3m.primitive_interfaces.supervised_learning import SupervisedLearnerPrimitiveBase
 from d3m.primitive_interfaces.base import CallResult
 #from d3m.primitive_interfaces.params import Params
 from d3m.metadata.hyperparams import Uniform, UniformInt, Union, Enumeration, UniformBool, List
-
+import d3m.metadata.base as mbase
 
 import config as cfg_
 
@@ -63,7 +64,7 @@ class EchoIB_Params(params.Params):
     # add support for resuming training / storing model information
 
 class EchoIB_Hyperparams(hyperparams.Hyperparams):
-    n_hidden = Uniform(lower = 1, upper = 201, default = 200, q = 1, description = 'number of hidden factors learned', semantic_types=[
+    n_hidden = Uniform(lower = 1, upper = 201, default = 20, q = 1, description = 'number of hidden factors learned', semantic_types=[
         'https://metadata.datadrivendiscovery.org/types/TuningParameter'
     ])
     beta = Uniform(lower = 0, upper = 1000, default = .1, q = .01, 
@@ -282,6 +283,7 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
         if iterations is not None:
             self.hyperparams["epochs"] = iterations
             
+        y_true = keras.layers.Input(shape = (self.training_outputs.shape[-1],), name = 'labels')
         if self.hyperparams['convolutional']:
             try:
                 encoder = build_convolutional_encoder(self.hyperparams['n_hidden'], strides = self.hyperparams['strides'], final_kernel = self.hyperparams['final_kernel'])
@@ -335,7 +337,7 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
             y_pred = Dense(self.training_outputs.shape[-1], activation = label_act, name = 'y_pred')(t)
         else:
             raise NotImplementedError("TASK TYPE SHOULD BE CLASSIFICATION OR REGRESSION")
-
+            
         #if self._input_types:
         #    pass
         #else:
@@ -349,13 +351,18 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
 
         #beta = Beta(name = 'beta', beta = self.hyperparams["beta"])(x)
 
-        outputs.append(y_pred)
+        def my_loss(function, inputs):
+            return function(inputs[0], inputs[1])
+                    
+        outputs.append(y_pred) 
+        #outputs.append([y_true, y_pred])
         if label_act == 'softmax':
-            loss_functions.append(keras.objectives.categorical_crossentropy)
+            loss_functions.append(partial(my_loss, keras.objectives.categorical_crossentropy))
         elif label_act == 'sigmoid':
-            loss_functions.append(keras.objectives.binary_crossentropy)
+            loss_functions.append(partial(my_loss, keras.objectives.binary_crossentropy))
         else: 
-            loss_functions.append(keras.objectives.mean_squared_error)#mse
+            loss_functions.append(keras.objectives.mean_squared_error)
+            #loss_functions.append(partial(my_loss, keras.objectives.mean_squared_error))#mse
         loss_weights.append(1)
 
         loss_tensor = Lambda(latent_loss)([z_mean,z_noise])
@@ -370,7 +377,7 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
         my_callbacks.append(keras.callbacks.TerminateOnNaN())
         self.model = keras.models.Model(inputs = x, outputs = outputs)
         self.model.compile(optimizer = self._optimizer, loss = loss_functions, loss_weights = loss_weights)
-
+        print(self.model.summary())
 
         # anneal? 
         if self._anneal_sched:
@@ -414,7 +421,8 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
             features.extend([z_act[yp] for yp in range(z_act.shape[0])])
         
             #if self._label_unique > 2:
-            y_pred = np.argmax(y_pred, axis = -1)
+            if 'classification' in self.hyperparams['task'].lower():
+                y_pred = np.argmax(y_pred, axis = -1)
             predictions.extend([y_pred[yp] for yp in range(y_pred.shape[0])])
             #int_df = d3m_DataFrame(y_pred,index = inputs.index[i:i+self._batch], columns = self.output_columns)
             #if i == 0:
@@ -423,7 +431,9 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
             #    predictions.append(int_df)
             #    print("Predictions SHAPE ", predictions.shape)
         predictions = np.array(predictions)
-        predictions = self.label_encode.inverse_transform(predictions)
+        if self.label_encode is not None:
+            predictions = self.label_encode.inverse_transform(predictions)
+        
         
         #output.metadata = inputs.metadata.clear(source=self, for_value=output, generate_metadata=True)
         #output.metadata = self._add_target_semantic_types(metadata=output.metadata, target_names=self.output_columns, source=self)
@@ -433,9 +443,14 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
         else:
             out_df = d3m_DataFrame(inputs, generate_metadata = True)
 
-            # create metadata for the corex columns                                                                                                                                        
+            # create metadata for the corex columns                                                                                                                             
             features = np.array(features)
-            constructed = np.concatenate([features, predictions], axis = -1)
+            print(features.shape)
+            print(predictions.shape)
+            try:
+                constructed = np.concatenate([features, predictions], axis = -1)
+            except:
+                constructed = np.concatenate([features, np.expand_dims(predictions,1)], axis = -1)
             corex_df = d3m_DataFrame(constructed, generate_metadata = True)
 
             for column_index in range(corex_df.shape[1]):
@@ -451,7 +466,7 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
             # concatenate is --VERY-- slow without this next line                                                                                                                                
             corex_df.index = out_df.index.copy()
             
-            outputs = utils.append_columns(out_df, corex_df)
+            outputs = common_utils.append_columns(out_df, corex_df)
 
 
         #print("INPUT COLUMNS ", inputs.columns)
