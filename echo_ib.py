@@ -69,7 +69,7 @@ class EchoIB_Hyperparams(hyperparams.Hyperparams):
         'https://metadata.datadrivendiscovery.org/types/TuningParameter'
     ])
 
-    beta = Uniform(lower = 0, upper = 1000, default = .1, q = .01, 
+    beta = Uniform(lower = 0, upper = 1000, default = .2, q = .01, 
         description = 'Lagrange multiplier for beta (applied to regularizer I(X:Z)): defining tradeoff btwn label relevance : compression.', semantic_types=[
         'https://metadata.datadrivendiscovery.org/types/TuningParameter'
     ])
@@ -89,7 +89,7 @@ class EchoIB_Hyperparams(hyperparams.Hyperparams):
         'https://metadata.datadrivendiscovery.org/types/ControlParameter'
     ])
 
-    lr = Uniform(lower = 0.0001, upper = 0.0101, default = 0.0005, description = 'learning rate', semantic_types=[
+    lr = Uniform(lower = 0.0001, upper = 1.0001, default = 0.0005, description = 'learning rate', semantic_types=[
         'https://metadata.datadrivendiscovery.org/types/ControlParameter'
     ])
 
