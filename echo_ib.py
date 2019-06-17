@@ -68,6 +68,7 @@ class EchoIB_Hyperparams(hyperparams.Hyperparams):
     n_hidden = Uniform(lower = 1, upper = 201, default = 20, q = 1, description = 'number of hidden factors learned', semantic_types=[
         'https://metadata.datadrivendiscovery.org/types/TuningParameter'
     ])
+
     beta = Uniform(lower = 0, upper = 1000, default = .1, q = .01, 
         description = 'Lagrange multiplier for beta (applied to regularizer I(X:Z)): defining tradeoff btwn label relevance : compression.', semantic_types=[
         'https://metadata.datadrivendiscovery.org/types/TuningParameter'
@@ -136,16 +137,16 @@ class EchoIB_Hyperparams(hyperparams.Hyperparams):
         description="whether to return constructed features AND predictions (else, used for modeling i.e. only predictions"
     )
 
-    error_on_no_input = hyperparams.UniformBool(
-        default=True,
-        semantic_types=['https://metadata.datadrivendiscovery.org/types/ControlParameter'],
-        description="Throw an exception if no input column is selected/provided. Defaults to true to behave like sklearn. To prevent pipelines from breaking set this to False."
-    )
-    gpus = Uniform(lower = 0, upper = 5, q = 1, 
-                   default = 0,
-                   semantic_types = ['https://metadata.datadrivendiscovery.org/types/ResourcesUseParameter'],
-                   description = 'GPUs to Use'
-    )
+    #error_on_no_input = hyperparams.UniformBool(
+    #    default=True,
+    #    semantic_types=['https://metadata.datadrivendiscovery.org/types/ControlParameter'],
+    #    description="Throw an exception if no input column is selected/provided. Defaults to true to behave like sklearn. To prevent pipelines from breaking set this to False."
+    #)
+    #gpus = Uniform(lower = 0, upper = 5, q = 1, 
+    #               default = 0,
+    #               semantic_types = ['https://metadata.datadrivendiscovery.org/types/ResourcesUseParameter'],
+    #               description = 'GPUs to Use'
+    #)
 
 
 class ZeroAnneal(Callback):
@@ -244,20 +245,19 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
         "source": {
             "name": "ISI",
             "contact": "mailto:brekelma@usc.edu",
-            "uris": [ "https://github.com/brekelma/dsbox_corex" ]
+            "uris": [ "https://github.com/brekelma/dsbox_corex"]
             },
         # git+https://github.com/brekelma/corex_continuous#egg=corex_continuous
-        "installation": [ cfg_.INSTALLATION ]
-            #{'type': 'PIP', 
-             #'package_uri': 'git+https://github.com/brekelma/dsbox_corex.git@7381c3ed2d41a8dbe96bbf267a915a0ec48ee397#egg=dsbox-corex'#'+ str(git.Repo(search_parent_directories = True).head.object.hexsha) + '#egg=dsbox-corex'
-            #}
-            #]
-            ,
+        "installation": [ cfg_.INSTALLATION ],
       "algorithm_types": ["STOCHASTIC_NEURAL_NETWORK"],#"EXPECTATION_MAXIMIZATION_ALGORITHM"],
       "primitive_family": "FEATURE_CONSTRUCTION",
         "hyperparams_to_tune": ["n_hidden", "beta", "epochs"]
     })
 
+       #{'type': 'PIP', 
+             #'package_uri': 'git+https://github.com/brekelma/dsbox_corex.git@7381c3ed2d41a8dbe96bbf267a915a0ec48ee397#egg=dsbox-corex'#'+ str(git.Repo(search_parent_directories = True).head.object.hexsha) + '#egg=dsbox-corex'
+            #}
+            #]
 
 
     def __init__(self, *, hyperparams : EchoIB_Hyperparams) -> None: #, random_seed : int =  0, docker_containers: typing.Dict[str, DockerContainer] = None
