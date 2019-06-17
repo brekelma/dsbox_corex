@@ -426,9 +426,7 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
         if self._anneal_sched:
             raise NotImplementedError
         else:
-            self.model.fit_generator(generator(self.training_inputs, self.training_outputs, target_len = len(outputs), batch = self._batch),
-                                     callbacks = my_callbacks, verbose = 0,
-                                     steps_per_epoch=int(self.training_inputs.values.shape[0]/self._batch), epochs = self.hyperparams["epochs"])
+            self.model.fit_generator(generator(self.training_inputs, self.training_outputs, target_len = len(outputs), batch = self._batch), verbose = 0, callbacks = my_callbacks,steps_per_epoch=int(self.training_inputs.values.shape[0]/self._batch), epochs = self.hyperparams["epochs"])
             #self.model.fit(self.training_inputs, [self.training_outputs]*len(outputs), 
             #    shuffle = True, epochs = self.hyperparams["epochs"], batch_size = self._batch) # validation_data = [] early stopping?
 
@@ -444,11 +442,11 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
         modeling = self.hyperparams['use_as_modeling']
         inp = self.model.input
         
-        try:
-            outputs = [layer.output for layer in self.model.layers if 'z_mean' in layer.name or 'z_noise' in layer.name]
-            functors = [K.function([inp, K.learning_phase()], [out]) for out in outputs]
-        except:
-            pass
+        #try:
+        outputs = [layer.output for layer in self.model.layers if 'z_mean' in layer.name or 'z_noise' in layer.name]
+        functors = [K.function([inp, K.learning_phase()], [out]) for out in outputs]
+        #except:
+        #pass
         dec_inp = [layer.input for layer in self.model.layers if 'decoder_0' in layer.name][0]
         
         preds = [layer.output for layer in self.model.layers if 'y_pred' in layer.name]
