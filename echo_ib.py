@@ -35,7 +35,7 @@ import typing
 from d3m.primitive_interfaces.supervised_learning import SupervisedLearnerPrimitiveBase
 from d3m.primitive_interfaces.base import CallResult
 #from d3m.primitive_interfaces.params import Params
-from d3m.metadata.hyperparams import Uniform, UniformInt, Union, Enumeration, UniformBool
+from d3m.metadata.hyperparams import Uniform, UniformInt, Union, Enumeration, UniformBool, List
 
 
 import config as cfg_
@@ -64,13 +64,36 @@ class EchoIB_Hyperparams(hyperparams.Hyperparams):
         'https://metadata.datadrivendiscovery.org/types/TuningParameter'
     ])
     epochs = Uniform(lower = 1, upper = 1000, default = 100, description = 'number of epochs to train', semantic_types=[
-        'https://metadata.datadrivendiscovery.org/types/TuningParameter'
+        'https://metadata.datadrivendiscovery.org/types/ControlParameter'
+    ])
+    
+    batch = Uniform(lower = 10, upper = 501, default = 50, description = 'batch size', semantic_types=[
+        'https://metadata.datadrivendiscovery.org/types/ControlParameter'
+    ])
+    
+    units = Uniform(lower = 1, upper = 500, default = 200, description = 'number of fc units', semantic_types=[
+        'https://metadata.datadrivendiscovery.org/types/ControlParameter'
+    ])
+
+    layers = Uniform(lower = 1, upper = 20, default = 3, description = 'number of layers', semantic_types=[
+        'https://metadata.datadrivendiscovery.org/types/ControlParameter'
+    ])
+
+    lr = Uniform(lower = 0.0001, upper = 0.0101, default = 0.0005, description = 'learning rate', semantic_types=[
+        'https://metadata.datadrivendiscovery.org/types/ControlParameter'
+    ])
+
+    warm_up = Uniform(lower = 1, upper = 20, default = 5, description = 'epochs of reduced MI regularization', semantic_types=[
+        'https://metadata.datadrivendiscovery.org/types/ControlParameter'
     ])
 
     convolutional = UniformBool(default=False,
         semantic_types=['https://metadata.datadrivendiscovery.org/types/ControlParameter'],
         description="whether to use a convolutional architecture"
     )
+    strides = Uniform(lower = 1, upper = 5, default = 2, description = 'last argument of convolutional strides for fitting img size', semantic_types=[
+        'https://metadata.datadrivendiscovery.org/types/ControlParameter'
+    ])
 
     task = Enumeration(values = ['CLASSIFICATION', 'REGRESSION'], default = 'REGRESSION', 
                        semantic_types=['https://metadata.datadrivendiscovery.org/types/ControlParameter'],
@@ -109,7 +132,7 @@ class ZeroAnneal(Callback):
 
                 
 
-def build_convolutional_encoder(n_hidden, sq_dim = None, architecture = 'alemi', encoder_layers = [], decoder_layers = []):
+def build_convolutional_encoder(n_hidden, sq_dim = None, architecture = 'alemi', encoder_layers = [], decoder_layers = [], strides = None, final_kernel = 7):
     x = keras.layers.Input(shape = self.training_inputs.shape[1:])
     t = x
     if sq_dim is None:
@@ -124,14 +147,17 @@ def build_convolutional_encoder(n_hidden, sq_dim = None, architecture = 'alemi',
         el = encoder_layers if encoder_layers else [32, 32, 64, 64, 256, n_hidden]
         dl = decoder_layers if decoder_layers else [64, 64, 64, 32, 32, 32, 1]
 
+    s = strides if strides is not None or isinstance(strides,int) else [1,2,1,2,2]
+    if isinstance(strides, int):
+        s[-1] = strides
 
     if architecture == 'alemi':
         # works for 28 by 28 only
-        h = keras.layers.Conv2D(el[0], activation = 'relu', kernel_size = 5, strides = 1, padding = 'same')(reshp)
-        h = keras.layers.Conv2D(el[1], activation = 'relu', kernel_size = 5, strides = 2, padding = 'same')(h)
-        h = keras.layers.Conv2D(el[2], activation = 'relu', kernel_size = 5, strides = 1, padding = 'same')(h)
-        h = keras.layers.Conv2D(el[3], activation = 'relu', kernel_size = 5, strides = 2, padding = 'same')(h)
-        h = keras.layers.Conv2D(el[4], activation = 'relu', kernel_size = 7, strides = 2, padding = 'valid')(h)
+        h = keras.layers.Conv2D(el[0], activation = 'relu', kernel_size = 5, strides = s[0], padding = 'same')(reshp)
+        h = keras.layers.Conv2D(el[1], activation = 'relu', kernel_size = 5, strides = s[1], padding = 'same')(h)
+        h = keras.layers.Conv2D(el[2], activation = 'relu', kernel_size = 5, strides = s[2], padding = 'same')(h)
+        h = keras.layers.Conv2D(el[3], activation = 'relu', kernel_size = 5, strides = s[3], padding = 'same')(h)
+        h = keras.layers.Conv2D(el[4], activation = 'relu', kernel_size = final_kernel, strides = s[4], padding = 'valid')(h)
     #else:
     #    for i in range(len(self._latent_dims[:-1])):
     #        t = Dense(self._latent_dims[i], activation = self._activation)(t)
@@ -200,17 +226,26 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
         super().__init__(hyperparams = hyperparams) # random_seed = random_seed, docker_containers = docker_containers)
 
     def _extra_params(self, latent_dims = None, activation = None, lr = None, batch = None, epochs = None, noise = None):
-        self._latent_dims = [200, 200, self.hyperparams['n_hidden']]
+        try:
+            self._latent_dims = [self.hyperparams['units']]*self.hyperparams['layers']+[self.hyperparams['n_hidden']]
+        except:
+            self._latent_dims = [200, 200, self.hyperparams['n_hidden']]
         self._decoder_dims = list(reversed(self._latent_dims[:-1]))
         
         # TRAINING ARGS... what to do?
         self._activation = 'softplus'
-        self._lr = 0.0005
+        try:
+            self._lr = self.hyperparams['lr']
+        except:
+            self._lr = 0.0005
         self._optimizer = Adam(self._lr)
-        self._batch = 20
+        try:
+            self._batch = self.hyperparams['batch']
+        except:
+            self._batch = 50
         self._epochs = None # HYPERPARAM?
         self._noise = 'echo'
-        self._kl_warmup = 10 # .1 * kl reg for first _ epochs
+        self._kl_warmup = self.hyperparms['warm_up'] # .1 * kl reg for first _ epochs
         self._anneal_sched = None # not supported
         self._echo_args = {'batch': self._batch, 'd_max': self._batch, 'nomc': True, 'calc_log': True, 'plus_sx': True, 'replace': True}
 
@@ -234,7 +269,7 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
             self.hyperparams["epochs"] = iterations
             
         if self.hyperparams['convolutional']:
-            encoder = build_convolutional_encoder(self.hyperparams['n_hidden'])
+            encoder = build_convolutional_encoder(self.hyperparams['n_hidden'], strides = self.hyperparams['strides'], final_kernel = self.hyperparams['final_kernel'])
             z_act = encoder.outputs[0]
         else:
             x = keras.layers.Input(shape = (self.training_inputs.shape[-1],))
