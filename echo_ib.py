@@ -46,6 +46,13 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 Input = container.DataFrame
 Output = container.DataFrame
 
+
+
+def tanh64(x):
+    y = 64
+    return (K.exp(1.0/y*x)-K.exp(-1.0/y*x))/(K.exp(1.0/y*x)+K.exp(-1.0/y*x)+K.epsilon())
+
+
 class EchoIB_Params(params.Params):
     model: typing.Union[keras.models.Model, None]
     model_weights: typing.Union[Any,None]
@@ -63,19 +70,19 @@ class EchoIB_Hyperparams(hyperparams.Hyperparams):
         description = 'Lagrange multiplier for beta (applied to regularizer I(X:Z)): defining tradeoff btwn label relevance : compression.', semantic_types=[
         'https://metadata.datadrivendiscovery.org/types/TuningParameter'
     ])
-    epochs = Uniform(lower = 1, upper = 1000, default = 100, description = 'number of epochs to train', semantic_types=[
+    epochs = UniformInt(lower = 1, upper = 1000, default = 100, description = 'number of epochs to train', semantic_types=[
         'https://metadata.datadrivendiscovery.org/types/ControlParameter'
     ])
     
-    batch = Uniform(lower = 10, upper = 501, default = 50, description = 'batch size', semantic_types=[
+    batch = UniformInt(lower = 10, upper = 501, default = 50, description = 'batch size', semantic_types=[
         'https://metadata.datadrivendiscovery.org/types/ControlParameter'
     ])
     
-    units = Uniform(lower = 1, upper = 500, default = 200, description = 'number of fc units', semantic_types=[
+    units = UniformInt(lower = 1, upper = 500, default = 200, description = 'number of fc units', semantic_types=[
         'https://metadata.datadrivendiscovery.org/types/ControlParameter'
     ])
 
-    layers = Uniform(lower = 1, upper = 20, default = 3, description = 'number of layers', semantic_types=[
+    layers = UniformInt(lower = 1, upper = 20, default = 3, description = 'number of layers', semantic_types=[
         'https://metadata.datadrivendiscovery.org/types/ControlParameter'
     ])
 
@@ -83,15 +90,18 @@ class EchoIB_Hyperparams(hyperparams.Hyperparams):
         'https://metadata.datadrivendiscovery.org/types/ControlParameter'
     ])
 
-    warm_up = Uniform(lower = 1, upper = 20, default = 5, description = 'epochs of reduced MI regularization', semantic_types=[
+    warm_up = UniformInt(lower = 1, upper = 20, default = 5, description = 'epochs of reduced MI regularization', semantic_types=[
         'https://metadata.datadrivendiscovery.org/types/ControlParameter'
     ])
 
+    final_kernel = UniformInt(lower = 1, upper = 20, default = 5, description = 'epochs of reduced MI regularization', semantic_types=[
+        'https://metadata.datadrivendiscovery.org/types/ControlParameter'
+    ])
     convolutional = UniformBool(default=False,
         semantic_types=['https://metadata.datadrivendiscovery.org/types/ControlParameter'],
         description="whether to use a convolutional architecture"
     )
-    strides = Uniform(lower = 1, upper = 5, default = 2, description = 'last argument of convolutional strides for fitting img size', semantic_types=[
+    strides = UniformInt(lower = 1, upper = 5, default = 2, description = 'last argument of convolutional strides for fitting img size', semantic_types=[
         'https://metadata.datadrivendiscovery.org/types/ControlParameter'
     ])
 
@@ -227,7 +237,8 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
 
     def _extra_params(self, latent_dims = None, activation = None, lr = None, batch = None, epochs = None, noise = None):
         try:
-            self._latent_dims = [self.hyperparams['units']]*self.hyperparams['layers']+[self.hyperparams['n_hidden']]
+            self._latent_dims = [self.hyperparams['units']]*self.hyperparams['layers']
+            self._latent_dims.append(self.hyperparams['n_hidden'])
         except:
             self._latent_dims = [200, 200, self.hyperparams['n_hidden']]
         self._decoder_dims = list(reversed(self._latent_dims[:-1]))
@@ -245,7 +256,10 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
             self._batch = 50
         self._epochs = None # HYPERPARAM?
         self._noise = 'echo'
-        self._kl_warmup = self.hyperparms['warm_up'] # .1 * kl reg for first _ epochs
+        try:
+            self._kl_warmup = self.hyperparms['warm_up'] # .1 * kl reg for first _ epochs
+        except:
+            self._kl_warmup = 10 # .1 * kl reg for first _ epochs
         self._anneal_sched = None # not supported
         self._echo_args = {'batch': self._batch, 'd_max': self._batch, 'nomc': True, 'calc_log': True, 'plus_sx': True, 'replace': True}
 
@@ -269,7 +283,10 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
             self.hyperparams["epochs"] = iterations
             
         if self.hyperparams['convolutional']:
-            encoder = build_convolutional_encoder(self.hyperparams['n_hidden'], strides = self.hyperparams['strides'], final_kernel = self.hyperparams['final_kernel'])
+            try:
+                encoder = build_convolutional_encoder(self.hyperparams['n_hidden'], strides = self.hyperparams['strides'], final_kernel = self.hyperparams['final_kernel'])
+            except:
+                encoder = build_convolutional_encoder(self.hyperparams['n_hidden'], final_kernel = self.hyperparams['final_kernel'])
             z_act = encoder.outputs[0]
         else:
             x = keras.layers.Input(shape = (self.training_inputs.shape[-1],))
@@ -552,10 +569,6 @@ def generator(data, labels = None, target_len = 1, batch = 100, mode = 'train', 
                 np.random.shuffle(labels)
                 #labels.sample(frac =1, random_state = sd)
                 
-
-def tanh64(x):
-    y = 64
-    return (K.exp(1.0/y*x)-K.exp(-1.0/y*x))/(K.exp(1.0/y*x)+K.exp(-1.0/y*x)+K.epsilon())
 
 def log_sigmoid_64(x):
     y = 1.0/64
