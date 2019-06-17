@@ -7,7 +7,7 @@ TAG_NAME = "{git_commit}".format(git_commit=utils.current_git_commit(os.path.dir
 
 #REPOSITORY = "https://github.com/brekelma/dsbox_corex/tree/old_primitive_names" #
 REPOSITORY = "https://github.com/brekelma/dsbox_corex"
-PACAKGE_NAME = "dsbox-corex"
+PACAKGE_NAME = "dsbox_corex"
 
 D3M_PERFORMER_TEAM = 'ISI'
 
