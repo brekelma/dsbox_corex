@@ -283,7 +283,10 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
             else:
                 self._optimizer = Adam(self._lr, clipnorm = self.hyperparams['clipnorm'])
         except:
-            self._optimizer = Adam(self._lr, clipnorm = self.hyperparams['clipnorm'])
+            try:
+                self._optimizer = Adam(self._lr, clipnorm = self.hyperparams['clipnorm'])
+            except:
+                self._optimizer = Adam(self._lr, clipnorm = 1.)
         try:
             self._batch = self.hyperparams['batch']
         except:
