@@ -101,7 +101,8 @@ class EchoIB_Hyperparams(hyperparams.Hyperparams):
         semantic_types=['https://metadata.datadrivendiscovery.org/types/ControlParameter'],
         description="whether to use sgd (alternatively, Adam)"
     )
-    clipnorm = Uniform(lower = 0.5, upper = 100, default = 1., q = .5,
+
+    clipnorm = Uniform(lower = 0.5, upper = 100, default = 1.,
         description = 'gradient norm clipping ', semantic_types=[
         'https://metadata.datadrivendiscovery.org/types/ControlParameter'
     ])
@@ -149,7 +150,7 @@ class EchoIB_Hyperparams(hyperparams.Hyperparams):
 
 
 class ZeroAnneal(Callback):
-    def __init__(self, lw = 1, index = 0, epochs = 10, scaled = 0.0):#1):
+    def __init__(self, lw = 1, index = 0, epochs = 10, scaled = 0.01):#1):
         self.lw = tf.constant(lw, dtype = tf.float32)
         self.zero_epochs = epochs
         self.ind = index
@@ -491,7 +492,10 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
         features = np.array(z_act)
         predictions = np.array(y_pred)
         if self.label_encode is not None:
-            predictions = self.label_encode.inverse_transform(predictions)
+            try:
+                predictions = self.label_encode.inverse_transform(predictions)
+            except:
+                pass
         
         
         #output.metadata = inputs.metadata.clear(source=self, for_value=output, generate_metadata=True)
