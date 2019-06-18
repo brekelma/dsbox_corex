@@ -57,7 +57,7 @@ class EchoRegressor_Hyperparams(hyperparams.Hyperparams):
     alpha = Uniform(
         lower = 0, 
         upper = 10, 
-        default = 1, 
+        default = .1, 
         q = .1, 
         description = 'regularization strength', 
         semantic_types=["http://schema.org/Float", 'https://metadata.datadrivendiscovery.org/types/TuningParameter']

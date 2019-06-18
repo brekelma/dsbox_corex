@@ -488,11 +488,11 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
             #    print("Predictions SHAPE ", predictions.shape)
         features = np.array(z_act)
         predictions = np.array(y_pred)
-        if self.label_encode is not None:
-            try:
-                predictions = self.label_encode.inverse_transform(predictions)
-            except:
-                pass
+        #if self.label_encode is not None:
+            #try:
+            #    predictions = self.label_encode.inverse_transform(predictions)
+            #except:
+            #    pass
         
         
         #output.metadata = inputs.metadata.clear(source=self, for_value=output, generate_metadata=True)
