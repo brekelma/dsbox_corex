@@ -129,7 +129,12 @@ class EchoLinearRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoReg
             self._output_columns = self._output_columns
         except:
             self._output_columns = ['output']*len(list(output))
-        output = d3m_DataFrame(self.model.produce(inputs), columns = self._output_columns, source = self, generate_metadata = True)
+
+
+
+        result = self.model._produce(inputs.values)
+
+        output = d3m_DataFrame(result, columns = self._output_columns, source = self, generate_metadata = True)
         output.metadata = inputs.metadata.clear(source=self, for_value=output, generate_metadata=True)
         #output.metadata = self._add_target_semantic_types(metadata=output.metadata, target_names=self._output_columns, source=self)
 

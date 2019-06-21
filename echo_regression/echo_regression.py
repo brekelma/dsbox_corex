@@ -216,7 +216,7 @@ class EchoRegression(LinearModel, RegressorMixin):
 
         return self
 
-    def produce(self, X):
+    def _produce(self, X):
         result = np.transpose(np.matmul(self.coef_, np.transpose(X)))+self.intercept_
         return result
 

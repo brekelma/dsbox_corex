@@ -73,6 +73,13 @@ class CorexText_Hyperparams(hyperparams.Hyperparams):
         semantic_types=["http://schema.org/Integer", 'https://metadata.datadrivendiscovery.org/types/TuningParameter']
     )
 
+    max_features = UniformInt(
+        lower = 0, 
+        upper = 1000000, 
+        default = 0, 
+        description = 'max tokens to fit (chosen by top tfidf).  set to 0 to ignore (and/or defer to max_df / min_df)',
+        semantic_types=["http://schema.org/Float", 'https://metadata.datadrivendiscovery.org/types/TuningParameter']
+    )
     # max_df @ http://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.TfidfVectorizer.html
     max_df = Uniform(
         lower = 0.0, 
@@ -166,7 +173,7 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
 
         # instantiate a corex model and a bag of words model
         self.model = Corex(n_hidden = self.hyperparams['n_hidden'], max_iter = iterations, seed = self.random_seed)
-        self.bow = TfidfVectorizer(decode_error='ignore', max_df = self.hyperparams['max_df'], min_df = self.hyperparams['min_df'])
+        self.bow = TfidfVectorizer(decode_error='ignore', max_df = self.hyperparams['max_df'], min_df = self.hyperparams['min_df'], max_features = self.hyperparams['max_features'] if self.hyperparams['max_features']>0 else None)
 
         # set the number of iterations (for wrapper and underlying Corex model)
         if iterations is not None:
@@ -298,12 +305,16 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
             curr_column = copy.deepcopy(inputs.iloc[:, column_index])
 
             file_loc = inputs.metadata.query((mbase.ALL_ELEMENTS, column_index))['location_base_uris']
+
             file_loc = file_loc[0]  # take the first elem of the tuple
             file_loc = file_loc[7:] # get rid of 'file://' prefix
+
 
             for row_index in range(curr_column.shape[0]):
                 text_file = curr_column.iloc[row_index]
                 file_path = file_loc + text_file
+                
+                
 
                 with open(file_path, 'rb') as file:
                     doc = file.read()

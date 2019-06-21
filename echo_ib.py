@@ -65,7 +65,7 @@ class EchoIB_Params(params.Params):
     # add support for resuming training / storing model information
 
 class EchoIB_Hyperparams(hyperparams.Hyperparams):
-    n_hidden = Uniform(lower = 1, upper = 201, default = 20, q = 1, description = 'number of hidden factors learned', semantic_types=[
+    n_hidden = UniformInt(lower = 1, upper = 201, default = 40, description = 'number of hidden factors learned', semantic_types=[
         'https://metadata.datadrivendiscovery.org/types/TuningParameter'
     ])
 
@@ -116,11 +116,15 @@ class EchoIB_Hyperparams(hyperparams.Hyperparams):
         'https://metadata.datadrivendiscovery.org/types/ControlParameter'
     ])
 
-    img_dim_1 = UniformInt(lower = 2, upper = 256, default = 28, description = 'img dim 1 ', semantic_types=[
+    img_dim_1 = UniformInt(lower = 2, upper = 1029, default = 28, description = 'img dim 1 ', semantic_types=[
         'https://metadata.datadrivendiscovery.org/types/ControlParameter'
     ])
 
-    img_dim_2 = UniformInt(lower = 2, upper = 256, default = 28, description = 'img dim 2 ', semantic_types=[
+    img_dim_2 = UniformInt(lower = 2, upper = 1029, default = 28, description = 'img dim 2 ', semantic_types=[
+        'https://metadata.datadrivendiscovery.org/types/ControlParameter'
+    ])
+
+    img_dim_3 = UniformInt(lower = 1, upper = 4, default = 1, description = 'img dim 3 (channels) ', semantic_types=[
         'https://metadata.datadrivendiscovery.org/types/ControlParameter'
     ])
 
@@ -165,13 +169,18 @@ class ZeroAnneal(Callback):
 
                 
 
-def build_convolutional_encoder(n_hidden, sq_dim = None, architecture = 'alemi', encoder_layers = [], decoder_layers = [], strides = None, final_kernel = 7, inp_shape = None):
-    x = keras.layers.Input(shape = self.training_inputs.shape[1:])
+def build_convolutional_encoder(n_hidden, sq_dim = None, architecture = 'alemi', encoder_layers = [], decoder_layers = [], strides = None, final_kernel = 7, inp_shape = None, dim = None):
+    x = keras.layers.Input(shape = (dim,)) #self.training_inputs.shape[1:])
     t = x
-    try:
-        reshp = keras.layers.Reshape(inp_shape, input_shape = (np.prod(inp_shape),))(x)
-    except:
-        reshp = x
+    if inp_shape is not None:
+        try:
+            reshp = keras.layers.Reshape(inp_shape)(x) #, input_shape = (dim,))(x)
+        except Exception as e:
+            try:
+                reshp = keras.layers.Reshape(tuple(inp_shape))(x) #, input_shape = (dim,))(x)
+            except:
+                reshp = keras.layers.Reshape([None]+inp_shape)(x) #, input_shape = (dim,))(x)
+        #reshp = x
         #try:
         #    if sq_dim is None:
         #        sq_dim = int(np.sqrt(self.training_inputs.shape[-1]))
@@ -186,9 +195,10 @@ def build_convolutional_encoder(n_hidden, sq_dim = None, architecture = 'alemi',
         el = encoder_layers if encoder_layers else [32, 32, 64, 64, 256, n_hidden]
         dl = decoder_layers if decoder_layers else [64, 64, 64, 32, 32, 32, 1]
 
-    s = strides if strides is not None or isinstance(strides,int) else [1,2,1,2,2]
+    s = strides if strides is not None and not isinstance(strides,int) else [1,2,1,2,2]
     if isinstance(strides, int):
         s[-1] = strides
+
 
     if architecture == 'alemi':
         # works for 28 by 28 only
@@ -321,14 +331,14 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
             
         y_true = keras.layers.Input(shape = (self.training_outputs.shape[-1],), name = 'labels')
         if self.hyperparams['convolutional']:
-            inp_shape = [self.hyperparams['img_dim_1'], self.hyperparams['img_dim_2'], 1]
+            inp_shape = [self.hyperparams['img_dim_1'], self.hyperparams['img_dim_2'], self.hyperparams['img_dim_3']]
             try:
-                encoder = build_convolutional_encoder(self.hyperparams['n_hidden'], strides = self.hyperparams['strides'], final_kernel = self.hyperparams['final_kernel'], inp_shape = inp_shape)
+                encoder = build_convolutional_encoder(self.hyperparams['n_hidden'], strides = self.hyperparams['strides'], final_kernel = self.hyperparams['final_kernel'], inp_shape = inp_shape, dim = self.training_inputs.shape[-1])
             except:
                 try:
-                    encoder = build_convolutional_encoder(self.hyperparams['n_hidden'], final_kernel = self.hyperparams['final_kernel'], inp_shape = inp_shape)
+                    encoder = build_convolutional_encoder(self.hyperparams['n_hidden'], final_kernel = self.hyperparams['final_kernel'], inp_shape = inp_shape, dim = self.training_inputs.shape[-1])
                 except:
-                    encoder = build_convolutional_encoder(self.hyperparams['n_hidden'], final_kernel = self.hyperparams['final_kernel'])
+                    encoder = build_convolutional_encoder(self.hyperparams['n_hidden'], final_kernel = self.hyperparams['final_kernel'], dim = self.training_inputs.shape[-1])
             z_act = encoder.outputs[0]
         else:
             x = keras.layers.Input(shape = (self.training_inputs.shape[-1],))
@@ -422,6 +432,8 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
 
         self.embed = keras.models.Model(inputs = x, outputs = z_act)
         
+        
+
         # anneal? 
         if self._anneal_sched:
             raise NotImplementedError
