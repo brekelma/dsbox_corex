@@ -18,7 +18,11 @@ import numpy as np  # Tested with 1.8.0
 import pandas as pd
 from os import makedirs
 from os import path
-from scipy.misc import logsumexp  # Tested with 0.13.0
+import scipy
+if scipy.__version__ >= "1.0.0":
+    from scipy.special import logsumexp # after 1.0.0, changed name
+else:
+    from scipy.misc import logsumexp  # Tested with 0.13.0
 import scipy.sparse as ss
 from six import string_types # For Python 2&3 compatible string checking
 
