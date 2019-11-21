@@ -18,6 +18,7 @@ import numpy as np  # Tested with 1.8.0
 import pandas as pd
 from os import makedirs
 from os import path
+import scipy
 if scipy.__version__ >= "1.0.0":
     from scipy.special import logsumexp # after 1.0.0, changed name
 else:
