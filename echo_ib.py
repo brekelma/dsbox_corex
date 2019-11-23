@@ -1,22 +1,27 @@
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
+
 import os
 import copy
 import numpy as np
 import pandas as pd
 #CUDA_VISIBLE_DEVICES = ""
-import tensorflow as tf
-from keras import backend as K
-from keras.backend import get_session
-import keras.objectives
-import keras
-import keras.layers
-from keras.layers import Concatenate, Dense, Input, merge
-from keras.layers import Activation, BatchNormalization, Lambda, Reshape
-from keras.callbacks import Callback, TensorBoard, LearningRateScheduler
-import keras.callbacks
+
+#import tensorflow as tf
+from tensorflow.keras import backend as K
+from tensorflow.compat.v1.keras.backend import get_session
+#from keras.backend import get_session
+#import tensorflow.keras.objectives as keras_objectives
+import tensorflow.keras as keras
+import tensorflow.keras.layers as keras_layers
+from tensorflow.keras.layers import Concatenate, Dense, Input # merge
+from tensorflow.keras.layers import Activation, BatchNormalization, Lambda, Reshape
+from tensorflow.keras.callbacks import Callback, TensorBoard, LearningRateScheduler
+import tensorflow.keras.callbacks
 #from keras.models import Model, Sequential
-from keras.optimizers import Adam, SGD
-from keras.engine.topology import Layer
-from keras.utils import to_categorical
+from tensorflow.keras.optimizers import Adam, SGD
+#from tensorflow.keras.engine.topology import Layer
+from tensorflow.keras.utils import to_categorical
 import tempfile
 from sklearn import preprocessing
 
@@ -56,7 +61,7 @@ class EchoIB_Params(params.Params):
     # add support for resuming training / storing model information
 
 class EchoIB_Hyperparams(hyperparams.Hyperparams):
-    n_hidden = Uniform(lower = 1, upper = 201, default = 200, q = 1, description = 'number of hidden factors learned', semantic_types=[
+    n_hidden = UniformInt(lower = 1, upper = 401, default = 200, description = 'number of hidden factors learned', semantic_types=[
         'https://metadata.datadrivendiscovery.org/types/TuningParameter'
     ])
     beta = Uniform(lower = 0, upper = 1000, default = .1, q = .01, 
@@ -110,12 +115,12 @@ class ZeroAnneal(Callback):
                 
 
 def build_convolutional_encoder(n_hidden, sq_dim = None, architecture = 'alemi', encoder_layers = [], decoder_layers = []):
-    x = keras.layers.Input(shape = self.training_inputs.shape[1:])
+    x = keras_layers.Input(shape = (self.training_inputs.shape[1:],))
     t = x
     if sq_dim is None:
         sq_dim = int(np.sqrt(self.training_inputs.shape[-1]))
     if not len(self.training_inputs.shape) > 2:
-        reshp = keras.layers.Reshape(inp_shape, input_shape = (sq_dim, sq_dim))(x)
+        reshp = keras_layers.Reshape(inp_shape, input_shape = (sq_dim, sq_dim))(x)
   
     if architecture == 'alemi':
         el = [32, 32, 64, 64, 256, n_hidden]
@@ -127,11 +132,11 @@ def build_convolutional_encoder(n_hidden, sq_dim = None, architecture = 'alemi',
 
     if architecture == 'alemi':
         # works for 28 by 28 only
-        h = keras.layers.Conv2D(el[0], activation = 'relu', kernel_size = 5, strides = 1, padding = 'same')(reshp)
-        h = keras.layers.Conv2D(el[1], activation = 'relu', kernel_size = 5, strides = 2, padding = 'same')(h)
-        h = keras.layers.Conv2D(el[2], activation = 'relu', kernel_size = 5, strides = 1, padding = 'same')(h)
-        h = keras.layers.Conv2D(el[3], activation = 'relu', kernel_size = 5, strides = 2, padding = 'same')(h)
-        h = keras.layers.Conv2D(el[4], activation = 'relu', kernel_size = 7, strides = 2, padding = 'valid')(h)
+        h = keras_layers.Conv2D(el[0], activation = 'relu', kernel_size = 5, strides = 1, padding = 'same')(reshp)
+        h = keras_layers.Conv2D(el[1], activation = 'relu', kernel_size = 5, strides = 2, padding = 'same')(h)
+        h = keras_layers.Conv2D(el[2], activation = 'relu', kernel_size = 5, strides = 1, padding = 'same')(h)
+        h = keras_layers.Conv2D(el[3], activation = 'relu', kernel_size = 5, strides = 2, padding = 'same')(h)
+        h = keras_layers.Conv2D(el[4], activation = 'relu', kernel_size = 7, strides = 2, padding = 'valid')(h)
     #else:
     #    for i in range(len(self._latent_dims[:-1])):
     #        t = Dense(self._latent_dims[i], activation = self._activation)(t)
@@ -199,7 +204,7 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
         super().__init__(hyperparams = hyperparams) # random_seed = random_seed, docker_containers = docker_containers)
 
     def _extra_params(self, latent_dims = None, activation = None, lr = None, batch = None, epochs = None, noise = None):
-        self._latent_dims = [200, 200, self.hyperparams['n_hidden']]
+        self._latent_dims = [200, 200, 200, self.hyperparams['n_hidden']]
         self._decoder_dims = list(reversed(self._latent_dims[:-1]))
         
         # TRAINING ARGS... what to do?
@@ -236,7 +241,7 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
             encoder = build_convolutional_encoder(self.hyperparams['n_hidden'])
             z_act = encoder.outputs[0]
         else:
-            x = keras.layers.Input(shape = (self.training_inputs.shape[-1],))
+            x = keras_layers.Input(shape = (self.training_inputs.shape[-1],))
             t = x
 
             for i in range(len(self._latent_dims[:-1])):
@@ -265,6 +270,7 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
                 latent_loss = echo_loss
 
             #z_var_act = log_sigmoid_64
+
             z_mean = Dense(self._latent_dims[-1], activation = z_mean_act, name = 'z_mean')(t)
             z_noise = Dense(self._latent_dims[-1], activation = z_var_act, name = 'z_noise', bias_initializer = 'ones')(t)
             z_act = Lambda(echo_sample, arguments = self._echo_args, output_shape = (self._latent_dims[-1],), name = 'z_act')([z_mean, z_noise])
@@ -298,11 +304,11 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
 
         outputs.append(y_pred)
         if label_act == 'softmax':
-            loss_functions.append(keras.objectives.categorical_crossentropy)
+            loss_functions.append(K.categorical_crossentropy)
         elif label_act == 'sigmoid':
-            loss_functions.append(keras.objectives.binary_crossentropy)
+            loss_functions.append(K.binary_crossentropy)
         else: 
-            loss_functions.append(keras.objectives.mean_squared_error)#mse
+            loss_functions.append(tf.keras.losses.mean_squared_error)#mse
         loss_weights.append(1)
 
         loss_tensor = Lambda(latent_loss)([z_mean,z_noise])
@@ -323,6 +329,8 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
         if self._anneal_sched:
             raise NotImplementedError
         else:
+            print()
+            print("STARTING TRAINING")
             self.model.fit_generator(generator(self.training_inputs, self.training_outputs, target_len = len(outputs), batch = self._batch),
                                      callbacks = my_callbacks,
                                      steps_per_epoch=int(self.training_inputs.values.shape[0]/self._batch), epochs = self.hyperparams["epochs"])
@@ -505,7 +513,9 @@ def generator(data, labels = None, target_len = 1, batch = 100, mode = 'train', 
             x_batch = np.array(data.values[batch*counter:batch*(counter+1)]).astype('float32')
             y_batch = x_batch if unsupervised or labels is None else np.array(labels[batch*counter:batch*(counter+1)]).astype('float32')
             counter += 1
-            yield x_batch, [y_batch]*target_len
+            print()
+            print("X BATCH ", x_batch.shape, " Y BATCH ", y_batch.shape)
+            yield (x_batch, [y_batch]*target_len)
 
             #restart counter to yeild data in the next epoch as well                                                                                                          
             if counter >= number_of_batches:

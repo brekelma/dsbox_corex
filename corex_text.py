@@ -47,11 +47,10 @@ class CorexText_Params(params.Params):
 # Set hyperparameters according to https://gitlab.com/datadrivendiscovery/d3m#hyper-parameters
 class CorexText_Hyperparams(hyperparams.Hyperparams):
     # number of Corex latent factors
-    n_hidden = Uniform(
-        lower = 0, 
+    n_hidden = UniformInt(
+        lower = 1, 
         upper = 100, 
         default = 10, 
-        q = 1, 
         description = 'number of topics', 
         semantic_types=["http://schema.org/Integer", 'https://metadata.datadrivendiscovery.org/types/TuningParameter']
     )
@@ -67,11 +66,10 @@ class CorexText_Hyperparams(hyperparams.Hyperparams):
     )
 
     # 
-    n_grams = Uniform(
+    n_grams = UniformInt(
         lower = 1,
-        upper = 1000,
+        upper = 10,
         default = 1, 
-        q = 1, 
         description = 'n_grams parameter to use before feeding in text to TfidfVectorizer', 
         semantic_types=["http://schema.org/Integer", 'https://metadata.datadrivendiscovery.org/types/TuningParameter']
     )
@@ -276,7 +274,7 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
 
         new_text = ""
         for i in range(len(words)):
-            new_text += "".join(words[i : i+self.hyperparams['n_grams']]) + " "
+            new_text += "".join(words[i : i+int(self.hyperparams['n_grams'])]) + " "
 
         return new_text
 
