@@ -397,7 +397,8 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
                 col_dict = dict(corex_df.metadata.query((mbase.ALL_ELEMENTS, column_index)))
                 col_dict['structural_type'] = type(1.0)
                 # FIXME: assume we apply corex only once per template, otherwise column names might duplicate                                                                                    
-                col_dict['name'] = 'echoib_'+('pred_' if column_index < self.hyperparams['n_hidden'] else 'feature_') + str(out_df.shape[1] + column_index)
+                col_dict['name'] = str(out_df.shape[1] + column_index)
+                #'echoib_'+('pred_' if column_index < self.hyperparams['n_hidden'] else 'feature_') + str(out_df.shape[1] + column_index)
                 col_dict['semantic_types'] = ('http://schema.org/Float', 'https://metadata.datadrivendiscovery.org/types/Attribute')
                 
                 corex_df.metadata = corex_df.metadata.update((mbase.ALL_ELEMENTS, column_index), col_dict)

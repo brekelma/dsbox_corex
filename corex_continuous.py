@@ -132,7 +132,7 @@ class CorexContinuous(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexConti
             col_dict = dict(corex_df.metadata.query((mbase.ALL_ELEMENTS, column_index)))
             col_dict['structural_type'] = type(1.0)
             # FIXME: assume we apply corex only once per template, otherwise column names might duplicate
-            col_dict['name'] = 'corex_' + str(out_df.shape[1] + column_index)
+            col_dict['name'] = str(out_df.shape[1] + column_index) #should just be column index, no corex prefix #'corex_' + 
             col_dict['semantic_types'] = ('http://schema.org/Float', 'https://metadata.datadrivendiscovery.org/types/Attribute')
 
             corex_df.metadata = corex_df.metadata.update((mbase.ALL_ELEMENTS, column_index), col_dict)
