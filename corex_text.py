@@ -234,11 +234,13 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
             # just use the bag of words representation
             self.latent_factors = pd.DataFrame(bow.todense())
         # make the columns corex adds distinguishable from other columns
-        self.latent_factors.columns = ['corex_' + str(i) for i in range(self.latent_factors.shape[-1])]
+        
 
         # remove the selected columns from input and add the latent factors given by corex
         out_df = d3m_DataFrame(inputs, generate_metadata = True)
         
+        self.latent_factors.columns = [str(out_df.shape[-1] + i) for i in range(self.latent_factors.shape[-1])]
+
         # create metadata for the corex columns
         corex_df = d3m_DataFrame(self.latent_factors, generate_metadata = True)
         for column_index in range(corex_df.shape[1]):
