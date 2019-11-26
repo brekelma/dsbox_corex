@@ -329,13 +329,11 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
         if self._anneal_sched:
             raise NotImplementedError
         else:
-            print()
-            print("STARTING TRAINING")
             self.model.fit_generator(generator(self.training_inputs, self.training_outputs, target_len = len(outputs), batch = self._batch),
-                                     callbacks = my_callbacks,
+                                    callbacks = my_callbacks, verbose = 1,
                                      steps_per_epoch=int(self.training_inputs.values.shape[0]/self._batch), epochs = self.hyperparams["epochs"])
             #self.model.fit(self.training_inputs, [self.training_outputs]*len(outputs), 
-            #    shuffle = True, epochs = self.hyperparams["epochs"], batch_size = self._batch) # validation_data = [] early stopping?
+            #    shuffle = True, epochs = int(self.hyperparams["epochs"]), batch_size = int(self._batch))# validation_data = [] early stopping?
 
         #Lambda(ido_sample)
         #Lambda(vae_sample, output_shape = (d,))([z_mean, z_var])
@@ -362,9 +360,9 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
             z_stats = [func([data, 1.])[0] for func in functors]
         
             try:
-                z_act = echo_sample(z_stats, **self._echo_args).eval(session=K.get_session())
+                z_act = echo_sample(z_stats, **self._echo_args).eval(session=get_session())
             except:
-                z_act = echo_sample([tf.convert_to_tensor(zz) for zz in z_stats], **self._echo_args).eval(session=K.get_session())
+                z_act = echo_sample([tf.convert_to_tensor(zz) for zz in z_stats], **self._echo_args).eval(session=get_session())
             y_pred= pred_function([z_act, 1.])[0]#.eval(session=K.get_session())
             features.extend([z_act[yp] for yp in range(z_act.shape[0])])
         
@@ -420,7 +418,11 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
 
         #predictions = d3m_DataFrame(predictions, index = inputs.index.copy())# columns = self.output_columns)
 
-
+        print()
+        print("ECHO IB SHAPE ", outputs.shape)
+        print("Cols ", list(outputs))
+        IPython.embed()
+        print()
         return CallResult(outputs, True, 1)
         #return CallResult(d3m_DataFrame(self.model.predict(inputs)), True, 0)
 
@@ -435,7 +437,7 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
             self.training_outputs = to_categorical(self.label_encode.fit_transform(outputs), num_classes = np.unique(outputs.values).shape[0])
         else:
             self.training_outputs = outputs.values
-
+        
         #self.training_outputs = to_categorical(outputs, num_classes = np.unique(outputs.values).shape[0])
         self.fitted = False
         
@@ -510,11 +512,12 @@ def generator(data, labels = None, target_len = 1, batch = 100, mode = 'train', 
         counter=0
         
         while 1:
+            #with open("echo_ib_log.csv", 'a') as my_file:
+                
             x_batch = np.array(data.values[batch*counter:batch*(counter+1)]).astype('float32')
-            y_batch = x_batch if unsupervised or labels is None else np.array(labels[batch*counter:batch*(counter+1)]).astype('float32')
+            y_batch = x_batch if unsupervised or labels is None else np.array(labels[batch*counter:batch*(counter+1)]).astype('float32')#.ravel()
             counter += 1
-            print()
-            print("X BATCH ", x_batch.shape, " Y BATCH ", y_batch.shape)
+             
             yield (x_batch, [y_batch]*target_len)
 
             #restart counter to yeild data in the next epoch as well                                                                                                          
@@ -661,7 +664,7 @@ def echo_sample(inputs, clip=None, d_max=100, batch=100, multiplicative=False, e
         #   False for softplus
         sx = tf.log(clip) + (-1*sx if not plus_sx else sx)
     
-    if echo_mc is not None:    
+    if echo_mc is not None and echo_mc:    
       # use mean centered fx for noise
       fx = fx - K.mean(fx, axis = 0, keepdims = True)
 
