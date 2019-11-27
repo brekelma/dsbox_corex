@@ -68,10 +68,12 @@ class EchoIB_Hyperparams(hyperparams.Hyperparams):
         description = 'Lagrange multiplier for beta (applied to regularizer I(X:Z)): defining tradeoff btwn label relevance : compression.', semantic_types=[
         'https://metadata.datadrivendiscovery.org/types/TuningParameter'
     ])
-    epochs = Uniform(lower = 1, upper = 1000, default = 100, description = 'number of epochs to train', semantic_types=[
+    epochs = UniformInt(lower = 1, upper = 1000, default = 100, description = 'number of epochs to train', semantic_types=[
         'https://metadata.datadrivendiscovery.org/types/TuningParameter'
     ])
-
+    batch = UniformInt(lower = 10, upper = 1000, default = 199, description = 'batch_size', semantic_types=[
+        'https://metadata.datadrivendiscovery.org/types/TuningParameter'
+    ])
     convolutional = UniformBool(default=False,
         semantic_types=['https://metadata.datadrivendiscovery.org/types/ControlParameter'],
         description="whether to use a convolutional architecture"
@@ -211,7 +213,7 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
         self._activation = 'softplus'
         self._lr = 0.0005
         self._optimizer = Adam(self._lr)
-        self._batch = 20
+        self._batch = int(self.hyperparams['batch']) #20
         self._epochs = None # HYPERPARAM?
         self._noise = 'echo'
         self._kl_warmup = 10 # .1 * kl reg for first _ epochs
@@ -329,9 +331,11 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
         if self._anneal_sched:
             raise NotImplementedError
         else:
+            with open('echo_log.csv', 'a') as f:
+                f.write("TRAINING INPUTS SHAPE  "+str(self._batch)+' \t'+str(self.training_inputs.values.shape))
             self.model.fit_generator(generator(self.training_inputs, self.training_outputs, target_len = len(outputs), batch = self._batch),
-                                    callbacks = my_callbacks, verbose = 1,
-                                     steps_per_epoch=int(self.training_inputs.values.shape[0]/self._batch), epochs = self.hyperparams["epochs"])
+                                     verbose = 1, #callbacks = my_callbacks,
+                                     steps_per_epoch=int(self.training_inputs.values.shape[0]/self._batch), epochs = int(self.hyperparams["epochs"]))
             #self.model.fit(self.training_inputs, [self.training_outputs]*len(outputs), 
             #    shuffle = True, epochs = int(self.hyperparams["epochs"]), batch_size = int(self._batch))# validation_data = [] early stopping?
 
@@ -395,8 +399,7 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
                 col_dict = dict(corex_df.metadata.query((mbase.ALL_ELEMENTS, column_index)))
                 col_dict['structural_type'] = type(1.0)
                 # FIXME: assume we apply corex only once per template, otherwise column names might duplicate                                                                                    
-                col_dict['name'] = str(out_df.shape[1] + column_index)
-                #'echoib_'+('pred_' if column_index < self.hyperparams['n_hidden'] else 'feature_') + str(out_df.shape[1] + column_index)
+                col_dict['name'] = str(out_df.shape[1] + column_index)  #'echoib_'+('pred_' if column_index < self.hyperparams['n_hidden'] else 'feature_') + 
                 col_dict['semantic_types'] = ('http://schema.org/Float', 'https://metadata.datadrivendiscovery.org/types/Attribute')
                 
                 corex_df.metadata = corex_df.metadata.update((mbase.ALL_ELEMENTS, column_index), col_dict)
