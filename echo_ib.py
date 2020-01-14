@@ -289,7 +289,7 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
         for i in range(len(self._decoder_dims)):
             t = Dense(self._decoder_dims[i], name = 'decoder_'+str(i), activation = self._activation)(t) 
         
-        # CLASSIFICATION ONLY here
+
         if 'classification' in self.hyperparams['task'].lower():
             label_act = 'softmax' if self._label_unique > 1 else 'sigmoid'
             y_pred = Dense(self._label_unique, activation = label_act, name = 'y_pred')(t)
@@ -299,18 +299,13 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
         else:
             raise NotImplementedError("TASK TYPE SHOULD BE CLASSIFICATION OR REGRESSION")
 
-        #if self._input_types:
-        #    pass
-        #else:
-        #    print("Purely Supervised Bottleneck")
-            # no reconstruction layers
+        # TO DO : Add reconstruction layers and additional representation as in https://arxiv.org/abs/1912.00646
+
         
         outputs = []
         loss_functions = []
         loss_weights = []
         
-
-        #beta = Beta(name = 'beta', beta = self.hyperparams["beta"])(x)
 
         outputs.append(y_pred)
         if label_act == 'softmax':
@@ -339,16 +334,11 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
         if self._anneal_sched:
             raise NotImplementedError
         else:
-            print('inputs ', self.training_inputs.shape, type(self.training_inputs))
-            print("outputs ", self.training_outputs.shape, type(self.training_outputs))
+
             self.model.fit_generator(generator(self.training_inputs, self.training_outputs, target_len = len(outputs), batch = self._batch),
                                      verbose = 1, #callbacks = my_callbacks,
                                      steps_per_epoch=int(self.training_inputs.shape[0]/self._batch), epochs = int(self.hyperparams["epochs"]))
-            #self.model.fit(self.training_inputs, [self.training_outputs]*len(outputs), 
-            #    shuffle = True, epochs = int(self.hyperparams["epochs"]), batch_size = int(self._batch))# validation_data = [] early stopping?
 
-        #Lambda(ido_sample)
-        #Lambda(vae_sample, output_shape = (d,))([z_mean, z_var])
         self.fitted = True
         
         return CallResult(None, True, self.hyperparams["epochs"])
@@ -385,10 +375,7 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
             y_pred = np.argmax(y_pred, axis = -1)
             predictions.extend([y_pred[yp] for yp in range(y_pred.shape[0])])
             
-            
-            
-            
-            
+                
             
         predictions = np.array(predictions)
         if self.label_encode is not None:
@@ -527,7 +514,7 @@ def generator(data, labels = None, target_len = 1, batch = 100, mode = 'train', 
         counter=0
         
         while 1:
-            #with open("echo_ib_log.csv", 'a') as my_file:
+            
                 
             x_batch = np.array(data[batch*counter:batch*(counter+1)]).astype('float32')
             y_batch = x_batch if unsupervised or labels is None else np.array(labels[batch*counter:batch*(counter+1)]).astype('float32')#.ravel()
