@@ -26,7 +26,8 @@ import tempfile
 from sklearn import preprocessing
 
 import git
-from d3m import utils
+#from common_primitives import utils
+#from d3m import utils
 from d3m.container import DataFrame as d3m_DataFrame
 import d3m.container as container
 import d3m.metadata.hyperparams as hyperparams
@@ -68,12 +69,18 @@ class EchoIB_Hyperparams(hyperparams.Hyperparams):
         description = 'Lagrange multiplier for beta (applied to regularizer I(X:Z)): defining tradeoff btwn label relevance : compression.', semantic_types=[
         'https://metadata.datadrivendiscovery.org/types/TuningParameter'
     ])
-    epochs = UniformInt(lower = 1, upper = 1000, default = 100, description = 'number of epochs to train', semantic_types=[
+    epochs = UniformInt(lower = 1, upper = 10000, default = 100, description = 'number of epochs to train', semantic_types=[
         'https://metadata.datadrivendiscovery.org/types/TuningParameter'
     ])
-    batch = UniformInt(lower = 10, upper = 1000, default = 199, description = 'batch_size', semantic_types=[
+    batch = UniformInt(lower = 10, upper = 1000, default = 50, description = 'batch_size', semantic_types=[
         'https://metadata.datadrivendiscovery.org/types/TuningParameter'
     ])
+    
+    activation = Enumeration(values = ['relu', 'tanh', 'elu'], default = 'elu', 
+        semantic_types=['https://metadata.datadrivendiscovery.org/types/ControlParameter'],
+        description="activation to use for intermediate activations"
+    )
+
     convolutional = UniformBool(default=False,
         semantic_types=['https://metadata.datadrivendiscovery.org/types/ControlParameter'],
         description="whether to use a convolutional architecture"
@@ -117,6 +124,7 @@ class ZeroAnneal(Callback):
                 
 
 def build_convolutional_encoder(n_hidden, sq_dim = None, architecture = 'alemi', encoder_layers = [], decoder_layers = []):
+    # for 28 x 28 image shapes
     x = keras_layers.Input(shape = (self.training_inputs.shape[1:],))
     t = x
     if sq_dim is None:
@@ -206,17 +214,17 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
         super().__init__(hyperparams = hyperparams) # random_seed = random_seed, docker_containers = docker_containers)
 
     def _extra_params(self, latent_dims = None, activation = None, lr = None, batch = None, epochs = None, noise = None):
-        self._latent_dims = [200, 200, 200, self.hyperparams['n_hidden']]
+        self._latent_dims = [200, 200, self.hyperparams['n_hidden']]
         self._decoder_dims = list(reversed(self._latent_dims[:-1]))
         
         # TRAINING ARGS... what to do?
-        self._activation = 'softplus'
-        self._lr = 0.0005
-        self._optimizer = Adam(self._lr)
+        self._activation = self.hyperparams['activation'] #'tanh' #'softplus'
+        self._lr = 0.0001
+        self._optimizer = SGD(self._lr) #Adam(self._lr)
         self._batch = int(self.hyperparams['batch']) #20
         self._epochs = None # HYPERPARAM?
         self._noise = 'echo'
-        self._kl_warmup = 10 # .1 * kl reg for first _ epochs
+        self._kl_warmup = 1 # .1 * kl reg for first _ epochs
         self._anneal_sched = None # not supported
         self._echo_args = {'batch': self._batch, 'd_max': self._batch, 'nomc': True, 'calc_log': True, 'plus_sx': True}
 
@@ -325,17 +333,17 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
         my_callbacks.append(keras.callbacks.TerminateOnNaN())
         self.model = keras.models.Model(inputs = x, outputs = outputs)
         self.model.compile(optimizer = self._optimizer, loss = loss_functions, loss_weights = loss_weights)
-
+        get_session().run(tf.global_variables_initializer())
 
         # anneal? 
         if self._anneal_sched:
             raise NotImplementedError
         else:
-            with open('echo_log.csv', 'a') as f:
-                f.write("TRAINING INPUTS SHAPE  "+str(self._batch)+' \t'+str(self.training_inputs.values.shape))
+            print('inputs ', self.training_inputs.shape, type(self.training_inputs))
+            print("outputs ", self.training_outputs.shape, type(self.training_outputs))
             self.model.fit_generator(generator(self.training_inputs, self.training_outputs, target_len = len(outputs), batch = self._batch),
                                      verbose = 1, #callbacks = my_callbacks,
-                                     steps_per_epoch=int(self.training_inputs.values.shape[0]/self._batch), epochs = int(self.hyperparams["epochs"]))
+                                     steps_per_epoch=int(self.training_inputs.shape[0]/self._batch), epochs = int(self.hyperparams["epochs"]))
             #self.model.fit(self.training_inputs, [self.training_outputs]*len(outputs), 
             #    shuffle = True, epochs = int(self.hyperparams["epochs"]), batch_size = int(self._batch))# validation_data = [] early stopping?
 
@@ -356,34 +364,36 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
         
         preds = [layer.output for layer in self.model.layers if 'y_pred' in layer.name]
         pred_function = K.function([dec_inp, K.learning_phase()], [preds[0]])
-        
+
+        inps = inputs.remove_columns([inputs.columns.get_loc('d3mIndex')])
         predictions = []
         features = []
-        for i in range(0, inputs.shape[0], self._batch):
-            data = inputs.values[i:i+self._batch]
+        for i in range(0, inps.shape[0], self._batch):
+            data = inps.values[i:i+self._batch]
             z_stats = [func([data, 1.])[0] for func in functors]
         
-            try:
-                z_act = echo_sample(z_stats, **self._echo_args).eval(session=get_session())
-            except:
-                z_act = echo_sample([tf.convert_to_tensor(zz) for zz in z_stats], **self._echo_args).eval(session=get_session())
+            _echo_args = copy.copy(self._echo_args)
+            _echo_args['batch'] = data.shape[0]
+            _echo_args['d_max'] = data.shape[0]
+            
+            z_act = echo_sample(z_stats, **_echo_args).eval(session=get_session())
+            
             y_pred= pred_function([z_act, 1.])[0]#.eval(session=K.get_session())
             features.extend([z_act[yp] for yp in range(z_act.shape[0])])
         
-            #if self._label_unique > 2:
+            
             y_pred = np.argmax(y_pred, axis = -1)
             predictions.extend([y_pred[yp] for yp in range(y_pred.shape[0])])
-            #int_df = d3m_DataFrame(y_pred,index = inputs.index[i:i+self._batch], columns = self.output_columns)
-            #if i == 0:
-            #    predictions = int_df
-            #else:
-            #    predictions.append(int_df)
-            #    print("Predictions SHAPE ", predictions.shape)
+            
+            
+            
+            
+            
+            
         predictions = np.array(predictions)
-        predictions = self.label_encode.inverse_transform(predictions)
+        if self.label_encode is not None:
+            predictions = self.label_encode.inverse_transform(predictions)
         
-        #output.metadata = inputs.metadata.clear(source=self, for_value=output, generate_metadata=True)
-        #output.metadata = self._add_target_semantic_types(metadata=output.metadata, target_names=self.output_columns, source=self)
         
         if modeling:
             output = d3m_DataFrame(predictions, columns = self.output_columns, generate_metadata = True, source = self)
@@ -392,23 +402,26 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
 
             # create metadata for the corex columns                                                                                                                                        
             features = np.array(features)
+
+            if len(predictions.shape)<len(features.shape): predictions = np.expand_dims(predictions,axis=-1)
+            
             constructed = np.concatenate([features, predictions], axis = -1)
             corex_df = d3m_DataFrame(constructed, generate_metadata = True)
 
             for column_index in range(corex_df.shape[1]):
-                col_dict = dict(corex_df.metadata.query((mbase.ALL_ELEMENTS, column_index)))
+                col_dict = dict(corex_df.metadata.query((metadata_base.ALL_ELEMENTS, column_index)))
                 col_dict['structural_type'] = type(1.0)
                 # FIXME: assume we apply corex only once per template, otherwise column names might duplicate                                                                                    
                 col_dict['name'] = str(out_df.shape[1] + column_index)  #'echoib_'+('pred_' if column_index < self.hyperparams['n_hidden'] else 'feature_') + 
                 col_dict['semantic_types'] = ('http://schema.org/Float', 'https://metadata.datadrivendiscovery.org/types/Attribute')
                 
-                corex_df.metadata = corex_df.metadata.update((mbase.ALL_ELEMENTS, column_index), col_dict)
+                corex_df.metadata = corex_df.metadata.update((metadata_base.ALL_ELEMENTS, column_index), col_dict)
 
 
             # concatenate is --VERY-- slow without this next line                                                                                                                                
             corex_df.index = out_df.index.copy()
             
-            outputs = utils.append_columns(out_df, corex_df)
+            outputs = common_utils.append_columns(out_df, corex_df)
 
 
         #print("INPUT COLUMNS ", inputs.columns)
@@ -422,23 +435,21 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
 
         #predictions = d3m_DataFrame(predictions, index = inputs.index.copy())# columns = self.output_columns)
 
-        print()
-        print("ECHO IB SHAPE ", outputs.shape)
-        print("Cols ", list(outputs))
-        IPython.embed()
-        print()
         return CallResult(outputs, True, 1)
         #return CallResult(d3m_DataFrame(self.model.predict(inputs)), True, 0)
 
     def set_training_data(self, *, inputs : Input, outputs: Output) -> None:
-        self.training_inputs = inputs
+        inps = inputs.remove_columns([inputs.columns.get_loc('d3mIndex')])
+
+        self.training_inputs = inps.values
+        
         
         self.output_columns = outputs.columns
 
         if 'classification' in self.hyperparams['task'].lower():
             self._label_unique = np.unique(outputs.values).shape[0]
             self.label_encode = preprocessing.LabelEncoder()
-            self.training_outputs = to_categorical(self.label_encode.fit_transform(outputs), num_classes = np.unique(outputs.values).shape[0])
+            self.training_outputs = to_categorical(self.label_encode.fit_transform(outputs.values), num_classes = np.unique(outputs.values).shape[0])
         else:
             self.training_outputs = outputs.values
         
@@ -518,7 +529,7 @@ def generator(data, labels = None, target_len = 1, batch = 100, mode = 'train', 
         while 1:
             #with open("echo_ib_log.csv", 'a') as my_file:
                 
-            x_batch = np.array(data.values[batch*counter:batch*(counter+1)]).astype('float32')
+            x_batch = np.array(data[batch*counter:batch*(counter+1)]).astype('float32')
             y_batch = x_batch if unsupervised or labels is None else np.array(labels[batch*counter:batch*(counter+1)]).astype('float32')#.ravel()
             counter += 1
              
@@ -528,7 +539,9 @@ def generator(data, labels = None, target_len = 1, batch = 100, mode = 'train', 
             if counter >= number_of_batches:
                 counter = 0
                 sd = np.random.randint(data.shape[0])
-                data.sample(frac = 1, random_state = sd)
+                np.random.seed(sd)
+                np.random.shuffle(data)
+                #data.sample(frac = 1, random_state = sd)
                 np.random.seed(sd)
                 np.random.shuffle(labels)
                 #labels.sample(frac =1, random_state = sd)
@@ -631,6 +644,9 @@ def echo_sample(inputs, clip=None, d_max=100, batch=100, multiplicative=False, e
     # plus_sx =
     #   True if logsigmoid activation for s(X)
     #   False for softplus (equivalent)
+    if d_max is None:
+        d_max = batch
+        
     if isinstance(inputs, list):
         fx = inputs[0]
         sx = inputs[-1]
