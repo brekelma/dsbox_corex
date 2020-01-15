@@ -17,7 +17,7 @@ from sklearn import preprocessing
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 
 import d3m.container as container
-import d3m.metadata.base as mbase
+from d3m.metadata.base import ALL_ELEMENTS
 import d3m.metadata.hyperparams as hyperparams
 import d3m.metadata.params as params
 
@@ -244,13 +244,13 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
         # create metadata for the corex columns
         corex_df = d3m_DataFrame(self.latent_factors, generate_metadata = True)
         for column_index in range(corex_df.shape[1]):
-            col_dict = dict(corex_df.metadata.query((mbase.ALL_ELEMENTS, column_index)))
+            col_dict = dict(corex_df.metadata.query((ALL_ELEMENTS, column_index)))
             col_dict['structural_type'] = type(1.0)
             # FIXME: assume we apply corex only once per template, otherwise column names might duplicate
             col_dict['name'] = 'corex_' + str(out_df.shape[1] + column_index)
             col_dict['semantic_types'] = ('http://schema.org/Float', 'https://metadata.datadrivendiscovery.org/types/Attribute')
 
-            corex_df.metadata = corex_df.metadata.update((mbase.ALL_ELEMENTS, column_index), col_dict)
+            corex_df.metadata = corex_df.metadata.update((ALL_ELEMENTS, column_index), col_dict)
        
         
         # concatenate is --VERY-- slow without this next line
@@ -300,7 +300,7 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
         for column_index in fn_columns:
             curr_column = copy.deepcopy(inputs.iloc[:, column_index])
 
-            file_loc = inputs.metadata.query((mbase.ALL_ELEMENTS, column_index))['location_base_uris']
+            file_loc = inputs.metadata.query((ALL_ELEMENTS, column_index))['location_base_uris']
             file_loc = file_loc[0]  # take the first elem of the tuple
             file_loc = file_loc[7:] # get rid of 'file://' prefix
 
@@ -319,13 +319,13 @@ class CorexText(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexText_Params
         processed_cols = d3m_DataFrame(processed_cols, generate_metadata = True)
 
         for column_index in range(processed_cols.shape[1]):
-            col_dict = dict(processed_cols.metadata.query((mbase.ALL_ELEMENTS, column_index)))
+            col_dict = dict(processed_cols.metadata.query((ALL_ELEMENTS, column_index)))
             col_dict['structural_type'] = type("text")
             # FIXME: assume we apply corex only once per template, otherwise column names might duplicate
             col_dict['name'] = 'processed_file_' + str(inputs.shape[1] + column_index)
             col_dict['semantic_types'] = ('http://schema.org/Text', 'https://metadata.datadrivendiscovery.org/types/Attribute')
 
-            processed_cols.metadata = processed_cols.metadata.update((mbase.ALL_ELEMENTS, column_index), col_dict)
+            processed_cols.metadata = processed_cols.metadata.update((ALL_ELEMENTS, column_index), col_dict)
 
         # concatenate the input with the newly created columns
         updated_inputs = utils.append_columns(inputs, processed_cols)

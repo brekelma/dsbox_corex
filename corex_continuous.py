@@ -17,7 +17,7 @@ import d3m.container as container
 import d3m.metadata.hyperparams as hyperparams
 import d3m.metadata.params as params
 from d3m.metadata.base import PrimitiveMetadata
-import d3m.metadata.base as mbase
+from d3m.metadata.base import ALL_ELEMENTS
 
 from d3m.primitive_interfaces.unsupervised_learning import UnsupervisedLearnerPrimitiveBase
 from d3m.primitive_interfaces.base import CallResult
@@ -129,13 +129,13 @@ class CorexContinuous(UnsupervisedLearnerPrimitiveBase[Input, Output, CorexConti
         corex_df = d3m_DataFrame(self.latent_factors, generate_metadata = True)
 
         for column_index in range(corex_df.shape[1]):
-            col_dict = dict(corex_df.metadata.query((mbase.ALL_ELEMENTS, column_index)))
+            col_dict = dict(corex_df.metadata.query((ALL_ELEMENTS, column_index)))
             col_dict['structural_type'] = type(1.0)
             # FIXME: assume we apply corex only once per template, otherwise column names might duplicate
             col_dict['name'] = str(out_df.shape[1] + column_index) #should just be column index, no corex prefix #'corex_' + 
             col_dict['semantic_types'] = ('http://schema.org/Float', 'https://metadata.datadrivendiscovery.org/types/Attribute')
 
-            corex_df.metadata = corex_df.metadata.update((mbase.ALL_ELEMENTS, column_index), col_dict)
+            corex_df.metadata = corex_df.metadata.update((ALL_ELEMENTS, column_index), col_dict)
         corex_df.index = out_df.index.copy()
         
         out_df = utils.append_columns(out_df, corex_df)

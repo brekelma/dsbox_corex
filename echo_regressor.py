@@ -18,19 +18,16 @@ from sklearn.utils import check_consistent_length, check_array, check_X_y
 from echo_regression.echo_regression import EchoRegression
 
 import d3m.container as container
-import d3m.metadata.base as mbase
 import d3m.metadata.hyperparams as hyperparams
 import d3m.metadata.params as params
 
 from d3m.container import DataFrame as d3m_DataFrame
-from d3m.metadata.base import PrimitiveMetadata
 from d3m.metadata.hyperparams import Uniform, UniformBool, UniformInt, Union, Enumeration
 from d3m.primitive_interfaces.base import CallResult
 from d3m.primitive_interfaces.supervised_learning import SupervisedLearnerPrimitiveBase
 import string
 import config as cfg_
-from d3m.metadata.base import PrimitiveMetadata
-from d3m.metadata import base as metadata_base
+from d3m.metadata.base import PrimitiveMetadata, DataMetadata, ALL_ELEMENTS
 import common_primitives.utils as common_utils
 from typing import Any, Callable, List, Dict, Union, Optional, Sequence, Tuple, NamedTuple
 import typing
@@ -162,17 +159,17 @@ class EchoLinearRegression(SupervisedLearnerPrimitiveBase[Input, Output, EchoReg
 
 
 
-    def _add_target_semantic_types(cls, metadata: metadata_base.DataMetadata,
-                            source: typing.Any,  target_names: List = None,) -> metadata_base.DataMetadata:
-        for column_index in range(metadata.query((metadata_base.ALL_ELEMENTS,))['dimension']['length']):
-            metadata = metadata.add_semantic_type((metadata_base.ALL_ELEMENTS, column_index),
+    def _add_target_semantic_types(cls, metadata: DataMetadata,
+                            source: typing.Any,  target_names: List = None,) -> DataMetadata:
+        for column_index in range(metadata.query((ALL_ELEMENTS,))['dimension']['length']):
+            metadata = metadata.add_semantic_type((ALL_ELEMENTS, column_index),
                                                   'https://metadata.datadrivendiscovery.org/types/Target',
                                                   source=source)
-            metadata = metadata.add_semantic_type((metadata_base.ALL_ELEMENTS, column_index),
+            metadata = metadata.add_semantic_type((ALL_ELEMENTS, column_index),
                                                   'https://metadata.datadrivendiscovery.org/types/PredictedTarget',
                                                   source=source)
             if target_names:
-                metadata = metadata.update((metadata_base.ALL_ELEMENTS, column_index), {
+                metadata = metadata.update((ALL_ELEMENTS, column_index), {
                     'name': target_names[column_index],
                 }, source=source)
         return metadata

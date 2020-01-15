@@ -33,7 +33,7 @@ import d3m.container as container
 import d3m.metadata.hyperparams as hyperparams
 import d3m.metadata.params as params
 from d3m.metadata.base import PrimitiveMetadata
-from d3m.metadata import base as metadata_base
+from d3m.metadata.base import ALL_ELEMENTS, DataMetadata
 import common_primitives.utils as common_utils
 from typing import Any, Callable, List, Dict, Union, Optional, Sequence, Tuple, NamedTuple
 import typing
@@ -396,13 +396,13 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
             corex_df = d3m_DataFrame(constructed, generate_metadata = True)
 
             for column_index in range(corex_df.shape[1]):
-                col_dict = dict(corex_df.metadata.query((metadata_base.ALL_ELEMENTS, column_index)))
+                col_dict = dict(corex_df.metadata.query((ALL_ELEMENTS, column_index)))
                 col_dict['structural_type'] = type(1.0)
                 # FIXME: assume we apply corex only once per template, otherwise column names might duplicate                                                                                    
                 col_dict['name'] = str(out_df.shape[1] + column_index)  #'echoib_'+('pred_' if column_index < self.hyperparams['n_hidden'] else 'feature_') + 
                 col_dict['semantic_types'] = ('http://schema.org/Float', 'https://metadata.datadrivendiscovery.org/types/Attribute')
                 
-                corex_df.metadata = corex_df.metadata.update((metadata_base.ALL_ELEMENTS, column_index), col_dict)
+                corex_df.metadata = corex_df.metadata.update((ALL_ELEMENTS, column_index), col_dict)
 
 
             # concatenate is --VERY-- slow without this next line                                                                                                                                
@@ -411,8 +411,6 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
             outputs = common_utils.append_columns(out_df, corex_df)
 
 
-        #print("INPUT COLUMNS ", inputs.columns)
-        #print(inputs.columns)
         if modeling:
             self._training_indices = [c for c in inputs.columns if isinstance(c, str) and 'index' in c.lower()]
             #print("Traning indices ", self._training_indices)
@@ -465,17 +463,17 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
         self.label_encode = params['label_encode']
         self.output_columns = params['output_columns']
 
-    def _add_target_semantic_types(cls, metadata: metadata_base.DataMetadata,
-                            source: typing.Any,  target_names: List = None,) -> metadata_base.DataMetadata:
-        for column_index in range(metadata.query((metadata_base.ALL_ELEMENTS,))['dimension']['length']):
-            metadata = metadata.add_semantic_type((metadata_base.ALL_ELEMENTS, column_index),
+    def _add_target_semantic_types(cls, metadata: DataMetadata,
+                            source: typing.Any,  target_names: List = None,) -> DataMetadata:
+        for column_index in range(metadata.query((ALL_ELEMENTS,))['dimension']['length']):
+            metadata = metadata.add_semantic_type((ALL_ELEMENTS, column_index),
                                                   'https://metadata.datadrivendiscovery.org/types/Target',
                                                   source=source)
-            metadata = metadata.add_semantic_type((metadata_base.ALL_ELEMENTS, column_index),
+            metadata = metadata.add_semantic_type((ALL_ELEMENTS, column_index),
                                                   'https://metadata.datadrivendiscovery.org/types/PredictedTarget',
                                                   source=source)
             if target_names:
-                metadata = metadata.update((metadata_base.ALL_ELEMENTS, column_index), {
+                metadata = metadata.update((ALL_ELEMENTS, column_index), {
                     'name': target_names[column_index],
                 }, source=source)
         return metadata
