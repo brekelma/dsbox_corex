@@ -1,6 +1,0 @@
-[submodule "corexcontinuous"]
-	path = corexcontinuous
-	url = https://github.com/brekelma/corexcontinuous
-[submodule "corextext"]
-	path = corextext
-	url = https://github.com/brekelma/corextext
