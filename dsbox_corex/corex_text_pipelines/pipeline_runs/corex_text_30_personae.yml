@@ -1,0 +1,4899 @@
+context: TESTING
+datasets:
+- digest: d13fff0a99b83aa2d37b1d29c38e3640b1c9bef36d1855c7e4da5925f595c72a
+  id: 30_personae_dataset
+end: '2020-01-12T18:57:22.048617Z'
+environment:
+  engine_version: 5143f80683704472c7efe6adcf32b080fff3ebae
+  id: 3bd0563f-ce89-54be-bedb-8c75e4c2088f
+  reference_engine_version: 5143f80683704472c7efe6adcf32b080fff3ebae
+  resources:
+    cpu:
+      configured_available: '15'
+      constraints:
+        cpu_shares: 1024
+      devices:
+      - name: Intel(R) Core(TM) i7-7700HQ CPU @ 2.80GHz
+      logical_present: 1
+      physical_present: 1
+    memory:
+      configured_memory: '50'
+      total_memory: 2094428160
+  worker_id: f5ffb488-a883-509d-ad4f-5e819913cb14
+id: 8ce7df18-c9fc-5a18-8da6-1dd24d2c4a28
+pipeline:
+  digest: 3807352de11e0ea4adea52c93d5ce27d4e3917d53a9a112bcbf6e84b0c54b3e8
+  id: d2b08650-6d1b-49f8-977e-2786a8b82b4c
+problem:
+  digest: 82a15fdc227a1a0968f50d94bba67f72a4148d38cbf24b2ca774a45547d5bb8a
+  id: 30_personae_problem
+random_seed: 0
+run:
+  is_standard_pipeline: true
+  phase: FIT
+  results:
+    predictions:
+      header:
+      - d3mIndex
+      - extrovert
+      values:
+      - - 0
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+        - 7
+        - 8
+        - 9
+        - 10
+        - 11
+        - 12
+        - 13
+        - 14
+        - 15
+        - 16
+        - 17
+        - 18
+        - 19
+        - 20
+        - 21
+        - 22
+        - 23
+        - 24
+        - 25
+        - 26
+        - 27
+        - 28
+        - 29
+        - 30
+        - 31
+        - 32
+        - 33
+        - 34
+        - 35
+        - 36
+        - 37
+        - 38
+        - 39
+        - 40
+        - 41
+        - 42
+        - 43
+        - 44
+        - 45
+        - 46
+        - 47
+        - 48
+        - 49
+        - 50
+        - 51
+        - 52
+        - 53
+        - 54
+        - 55
+        - 56
+        - 57
+        - 58
+        - 59
+        - 60
+        - 61
+        - 62
+        - 63
+        - 64
+        - 65
+        - 66
+        - 67
+        - 68
+        - 69
+        - 70
+        - 71
+        - 72
+        - 73
+        - 74
+        - 75
+        - 76
+        - 77
+        - 78
+        - 79
+        - 80
+        - 81
+        - 82
+        - 83
+        - 84
+        - 85
+        - 86
+        - 87
+        - 88
+        - 89
+        - 90
+        - 91
+        - 92
+        - 93
+        - 94
+        - 95
+        - 96
+        - 97
+        - 98
+        - 99
+        - 100
+        - 101
+        - 102
+        - 103
+        - 104
+        - 105
+        - 106
+        - 107
+        - 108
+        - 109
+        - 110
+        - 111
+        - 112
+        - 113
+        - 114
+        - 115
+        - 116
+        - 117
+        - 118
+        - 119
+        - 120
+        - 121
+        - 122
+        - 123
+        - 124
+        - 125
+        - 126
+        - 127
+        - 128
+        - 129
+        - 130
+        - 131
+        - 132
+        - 133
+        - 134
+        - 135
+        - 136
+        - 137
+        - 138
+        - 139
+        - 140
+        - 141
+        - 142
+        - 143
+        - 144
+      - - '0'
+        - '1'
+        - '1'
+        - '0'
+        - '1'
+        - '0'
+        - '0'
+        - '1'
+        - '1'
+        - '1'
+        - '1'
+        - '1'
+        - '1'
+        - '0'
+        - '0'
+        - '0'
+        - '0'
+        - '1'
+        - '1'
+        - '1'
+        - '1'
+        - '0'
+        - '0'
+        - '0'
+        - '0'
+        - '0'
+        - '0'
+        - '1'
+        - '0'
+        - '1'
+        - '1'
+        - '1'
+        - '1'
+        - '0'
+        - '1'
+        - '0'
+        - '0'
+        - '0'
+        - '1'
+        - '1'
+        - '0'
+        - '0'
+        - '0'
+        - '0'
+        - '1'
+        - '0'
+        - '1'
+        - '0'
+        - '1'
+        - '1'
+        - '1'
+        - '1'
+        - '1'
+        - '0'
+        - '1'
+        - '1'
+        - '0'
+        - '1'
+        - '1'
+        - '0'
+        - '1'
+        - '1'
+        - '0'
+        - '1'
+        - '1'
+        - '0'
+        - '0'
+        - '1'
+        - '1'
+        - '1'
+        - '0'
+        - '1'
+        - '1'
+        - '0'
+        - '1'
+        - '1'
+        - '0'
+        - '0'
+        - '0'
+        - '1'
+        - '0'
+        - '1'
+        - '1'
+        - '1'
+        - '0'
+        - '1'
+        - '0'
+        - '0'
+        - '1'
+        - '1'
+        - '1'
+        - '1'
+        - '0'
+        - '1'
+        - '1'
+        - '1'
+        - '0'
+        - '0'
+        - '1'
+        - '1'
+        - '0'
+        - '0'
+        - '0'
+        - '0'
+        - '1'
+        - '1'
+        - '1'
+        - '1'
+        - '0'
+        - '0'
+        - '0'
+        - '0'
+        - '0'
+        - '1'
+        - '0'
+        - '1'
+        - '1'
+        - '0'
+        - '1'
+        - '1'
+        - '0'
+        - '1'
+        - '1'
+        - '0'
+        - '1'
+        - '1'
+        - '0'
+        - '1'
+        - '0'
+        - '1'
+        - '1'
+        - '1'
+        - '1'
+        - '0'
+        - '1'
+        - '1'
+        - '0'
+        - '0'
+        - '0'
+        - '1'
+        - '0'
+        - '0'
+        - '0'
+        - '0'
+        - '0'
+schema: https://metadata.datadrivendiscovery.org/schemas/v0/pipeline_run.json
+start: '2020-01-12T18:56:38.552182Z'
+status:
+  state: SUCCESS
+steps:
+- end: '2020-01-12T18:56:38.565552Z'
+  method_calls:
+  - end: '2020-01-12T18:56:38.553864Z'
+    logging: []
+    name: __init__
+    start: '2020-01-12T18:56:38.553777Z'
+    status:
+      state: SUCCESS
+  - end: '2020-01-12T18:56:38.564047Z'
+    logging: []
+    metadata:
+      produce:
+      - metadata:
+          approximate_stored_size: 1360000
+          description: The Personae corpus was collected for experiments in Authorship
+            Attribution and Personality Prediction. It consists of 145 Dutch-language
+            essays, written by 145 different students.
+          digest: d13fff0a99b83aa2d37b1d29c38e3640b1c9bef36d1855c7e4da5925f595c72a
+          dimension:
+            length: 1
+            name: resources
+            semantic_types:
+            - https://metadata.datadrivendiscovery.org/types/DatasetResource
+          id: 30_personae_dataset
+          location_uris:
+          - file:///input/30_personae/30_personae_dataset/datasetDoc.json
+          name: Personae -personality detection Dataset
+          schema: https://metadata.datadrivendiscovery.org/schemas/v0/container.json
+          source:
+            citation: '
+
+              @inproceedings{
+
+              luyckx2008personae,
+
+              title={Personae: a Corpus for Author and Personality Prediction from
+              Text.},
+
+              author={Luyckx, Kim and Daelemans, Walter},
+
+              booktitle={LREC},
+
+              year={2008}
+
+              }
+
+'
+            license: Creative Commons
+            name: CLiPS Research Center, University of Antwerp
+            redacted: false
+            uris:
+            - http://www.clips.ua.ac.be/datasets/personae-corpus
+          structural_type: d3m.container.dataset.Dataset
+          version: '2.0'
+        selector: []
+      - metadata:
+          dimension:
+            length: 145
+            name: rows
+            semantic_types:
+            - https://metadata.datadrivendiscovery.org/types/TabularRow
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/Table
+          - https://metadata.datadrivendiscovery.org/types/DatasetEntryPoint
+          structural_type: d3m.container.pandas.DataFrame
+        selector:
+        - learningData
+      - metadata:
+          dimension:
+            length: 7
+            name: columns
+            semantic_types:
+            - https://metadata.datadrivendiscovery.org/types/TabularColumn
+        selector:
+        - learningData
+        - __ALL_ELEMENTS__
+      - metadata:
+          name: d3mIndex
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/PrimaryKey
+          structural_type: str
+        selector:
+        - learningData
+        - __ALL_ELEMENTS__
+        - 0
+      - metadata:
+          location_base_uris:
+          - file:///input/30_personae/30_personae_dataset/text/
+          media_types:
+          - text/plain
+          name: filename
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/FileName
+          - http://schema.org/Text
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          - https://metadata.datadrivendiscovery.org/types/UniqueKey
+          structural_type: str
+        selector:
+        - learningData
+        - __ALL_ELEMENTS__
+        - 1
+      - metadata:
+          name: text_language
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/CategoricalData
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: str
+        selector:
+        - learningData
+        - __ALL_ELEMENTS__
+        - 2
+      - metadata:
+          name: author_gender
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/CategoricalData
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: str
+        selector:
+        - learningData
+        - __ALL_ELEMENTS__
+        - 3
+      - metadata:
+          name: author_language
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/CategoricalData
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: str
+        selector:
+        - learningData
+        - __ALL_ELEMENTS__
+        - 4
+      - metadata:
+          name: author_region
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/CategoricalData
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: str
+        selector:
+        - learningData
+        - __ALL_ELEMENTS__
+        - 5
+      - metadata:
+          name: extrovert
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/CategoricalData
+          - https://metadata.datadrivendiscovery.org/types/SuggestedTarget
+          - https://metadata.datadrivendiscovery.org/types/Target
+          - https://metadata.datadrivendiscovery.org/types/TrueTarget
+          structural_type: str
+        selector:
+        - learningData
+        - __ALL_ELEMENTS__
+        - 6
+    name: fit_multi_produce
+    start: '2020-01-12T18:56:38.554346Z'
+    status:
+      state: SUCCESS
+  start: '2020-01-12T18:56:38.552207Z'
+  status:
+    state: SUCCESS
+  type: PRIMITIVE
+- end: '2020-01-12T18:56:38.570403Z'
+  hyperparams:
+    dataframe_resource:
+      data: null
+      type: VALUE
+  method_calls:
+  - end: '2020-01-12T18:56:38.567084Z'
+    logging: []
+    name: __init__
+    start: '2020-01-12T18:56:38.566999Z'
+    status:
+      state: SUCCESS
+  - end: '2020-01-12T18:56:38.569312Z'
+    logging: []
+    metadata:
+      produce:
+      - metadata:
+          dimension:
+            length: 145
+            name: rows
+            semantic_types:
+            - https://metadata.datadrivendiscovery.org/types/TabularRow
+          schema: https://metadata.datadrivendiscovery.org/schemas/v0/container.json
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/Table
+          structural_type: d3m.container.pandas.DataFrame
+        selector: []
+      - metadata:
+          dimension:
+            length: 7
+            name: columns
+            semantic_types:
+            - https://metadata.datadrivendiscovery.org/types/TabularColumn
+        selector:
+        - __ALL_ELEMENTS__
+      - metadata:
+          name: d3mIndex
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/PrimaryKey
+          structural_type: str
+        selector:
+        - __ALL_ELEMENTS__
+        - 0
+      - metadata:
+          location_base_uris:
+          - file:///input/30_personae/30_personae_dataset/text/
+          media_types:
+          - text/plain
+          name: filename
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/FileName
+          - http://schema.org/Text
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          - https://metadata.datadrivendiscovery.org/types/UniqueKey
+          structural_type: str
+        selector:
+        - __ALL_ELEMENTS__
+        - 1
+      - metadata:
+          name: text_language
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/CategoricalData
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: str
+        selector:
+        - __ALL_ELEMENTS__
+        - 2
+      - metadata:
+          name: author_gender
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/CategoricalData
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: str
+        selector:
+        - __ALL_ELEMENTS__
+        - 3
+      - metadata:
+          name: author_language
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/CategoricalData
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: str
+        selector:
+        - __ALL_ELEMENTS__
+        - 4
+      - metadata:
+          name: author_region
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/CategoricalData
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: str
+        selector:
+        - __ALL_ELEMENTS__
+        - 5
+      - metadata:
+          name: extrovert
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/CategoricalData
+          - https://metadata.datadrivendiscovery.org/types/SuggestedTarget
+          - https://metadata.datadrivendiscovery.org/types/Target
+          - https://metadata.datadrivendiscovery.org/types/TrueTarget
+          structural_type: str
+        selector:
+        - __ALL_ELEMENTS__
+        - 6
+    name: fit_multi_produce
+    start: '2020-01-12T18:56:38.567415Z'
+    status:
+      state: SUCCESS
+  random_seed: 1
+  start: '2020-01-12T18:56:38.565573Z'
+  status:
+    state: SUCCESS
+  type: PRIMITIVE
+- end: '2020-01-12T18:56:38.575660Z'
+  hyperparams:
+    add_index_columns:
+      data: false
+      type: VALUE
+    exclude_columns:
+      data: []
+      type: VALUE
+    match_logic:
+      data: any
+      type: VALUE
+    negate:
+      data: false
+      type: VALUE
+    use_columns:
+      data: []
+      type: VALUE
+  method_calls:
+  - end: '2020-01-12T18:56:38.572412Z'
+    logging: []
+    name: __init__
+    start: '2020-01-12T18:56:38.572384Z'
+    status:
+      state: SUCCESS
+  - end: '2020-01-12T18:56:38.574723Z'
+    logging: []
+    metadata:
+      produce:
+      - metadata:
+          dimension:
+            length: 145
+            name: rows
+            semantic_types:
+            - https://metadata.datadrivendiscovery.org/types/TabularRow
+          schema: https://metadata.datadrivendiscovery.org/schemas/v0/container.json
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/Table
+          structural_type: d3m.container.pandas.DataFrame
+        selector: []
+      - metadata:
+          dimension:
+            length: 6
+            name: columns
+            semantic_types:
+            - https://metadata.datadrivendiscovery.org/types/TabularColumn
+        selector:
+        - __ALL_ELEMENTS__
+      - metadata:
+          name: d3mIndex
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/PrimaryKey
+          structural_type: str
+        selector:
+        - __ALL_ELEMENTS__
+        - 0
+      - metadata:
+          location_base_uris:
+          - file:///input/30_personae/30_personae_dataset/text/
+          media_types:
+          - text/plain
+          name: filename
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/FileName
+          - http://schema.org/Text
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          - https://metadata.datadrivendiscovery.org/types/UniqueKey
+          structural_type: str
+        selector:
+        - __ALL_ELEMENTS__
+        - 1
+      - metadata:
+          name: text_language
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/CategoricalData
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: str
+        selector:
+        - __ALL_ELEMENTS__
+        - 2
+      - metadata:
+          name: author_gender
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/CategoricalData
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: str
+        selector:
+        - __ALL_ELEMENTS__
+        - 3
+      - metadata:
+          name: author_language
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/CategoricalData
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: str
+        selector:
+        - __ALL_ELEMENTS__
+        - 4
+      - metadata:
+          name: author_region
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/CategoricalData
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: str
+        selector:
+        - __ALL_ELEMENTS__
+        - 5
+    name: fit_multi_produce
+    start: '2020-01-12T18:56:38.572844Z'
+    status:
+      state: SUCCESS
+  random_seed: 2
+  start: '2020-01-12T18:56:38.570418Z'
+  status:
+    state: SUCCESS
+  type: PRIMITIVE
+- end: '2020-01-12T18:56:38.583948Z'
+  hyperparams:
+    add_index_columns:
+      data: true
+      type: VALUE
+    common_threshold:
+      data: 0.9
+      type: VALUE
+    exclude_columns:
+      data: []
+      type: VALUE
+    features:
+      data: null
+      type: VALUE
+    num_threshold:
+      data: 0.1
+      type: VALUE
+    return_result:
+      data: replace
+      type: VALUE
+    split_on_column_with_avg_len:
+      data: 30
+      type: VALUE
+    use_columns:
+      data: []
+      type: VALUE
+    use_semantic_types:
+      data: false
+      type: VALUE
+  method_calls:
+  - end: '2020-01-12T18:56:38.577962Z'
+    logging: []
+    name: __init__
+    start: '2020-01-12T18:56:38.577915Z'
+    status:
+      state: SUCCESS
+  - end: '2020-01-12T18:56:38.582932Z'
+    logging: []
+    metadata:
+      produce:
+      - metadata:
+          dimension:
+            length: 145
+            name: rows
+            semantic_types:
+            - https://metadata.datadrivendiscovery.org/types/TabularRow
+          schema: https://metadata.datadrivendiscovery.org/schemas/v0/container.json
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/Table
+          structural_type: d3m.container.pandas.DataFrame
+        selector: []
+      - metadata:
+          dimension:
+            length: 6
+            name: columns
+            semantic_types:
+            - https://metadata.datadrivendiscovery.org/types/TabularColumn
+        selector:
+        - __ALL_ELEMENTS__
+      - metadata:
+          name: d3mIndex
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/PrimaryKey
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 0
+      - metadata:
+          location_base_uris:
+          - file:///input/30_personae/30_personae_dataset/text/
+          media_types:
+          - text/plain
+          name: filename
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/FileName
+          - http://schema.org/Text
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          - https://metadata.datadrivendiscovery.org/types/UniqueKey
+          structural_type: str
+        selector:
+        - __ALL_ELEMENTS__
+        - 1
+      - metadata:
+          name: text_language
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/CategoricalData
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: str
+        selector:
+        - __ALL_ELEMENTS__
+        - 2
+      - metadata:
+          name: author_gender
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/CategoricalData
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: str
+        selector:
+        - __ALL_ELEMENTS__
+        - 3
+      - metadata:
+          name: author_language
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/CategoricalData
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: str
+        selector:
+        - __ALL_ELEMENTS__
+        - 4
+      - metadata:
+          name: author_region
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/CategoricalData
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: str
+        selector:
+        - __ALL_ELEMENTS__
+        - 5
+    name: fit_multi_produce
+    start: '2020-01-12T18:56:38.578628Z'
+    status:
+      state: SUCCESS
+  start: '2020-01-12T18:56:38.575674Z'
+  status:
+    state: SUCCESS
+  type: PRIMITIVE
+- end: '2020-01-12T18:56:38.647213Z'
+  hyperparams:
+    add_index_columns:
+      data: true
+      type: VALUE
+    exclude_columns:
+      data: []
+      type: VALUE
+    n_limit:
+      data: 12
+      type: VALUE
+    return_result:
+      data: replace
+      type: VALUE
+    use_columns:
+      data: []
+      type: VALUE
+    use_semantic_types:
+      data: false
+      type: VALUE
+  method_calls:
+  - end: '2020-01-12T18:56:38.585651Z'
+    logging: []
+    name: __init__
+    start: '2020-01-12T18:56:38.585620Z'
+    status:
+      state: SUCCESS
+  - end: '2020-01-12T18:56:38.642843Z'
+    logging:
+    - args: []
+      asctime: 2020-01-12 18:56:38,607
+      created: 1578855398.6076446
+      filename: utils.py
+      funcName: write
+      levelname: ERROR
+      levelno: 40
+      lineno: 799
+      message: '/usr/local/lib/python3.6/dist-packages/pandas/core/generic.py:5191:
+        FutureWarning: Attribute ''is_copy'' is deprecated and will be removed in
+        a future version.'
+      module: utils
+      msecs: 607.6445579528809
+      msg: '/usr/local/lib/python3.6/dist-packages/pandas/core/generic.py:5191: FutureWarning:
+        Attribute ''is_copy'' is deprecated and will be removed in a future version.'
+      name: redirect
+      pathname: /src/d3m/d3m/utils.py
+      process: 2667
+      processName: MainProcess
+      relativeCreated: 5638.767719268799
+      thread: 140068804892480
+      threadName: MainThread
+    - args: []
+      asctime: 2020-01-12 18:56:38,608
+      created: 1578855398.6087432
+      filename: utils.py
+      funcName: write
+      levelname: ERROR
+      levelno: 40
+      lineno: 799
+      message: '  object.__getattribute__(self, name)'
+      module: utils
+      msecs: 608.7431907653809
+      msg: '  object.__getattribute__(self, name)'
+      name: redirect
+      pathname: /src/d3m/d3m/utils.py
+      process: 2667
+      processName: MainProcess
+      relativeCreated: 5639.866352081299
+      thread: 140068804892480
+      threadName: MainThread
+    - args: []
+      asctime: 2020-01-12 18:56:38,609
+      created: 1578855398.6099231
+      filename: utils.py
+      funcName: write
+      levelname: ERROR
+      levelno: 40
+      lineno: 799
+      message: '/usr/local/lib/python3.6/dist-packages/pandas/core/generic.py:5192:
+        FutureWarning: Attribute ''is_copy'' is deprecated and will be removed in
+        a future version.'
+      module: utils
+      msecs: 609.9231243133545
+      msg: '/usr/local/lib/python3.6/dist-packages/pandas/core/generic.py:5192: FutureWarning:
+        Attribute ''is_copy'' is deprecated and will be removed in a future version.'
+      name: redirect
+      pathname: /src/d3m/d3m/utils.py
+      process: 2667
+      processName: MainProcess
+      relativeCreated: 5641.0462856292725
+      thread: 140068804892480
+      threadName: MainThread
+    - args: []
+      asctime: 2020-01-12 18:56:38,610
+      created: 1578855398.610801
+      filename: utils.py
+      funcName: write
+      levelname: ERROR
+      levelno: 40
+      lineno: 799
+      message: '  return object.__setattr__(self, name, value)'
+      module: utils
+      msecs: 610.8009815216064
+      msg: '  return object.__setattr__(self, name, value)'
+      name: redirect
+      pathname: /src/d3m/d3m/utils.py
+      process: 2667
+      processName: MainProcess
+      relativeCreated: 5641.924142837524
+      thread: 140068804892480
+      threadName: MainThread
+    metadata:
+      produce:
+      - metadata:
+          dimension:
+            length: 145
+            name: rows
+            semantic_types:
+            - https://metadata.datadrivendiscovery.org/types/TabularRow
+          schema: https://metadata.datadrivendiscovery.org/schemas/v0/container.json
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/Table
+          structural_type: d3m.container.pandas.DataFrame
+        selector: []
+      - metadata:
+          dimension:
+            length: 17
+            name: columns
+            semantic_types:
+            - https://metadata.datadrivendiscovery.org/types/TabularColumn
+        selector:
+        - __ALL_ELEMENTS__
+      - metadata:
+          name: d3mIndex
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/PrimaryKey
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 0
+      - metadata:
+          location_base_uris:
+          - file:///input/30_personae/30_personae_dataset/text/
+          media_types:
+          - text/plain
+          name: filename
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/FileName
+          - http://schema.org/Text
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          - https://metadata.datadrivendiscovery.org/types/UniqueKey
+          structural_type: str
+        selector:
+        - __ALL_ELEMENTS__
+        - 1
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 2
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 3
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 4
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 5
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 6
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 7
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 8
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 9
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 10
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 11
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 12
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 13
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 14
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 15
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 16
+    name: fit_multi_produce
+    start: '2020-01-12T18:56:38.586082Z'
+    status:
+      state: SUCCESS
+  start: '2020-01-12T18:56:38.583964Z'
+  status:
+    state: SUCCESS
+  type: PRIMITIVE
+- end: '2020-01-12T18:57:21.805804Z'
+  hyperparams:
+    max_df:
+      data: 0.9
+      type: VALUE
+    min_df:
+      data: 0.02
+      type: VALUE
+  method_calls:
+  - end: '2020-01-12T18:56:38.649556Z'
+    logging: []
+    name: __init__
+    start: '2020-01-12T18:56:38.649476Z'
+    status:
+      state: SUCCESS
+  - end: '2020-01-12T18:57:21.798174Z'
+    logging:
+    - args:
+        argument: null
+        filename: /src/dsbox_corex/corex_text.py
+        function: append_columns
+        lineno: 331
+        message: use DataFrame.append_columns method instead
+        module: corex_text
+      asctime: 2020-01-12 18:56:50,918
+      created: 1578855410.9182515
+      filename: deprecate.py
+      funcName: wrapper
+      levelname: WARNING
+      levelno: 30
+      lineno: 66
+      message: 'corex_text: Calling a deprecated function ''append_columns'' in ''/src/dsbox_corex/corex_text.py''
+        at line 331: use DataFrame.append_columns method instead'
+      module: deprecate
+      msecs: 918.2515144348145
+      msg: '%(module)s: Calling a deprecated function ''%(function)s'' in ''%(filename)s''
+        at line %(lineno)s: %(message)s'
+      name: d3m.deprecate
+      pathname: /src/d3m/d3m/deprecate.py
+      process: 2667
+      processName: MainProcess
+      relativeCreated: 17949.374675750732
+      thread: 140068804892480
+      threadName: MainThread
+    - args:
+        argument: null
+        filename: /src/dsbox_corex/corex_text.py
+        function: remove_columns
+        lineno: 334
+        message: use DataFrame.remove_columns method instead
+        module: corex_text
+      asctime: 2020-01-12 18:56:50,921
+      created: 1578855410.9213605
+      filename: deprecate.py
+      funcName: wrapper
+      levelname: WARNING
+      levelno: 30
+      lineno: 66
+      message: 'corex_text: Calling a deprecated function ''remove_columns'' in ''/src/dsbox_corex/corex_text.py''
+        at line 334: use DataFrame.remove_columns method instead'
+      module: deprecate
+      msecs: 921.3604927062988
+      msg: '%(module)s: Calling a deprecated function ''%(function)s'' in ''%(filename)s''
+        at line %(lineno)s: %(message)s'
+      name: d3m.deprecate
+      pathname: /src/d3m/d3m/deprecate.py
+      process: 2667
+      processName: MainProcess
+      relativeCreated: 17952.483654022217
+      thread: 140068804892480
+      threadName: MainThread
+    - args:
+        argument: null
+        filename: /src/dsbox_corex/corex_text.py
+        function: append_columns
+        lineno: 259
+        message: use DataFrame.append_columns method instead
+        module: corex_text
+      asctime: 2020-01-12 18:57:21,781
+      created: 1578855441.781909
+      filename: deprecate.py
+      funcName: wrapper
+      levelname: WARNING
+      levelno: 30
+      lineno: 66
+      message: 'corex_text: Calling a deprecated function ''append_columns'' in ''/src/dsbox_corex/corex_text.py''
+        at line 259: use DataFrame.append_columns method instead'
+      module: deprecate
+      msecs: 781.9089889526367
+      msg: '%(module)s: Calling a deprecated function ''%(function)s'' in ''%(filename)s''
+        at line %(lineno)s: %(message)s'
+      name: d3m.deprecate
+      pathname: /src/d3m/d3m/deprecate.py
+      process: 2667
+      processName: MainProcess
+      relativeCreated: 48813.032150268555
+      thread: 140068804892480
+      threadName: MainThread
+    - args:
+        argument: null
+        filename: /src/dsbox_corex/corex_text.py
+        function: remove_columns
+        lineno: 262
+        message: use DataFrame.remove_columns method instead
+        module: corex_text
+      asctime: 2020-01-12 18:57:21,787
+      created: 1578855441.7879863
+      filename: deprecate.py
+      funcName: wrapper
+      levelname: WARNING
+      levelno: 30
+      lineno: 66
+      message: 'corex_text: Calling a deprecated function ''remove_columns'' in ''/src/dsbox_corex/corex_text.py''
+        at line 262: use DataFrame.remove_columns method instead'
+      module: deprecate
+      msecs: 787.9862785339355
+      msg: '%(module)s: Calling a deprecated function ''%(function)s'' in ''%(filename)s''
+        at line %(lineno)s: %(message)s'
+      name: d3m.deprecate
+      pathname: /src/d3m/d3m/deprecate.py
+      process: 2667
+      processName: MainProcess
+      relativeCreated: 48819.10943984985
+      thread: 140068804892480
+      threadName: MainThread
+    metadata:
+      produce:
+      - metadata:
+          dimension:
+            length: 145
+            name: rows
+            semantic_types:
+            - https://metadata.datadrivendiscovery.org/types/TabularRow
+          schema: https://metadata.datadrivendiscovery.org/schemas/v0/container.json
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/Table
+          structural_type: d3m.container.pandas.DataFrame
+        selector: []
+      - metadata:
+          dimension:
+            length: 41
+            name: columns
+            semantic_types:
+            - https://metadata.datadrivendiscovery.org/types/TabularColumn
+        selector:
+        - __ALL_ELEMENTS__
+      - metadata:
+          name: d3mIndex
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/PrimaryKey
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 0
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 1
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 2
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 3
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 4
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 5
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 6
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 7
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 8
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 9
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 10
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 11
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 12
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 13
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 14
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 15
+      - metadata:
+          name: corex_17
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 16
+      - metadata:
+          name: corex_18
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 17
+      - metadata:
+          name: corex_19
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 18
+      - metadata:
+          name: corex_20
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 19
+      - metadata:
+          name: corex_21
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 20
+      - metadata:
+          name: corex_22
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 21
+      - metadata:
+          name: corex_23
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 22
+      - metadata:
+          name: corex_24
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 23
+      - metadata:
+          name: corex_25
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 24
+      - metadata:
+          name: corex_26
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 25
+      - metadata:
+          name: corex_27
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 26
+      - metadata:
+          name: corex_28
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 27
+      - metadata:
+          name: corex_29
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 28
+      - metadata:
+          name: corex_30
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 29
+      - metadata:
+          name: corex_31
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 30
+      - metadata:
+          name: corex_32
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 31
+      - metadata:
+          name: corex_33
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 32
+      - metadata:
+          name: corex_34
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 33
+      - metadata:
+          name: corex_35
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 34
+      - metadata:
+          name: corex_36
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 35
+      - metadata:
+          name: corex_37
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 36
+      - metadata:
+          name: corex_38
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 37
+      - metadata:
+          name: corex_39
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 38
+      - metadata:
+          name: corex_40
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 39
+      - metadata:
+          name: corex_41
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 40
+    name: fit_multi_produce
+    start: '2020-01-12T18:56:38.650400Z'
+    status:
+      state: SUCCESS
+  start: '2020-01-12T18:56:38.647239Z'
+  status:
+    state: SUCCESS
+  type: PRIMITIVE
+- end: '2020-01-12T18:57:21.873082Z'
+  hyperparams:
+    drop_non_numeric_columns:
+      data: true
+      type: VALUE
+    exclude_columns:
+      data: []
+      type: VALUE
+    use_columns:
+      data: []
+      type: VALUE
+  method_calls:
+  - end: '2020-01-12T18:57:21.808276Z'
+    logging: []
+    name: __init__
+    start: '2020-01-12T18:57:21.808224Z'
+    status:
+      state: SUCCESS
+  - end: '2020-01-12T18:57:21.868129Z'
+    logging: []
+    metadata:
+      produce:
+      - metadata:
+          dimension:
+            length: 145
+            name: rows
+            semantic_types:
+            - https://metadata.datadrivendiscovery.org/types/TabularRow
+          schema: https://metadata.datadrivendiscovery.org/schemas/v0/container.json
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/Table
+          structural_type: d3m.container.pandas.DataFrame
+        selector: []
+      - metadata:
+          dimension:
+            length: 41
+            name: columns
+            semantic_types:
+            - https://metadata.datadrivendiscovery.org/types/TabularColumn
+        selector:
+        - __ALL_ELEMENTS__
+      - metadata:
+          name: d3mIndex
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/PrimaryKey
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 0
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 1
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 2
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 3
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 4
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 5
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 6
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 7
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 8
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 9
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 10
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 11
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 12
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 13
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 14
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 15
+      - metadata:
+          name: corex_17
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 16
+      - metadata:
+          name: corex_18
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 17
+      - metadata:
+          name: corex_19
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 18
+      - metadata:
+          name: corex_20
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 19
+      - metadata:
+          name: corex_21
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 20
+      - metadata:
+          name: corex_22
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 21
+      - metadata:
+          name: corex_23
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 22
+      - metadata:
+          name: corex_24
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 23
+      - metadata:
+          name: corex_25
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 24
+      - metadata:
+          name: corex_26
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 25
+      - metadata:
+          name: corex_27
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 26
+      - metadata:
+          name: corex_28
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 27
+      - metadata:
+          name: corex_29
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 28
+      - metadata:
+          name: corex_30
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 29
+      - metadata:
+          name: corex_31
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 30
+      - metadata:
+          name: corex_32
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 31
+      - metadata:
+          name: corex_33
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 32
+      - metadata:
+          name: corex_34
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 33
+      - metadata:
+          name: corex_35
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 34
+      - metadata:
+          name: corex_36
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 35
+      - metadata:
+          name: corex_37
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 36
+      - metadata:
+          name: corex_38
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 37
+      - metadata:
+          name: corex_39
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 38
+      - metadata:
+          name: corex_40
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 39
+      - metadata:
+          name: corex_41
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 40
+    name: fit_multi_produce
+    start: '2020-01-12T18:57:21.808846Z'
+    status:
+      state: SUCCESS
+  random_seed: 6
+  start: '2020-01-12T18:57:21.805841Z'
+  status:
+    state: SUCCESS
+  type: PRIMITIVE
+- end: '2020-01-12T18:57:21.990039Z'
+  hyperparams:
+    add_index_columns:
+      data: true
+      type: VALUE
+    exclude_columns:
+      data: []
+      type: VALUE
+    return_result:
+      data: replace
+      type: VALUE
+    use_columns:
+      data: []
+      type: VALUE
+    use_semantic_types:
+      data: false
+      type: VALUE
+    verbose:
+      data: false
+      type: VALUE
+  method_calls:
+  - end: '2020-01-12T18:57:21.875368Z'
+    logging: []
+    name: __init__
+    start: '2020-01-12T18:57:21.875303Z'
+    status:
+      state: SUCCESS
+  - end: '2020-01-12T18:57:21.985089Z'
+    logging: []
+    metadata:
+      produce:
+      - metadata:
+          dimension:
+            length: 145
+            name: rows
+            semantic_types:
+            - https://metadata.datadrivendiscovery.org/types/TabularRow
+          schema: https://metadata.datadrivendiscovery.org/schemas/v0/container.json
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/Table
+          structural_type: d3m.container.pandas.DataFrame
+        selector: []
+      - metadata:
+          dimension:
+            length: 41
+            name: columns
+            semantic_types:
+            - https://metadata.datadrivendiscovery.org/types/TabularColumn
+        selector:
+        - __ALL_ELEMENTS__
+      - metadata:
+          name: d3mIndex
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/PrimaryKey
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 0
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 1
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 2
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 3
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 4
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 5
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 6
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 7
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 8
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 9
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 10
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 11
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 12
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 13
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 14
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 15
+      - metadata:
+          name: corex_17
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 16
+      - metadata:
+          name: corex_18
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 17
+      - metadata:
+          name: corex_19
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 18
+      - metadata:
+          name: corex_20
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 19
+      - metadata:
+          name: corex_21
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 20
+      - metadata:
+          name: corex_22
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 21
+      - metadata:
+          name: corex_23
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 22
+      - metadata:
+          name: corex_24
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 23
+      - metadata:
+          name: corex_25
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 24
+      - metadata:
+          name: corex_26
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 25
+      - metadata:
+          name: corex_27
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 26
+      - metadata:
+          name: corex_28
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 27
+      - metadata:
+          name: corex_29
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 28
+      - metadata:
+          name: corex_30
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 29
+      - metadata:
+          name: corex_31
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 30
+      - metadata:
+          name: corex_32
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 31
+      - metadata:
+          name: corex_33
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 32
+      - metadata:
+          name: corex_34
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 33
+      - metadata:
+          name: corex_35
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 34
+      - metadata:
+          name: corex_36
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 35
+      - metadata:
+          name: corex_37
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 36
+      - metadata:
+          name: corex_38
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 37
+      - metadata:
+          name: corex_39
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 38
+      - metadata:
+          name: corex_40
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 39
+      - metadata:
+          name: corex_41
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 40
+    name: fit_multi_produce
+    start: '2020-01-12T18:57:21.876001Z'
+    status:
+      state: SUCCESS
+  start: '2020-01-12T18:57:21.873110Z'
+  status:
+    state: SUCCESS
+  type: PRIMITIVE
+- end: '2020-01-12T18:57:21.997439Z'
+  hyperparams:
+    add_index_columns:
+      data: false
+      type: VALUE
+    exclude_columns:
+      data: []
+      type: VALUE
+    match_logic:
+      data: any
+      type: VALUE
+    negate:
+      data: false
+      type: VALUE
+    use_columns:
+      data: []
+      type: VALUE
+  method_calls:
+  - end: '2020-01-12T18:57:21.992557Z'
+    logging: []
+    name: __init__
+    start: '2020-01-12T18:57:21.992512Z'
+    status:
+      state: SUCCESS
+  - end: '2020-01-12T18:57:21.996516Z'
+    logging: []
+    metadata:
+      produce:
+      - metadata:
+          dimension:
+            length: 145
+            name: rows
+            semantic_types:
+            - https://metadata.datadrivendiscovery.org/types/TabularRow
+          schema: https://metadata.datadrivendiscovery.org/schemas/v0/container.json
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/Table
+          structural_type: d3m.container.pandas.DataFrame
+        selector: []
+      - metadata:
+          dimension:
+            length: 1
+            name: columns
+            semantic_types:
+            - https://metadata.datadrivendiscovery.org/types/TabularColumn
+        selector:
+        - __ALL_ELEMENTS__
+      - metadata:
+          name: extrovert
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/CategoricalData
+          - https://metadata.datadrivendiscovery.org/types/SuggestedTarget
+          - https://metadata.datadrivendiscovery.org/types/Target
+          - https://metadata.datadrivendiscovery.org/types/TrueTarget
+          structural_type: str
+        selector:
+        - __ALL_ELEMENTS__
+        - 0
+    name: fit_multi_produce
+    start: '2020-01-12T18:57:21.993463Z'
+    status:
+      state: SUCCESS
+  random_seed: 8
+  start: '2020-01-12T18:57:21.990067Z'
+  status:
+    state: SUCCESS
+  type: PRIMITIVE
+- end: '2020-01-12T18:57:22.003394Z'
+  hyperparams:
+    exclude_columns:
+      data: []
+      type: VALUE
+    use_columns:
+      data: []
+      type: VALUE
+  method_calls:
+  - end: '2020-01-12T18:57:21.999359Z'
+    logging: []
+    name: __init__
+    start: '2020-01-12T18:57:21.999317Z'
+    status:
+      state: SUCCESS
+  - end: '2020-01-12T18:57:22.002694Z'
+    logging: []
+    metadata:
+      produce:
+      - metadata:
+          dimension:
+            length: 145
+            name: rows
+            semantic_types:
+            - https://metadata.datadrivendiscovery.org/types/TabularRow
+          schema: https://metadata.datadrivendiscovery.org/schemas/v0/container.json
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/Table
+          structural_type: d3m.container.pandas.DataFrame
+        selector: []
+      - metadata:
+          dimension:
+            length: 1
+            name: columns
+            semantic_types:
+            - https://metadata.datadrivendiscovery.org/types/TabularColumn
+        selector:
+        - __ALL_ELEMENTS__
+      - metadata:
+          name: extrovert
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/CategoricalData
+          - https://metadata.datadrivendiscovery.org/types/SuggestedTarget
+          - https://metadata.datadrivendiscovery.org/types/Target
+          - https://metadata.datadrivendiscovery.org/types/TrueTarget
+          structural_type: str
+        selector:
+        - __ALL_ELEMENTS__
+        - 0
+    name: fit_multi_produce
+    start: '2020-01-12T18:57:21.999796Z'
+    status:
+      state: SUCCESS
+  random_seed: 9
+  start: '2020-01-12T18:57:21.997460Z'
+  status:
+    state: SUCCESS
+  type: PRIMITIVE
+- end: '2020-01-12T18:57:22.048595Z'
+  hyperparams:
+    bootstrap:
+      data: bootstrap
+      type: VALUE
+    class_weight:
+      data:
+        case: none
+        value: null
+      type: VALUE
+    criterion:
+      data: gini
+      type: VALUE
+    exclude_inputs_columns:
+      data: []
+      type: VALUE
+    exclude_outputs_columns:
+      data: []
+      type: VALUE
+    max_depth:
+      data:
+        case: none
+        value: null
+      type: VALUE
+    max_features:
+      data:
+        case: calculated
+        value: auto
+      type: VALUE
+    max_leaf_nodes:
+      data:
+        case: none
+        value: null
+      type: VALUE
+    min_impurity_decrease:
+      data: 0.0
+      type: VALUE
+    min_samples_leaf:
+      data:
+        case: absolute
+        value: 1
+      type: VALUE
+    min_samples_split:
+      data:
+        case: absolute
+        value: 2
+      type: VALUE
+    min_weight_fraction_leaf:
+      data: 0
+      type: VALUE
+    n_estimators:
+      data: 10
+      type: VALUE
+    n_jobs:
+      data:
+        case: limit
+        value: 1
+      type: VALUE
+    return_result:
+      data: new
+      type: VALUE
+    return_semantic_type:
+      data: https://metadata.datadrivendiscovery.org/types/PredictedTarget
+      type: VALUE
+    use_inputs_columns:
+      data: []
+      type: VALUE
+    use_outputs_columns:
+      data: []
+      type: VALUE
+    warm_start:
+      data: false
+      type: VALUE
+  method_calls:
+  - end: '2020-01-12T18:57:22.012334Z'
+    logging: []
+    name: __init__
+    start: '2020-01-12T18:57:22.012125Z'
+    status:
+      state: SUCCESS
+  - end: '2020-01-12T18:57:22.047889Z'
+    logging: []
+    metadata:
+      produce:
+      - metadata:
+          dimension:
+            length: 145
+            name: rows
+            semantic_types:
+            - https://metadata.datadrivendiscovery.org/types/TabularRow
+          schema: https://metadata.datadrivendiscovery.org/schemas/v0/container.json
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/Table
+          structural_type: d3m.container.pandas.DataFrame
+        selector: []
+      - metadata:
+          dimension:
+            length: 2
+            name: columns
+            semantic_types:
+            - https://metadata.datadrivendiscovery.org/types/TabularColumn
+        selector:
+        - __ALL_ELEMENTS__
+      - metadata:
+          name: d3mIndex
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/PrimaryKey
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 0
+      - metadata:
+          name: extrovert
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/CategoricalData
+          - https://metadata.datadrivendiscovery.org/types/Target
+          - https://metadata.datadrivendiscovery.org/types/PredictedTarget
+          structural_type: str
+        selector:
+        - __ALL_ELEMENTS__
+        - 1
+    name: fit_multi_produce
+    start: '2020-01-12T18:57:22.014230Z'
+    status:
+      state: SUCCESS
+  random_seed: 10
+  start: '2020-01-12T18:57:22.003413Z'
+  status:
+    state: SUCCESS
+  type: PRIMITIVE
+---
+context: TESTING
+datasets:
+- digest: fa66f874aa29a34325bdf8a2105969112d0df9897b48751a8d5caaa26ae26ac7
+  id: 30_personae_dataset_TEST
+end: '2020-01-12T18:57:25.854851Z'
+environment:
+  engine_version: 5143f80683704472c7efe6adcf32b080fff3ebae
+  id: 3bd0563f-ce89-54be-bedb-8c75e4c2088f
+  reference_engine_version: 5143f80683704472c7efe6adcf32b080fff3ebae
+  resources:
+    cpu:
+      configured_available: '15'
+      constraints:
+        cpu_shares: 1024
+      devices:
+      - name: Intel(R) Core(TM) i7-7700HQ CPU @ 2.80GHz
+      logical_present: 1
+      physical_present: 1
+    memory:
+      configured_memory: '50'
+      total_memory: 2094428160
+  worker_id: f5ffb488-a883-509d-ad4f-5e819913cb14
+id: cc8bb407-e885-5e9e-9574-6ce77c4c15d5
+pipeline:
+  digest: 3807352de11e0ea4adea52c93d5ce27d4e3917d53a9a112bcbf6e84b0c54b3e8
+  id: d2b08650-6d1b-49f8-977e-2786a8b82b4c
+previous_pipeline_run:
+  id: 8ce7df18-c9fc-5a18-8da6-1dd24d2c4a28
+problem:
+  digest: 82a15fdc227a1a0968f50d94bba67f72a4148d38cbf24b2ca774a45547d5bb8a
+  id: 30_personae_problem
+random_seed: 0
+run:
+  is_standard_pipeline: true
+  phase: PRODUCE
+  results:
+    predictions:
+      header:
+      - d3mIndex
+      - extrovert
+      values:
+      - - 140
+        - 107
+        - 23
+        - 80
+        - 124
+        - 61
+        - 1
+        - 138
+        - 56
+        - 100
+        - 137
+        - 20
+        - 2
+        - 74
+        - 92
+        - 6
+        - 113
+        - 45
+        - 73
+        - 0
+        - 120
+        - 9
+        - 26
+        - 99
+        - 93
+        - 47
+        - 112
+        - 89
+        - 21
+      - - '0'
+        - '1'
+        - '0'
+        - '0'
+        - '1'
+        - '1'
+        - '1'
+        - '0'
+        - '0'
+        - '0'
+        - '0'
+        - '1'
+        - '1'
+        - '1'
+        - '0'
+        - '0'
+        - '1'
+        - '0'
+        - '0'
+        - '0'
+        - '0'
+        - '1'
+        - '0'
+        - '1'
+        - '1'
+        - '0'
+        - '0'
+        - '1'
+        - '0'
+    scores:
+    - metric:
+        metric: F1
+        params:
+          pos_label: '1'
+      normalized: 0.9600000000000001
+      value: 0.9600000000000001
+  scoring:
+    datasets:
+    - digest: fa66f874aa29a34325bdf8a2105969112d0df9897b48751a8d5caaa26ae26ac7
+      id: 30_personae_dataset_SCORE
+    end: '2020-01-12T18:57:25.906637Z'
+    pipeline:
+      digest: bedb3d52578f9971a8f4d5c077e2d41970c419f7af69a5da6e2f5d047ba43341
+      id: f596cd77-25f8-4d4c-a350-bb30ab1e58f6
+    random_seed: 0
+    start: '2020-01-12T18:57:25.874288Z'
+    status:
+      state: SUCCESS
+    steps:
+    - end: '2020-01-12T18:57:25.906617Z'
+      hyperparams:
+        add_normalized_scores:
+          data: true
+          type: VALUE
+        metrics:
+          data:
+          - k: null
+            metric: F1
+            pos_label: '1'
+          type: VALUE
+      method_calls:
+      - end: '2020-01-12T18:57:25.877202Z'
+        logging: []
+        name: __init__
+        start: '2020-01-12T18:57:25.877060Z'
+        status:
+          state: SUCCESS
+      - end: '2020-01-12T18:57:25.905673Z'
+        logging: []
+        metadata:
+          produce:
+          - metadata:
+              dimension:
+                length: 1
+                name: rows
+                semantic_types:
+                - https://metadata.datadrivendiscovery.org/types/TabularRow
+              schema: https://metadata.datadrivendiscovery.org/schemas/v0/container.json
+              semantic_types:
+              - https://metadata.datadrivendiscovery.org/types/Table
+              structural_type: d3m.container.pandas.DataFrame
+            selector: []
+          - metadata:
+              dimension:
+                length: 3
+                name: columns
+                semantic_types:
+                - https://metadata.datadrivendiscovery.org/types/TabularColumn
+            selector:
+            - __ALL_ELEMENTS__
+          - metadata:
+              name: metric
+              semantic_types:
+              - https://metadata.datadrivendiscovery.org/types/PrimaryMultiKey
+              structural_type: str
+            selector:
+            - __ALL_ELEMENTS__
+            - 0
+          - metadata:
+              name: value
+              semantic_types:
+              - https://metadata.datadrivendiscovery.org/types/Score
+              structural_type: numpy.float64
+            selector:
+            - __ALL_ELEMENTS__
+            - 1
+          - metadata:
+              name: normalized
+              semantic_types:
+              - https://metadata.datadrivendiscovery.org/types/Score
+              structural_type: numpy.float64
+            selector:
+            - __ALL_ELEMENTS__
+            - 2
+        name: fit_multi_produce
+        start: '2020-01-12T18:57:25.877957Z'
+        status:
+          state: SUCCESS
+      random_seed: 0
+      start: '2020-01-12T18:57:25.874304Z'
+      status:
+        state: SUCCESS
+      type: PRIMITIVE
+schema: https://metadata.datadrivendiscovery.org/schemas/v0/pipeline_run.json
+start: '2020-01-12T18:57:22.109917Z'
+status:
+  state: SUCCESS
+steps:
+- end: '2020-01-12T18:57:22.119980Z'
+  method_calls:
+  - end: '2020-01-12T18:57:22.118284Z'
+    logging: []
+    metadata:
+      produce:
+      - metadata:
+          approximate_stored_size: 1360000
+          digest: fa66f874aa29a34325bdf8a2105969112d0df9897b48751a8d5caaa26ae26ac7
+          dimension:
+            length: 1
+            name: resources
+            semantic_types:
+            - https://metadata.datadrivendiscovery.org/types/DatasetResource
+          id: 30_personae_dataset_TEST
+          location_uris:
+          - file:///input/30_personae/TEST/dataset_TEST/datasetDoc.json
+          name: 'NULL'
+          schema: https://metadata.datadrivendiscovery.org/schemas/v0/container.json
+          source:
+            license: Creative Commons
+            redacted: true
+          structural_type: d3m.container.dataset.Dataset
+          version: '2.0'
+        selector: []
+      - metadata:
+          dimension:
+            length: 29
+            name: rows
+            semantic_types:
+            - https://metadata.datadrivendiscovery.org/types/TabularRow
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/Table
+          - https://metadata.datadrivendiscovery.org/types/DatasetEntryPoint
+          structural_type: d3m.container.pandas.DataFrame
+        selector:
+        - learningData
+      - metadata:
+          dimension:
+            length: 7
+            name: columns
+            semantic_types:
+            - https://metadata.datadrivendiscovery.org/types/TabularColumn
+        selector:
+        - learningData
+        - __ALL_ELEMENTS__
+      - metadata:
+          name: d3mIndex
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/PrimaryKey
+          structural_type: str
+        selector:
+        - learningData
+        - __ALL_ELEMENTS__
+        - 0
+      - metadata:
+          location_base_uris:
+          - file:///input/30_personae/TEST/dataset_TEST/text/
+          media_types:
+          - text/plain
+          name: filename
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/FileName
+          - http://schema.org/Text
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          - https://metadata.datadrivendiscovery.org/types/UniqueKey
+          structural_type: str
+        selector:
+        - learningData
+        - __ALL_ELEMENTS__
+        - 1
+      - metadata:
+          name: text_language
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/CategoricalData
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: str
+        selector:
+        - learningData
+        - __ALL_ELEMENTS__
+        - 2
+      - metadata:
+          name: author_gender
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/CategoricalData
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: str
+        selector:
+        - learningData
+        - __ALL_ELEMENTS__
+        - 3
+      - metadata:
+          name: author_language
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/CategoricalData
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: str
+        selector:
+        - learningData
+        - __ALL_ELEMENTS__
+        - 4
+      - metadata:
+          name: author_region
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/CategoricalData
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: str
+        selector:
+        - learningData
+        - __ALL_ELEMENTS__
+        - 5
+      - metadata:
+          name: extrovert
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/CategoricalData
+          - https://metadata.datadrivendiscovery.org/types/SuggestedTarget
+          - https://metadata.datadrivendiscovery.org/types/Target
+          - https://metadata.datadrivendiscovery.org/types/TrueTarget
+          structural_type: str
+        selector:
+        - learningData
+        - __ALL_ELEMENTS__
+        - 6
+    name: multi_produce
+    start: '2020-01-12T18:57:22.110424Z'
+    status:
+      state: SUCCESS
+  start: '2020-01-12T18:57:22.109989Z'
+  status:
+    state: SUCCESS
+  type: PRIMITIVE
+- end: '2020-01-12T18:57:22.124494Z'
+  method_calls:
+  - end: '2020-01-12T18:57:22.121974Z'
+    logging: []
+    metadata:
+      produce:
+      - metadata:
+          dimension:
+            length: 29
+            name: rows
+            semantic_types:
+            - https://metadata.datadrivendiscovery.org/types/TabularRow
+          schema: https://metadata.datadrivendiscovery.org/schemas/v0/container.json
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/Table
+          structural_type: d3m.container.pandas.DataFrame
+        selector: []
+      - metadata:
+          dimension:
+            length: 7
+            name: columns
+            semantic_types:
+            - https://metadata.datadrivendiscovery.org/types/TabularColumn
+        selector:
+        - __ALL_ELEMENTS__
+      - metadata:
+          name: d3mIndex
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/PrimaryKey
+          structural_type: str
+        selector:
+        - __ALL_ELEMENTS__
+        - 0
+      - metadata:
+          location_base_uris:
+          - file:///input/30_personae/TEST/dataset_TEST/text/
+          media_types:
+          - text/plain
+          name: filename
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/FileName
+          - http://schema.org/Text
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          - https://metadata.datadrivendiscovery.org/types/UniqueKey
+          structural_type: str
+        selector:
+        - __ALL_ELEMENTS__
+        - 1
+      - metadata:
+          name: text_language
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/CategoricalData
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: str
+        selector:
+        - __ALL_ELEMENTS__
+        - 2
+      - metadata:
+          name: author_gender
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/CategoricalData
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: str
+        selector:
+        - __ALL_ELEMENTS__
+        - 3
+      - metadata:
+          name: author_language
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/CategoricalData
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: str
+        selector:
+        - __ALL_ELEMENTS__
+        - 4
+      - metadata:
+          name: author_region
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/CategoricalData
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: str
+        selector:
+        - __ALL_ELEMENTS__
+        - 5
+      - metadata:
+          name: extrovert
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/CategoricalData
+          - https://metadata.datadrivendiscovery.org/types/SuggestedTarget
+          - https://metadata.datadrivendiscovery.org/types/Target
+          - https://metadata.datadrivendiscovery.org/types/TrueTarget
+          structural_type: str
+        selector:
+        - __ALL_ELEMENTS__
+        - 6
+    name: multi_produce
+    start: '2020-01-12T18:57:22.120417Z'
+    status:
+      state: SUCCESS
+  start: '2020-01-12T18:57:22.120007Z'
+  status:
+    state: SUCCESS
+  type: PRIMITIVE
+- end: '2020-01-12T18:57:22.130600Z'
+  method_calls:
+  - end: '2020-01-12T18:57:22.128028Z'
+    logging: []
+    metadata:
+      produce:
+      - metadata:
+          dimension:
+            length: 29
+            name: rows
+            semantic_types:
+            - https://metadata.datadrivendiscovery.org/types/TabularRow
+          schema: https://metadata.datadrivendiscovery.org/schemas/v0/container.json
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/Table
+          structural_type: d3m.container.pandas.DataFrame
+        selector: []
+      - metadata:
+          dimension:
+            length: 6
+            name: columns
+            semantic_types:
+            - https://metadata.datadrivendiscovery.org/types/TabularColumn
+        selector:
+        - __ALL_ELEMENTS__
+      - metadata:
+          name: d3mIndex
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/PrimaryKey
+          structural_type: str
+        selector:
+        - __ALL_ELEMENTS__
+        - 0
+      - metadata:
+          location_base_uris:
+          - file:///input/30_personae/TEST/dataset_TEST/text/
+          media_types:
+          - text/plain
+          name: filename
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/FileName
+          - http://schema.org/Text
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          - https://metadata.datadrivendiscovery.org/types/UniqueKey
+          structural_type: str
+        selector:
+        - __ALL_ELEMENTS__
+        - 1
+      - metadata:
+          name: text_language
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/CategoricalData
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: str
+        selector:
+        - __ALL_ELEMENTS__
+        - 2
+      - metadata:
+          name: author_gender
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/CategoricalData
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: str
+        selector:
+        - __ALL_ELEMENTS__
+        - 3
+      - metadata:
+          name: author_language
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/CategoricalData
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: str
+        selector:
+        - __ALL_ELEMENTS__
+        - 4
+      - metadata:
+          name: author_region
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/CategoricalData
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: str
+        selector:
+        - __ALL_ELEMENTS__
+        - 5
+    name: multi_produce
+    start: '2020-01-12T18:57:22.125329Z'
+    status:
+      state: SUCCESS
+  start: '2020-01-12T18:57:22.124531Z'
+  status:
+    state: SUCCESS
+  type: PRIMITIVE
+- end: '2020-01-12T18:57:22.138108Z'
+  method_calls:
+  - end: '2020-01-12T18:57:22.136301Z'
+    logging: []
+    metadata:
+      produce:
+      - metadata:
+          dimension:
+            length: 29
+            name: rows
+            semantic_types:
+            - https://metadata.datadrivendiscovery.org/types/TabularRow
+          schema: https://metadata.datadrivendiscovery.org/schemas/v0/container.json
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/Table
+          structural_type: d3m.container.pandas.DataFrame
+        selector: []
+      - metadata:
+          dimension:
+            length: 6
+            name: columns
+            semantic_types:
+            - https://metadata.datadrivendiscovery.org/types/TabularColumn
+        selector:
+        - __ALL_ELEMENTS__
+      - metadata:
+          name: d3mIndex
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/PrimaryKey
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 0
+      - metadata:
+          location_base_uris:
+          - file:///input/30_personae/TEST/dataset_TEST/text/
+          media_types:
+          - text/plain
+          name: filename
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/FileName
+          - http://schema.org/Text
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          - https://metadata.datadrivendiscovery.org/types/UniqueKey
+          structural_type: str
+        selector:
+        - __ALL_ELEMENTS__
+        - 1
+      - metadata:
+          name: text_language
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/CategoricalData
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: str
+        selector:
+        - __ALL_ELEMENTS__
+        - 2
+      - metadata:
+          name: author_gender
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/CategoricalData
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: str
+        selector:
+        - __ALL_ELEMENTS__
+        - 3
+      - metadata:
+          name: author_language
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/CategoricalData
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: str
+        selector:
+        - __ALL_ELEMENTS__
+        - 4
+      - metadata:
+          name: author_region
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/CategoricalData
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: str
+        selector:
+        - __ALL_ELEMENTS__
+        - 5
+    name: multi_produce
+    start: '2020-01-12T18:57:22.132486Z'
+    status:
+      state: SUCCESS
+  start: '2020-01-12T18:57:22.130633Z'
+  status:
+    state: SUCCESS
+  type: PRIMITIVE
+- end: '2020-01-12T18:57:22.200088Z'
+  method_calls:
+  - end: '2020-01-12T18:57:22.196690Z'
+    logging:
+    - args: []
+      asctime: 2020-01-12 18:57:22,141
+      created: 1578855442.1417568
+      filename: utils.py
+      funcName: write
+      levelname: ERROR
+      levelno: 40
+      lineno: 799
+      message: '/usr/local/lib/python3.6/dist-packages/pandas/core/generic.py:5191:
+        FutureWarning: Attribute ''is_copy'' is deprecated and will be removed in
+        a future version.'
+      module: utils
+      msecs: 141.75677299499512
+      msg: '/usr/local/lib/python3.6/dist-packages/pandas/core/generic.py:5191: FutureWarning:
+        Attribute ''is_copy'' is deprecated and will be removed in a future version.'
+      name: redirect
+      pathname: /src/d3m/d3m/utils.py
+      process: 2667
+      processName: MainProcess
+      relativeCreated: 49172.87993431091
+      thread: 140068804892480
+      threadName: MainThread
+    - args: []
+      asctime: 2020-01-12 18:57:22,143
+      created: 1578855442.1433663
+      filename: utils.py
+      funcName: write
+      levelname: ERROR
+      levelno: 40
+      lineno: 799
+      message: '  object.__getattribute__(self, name)'
+      module: utils
+      msecs: 143.36633682250977
+      msg: '  object.__getattribute__(self, name)'
+      name: redirect
+      pathname: /src/d3m/d3m/utils.py
+      process: 2667
+      processName: MainProcess
+      relativeCreated: 49174.48949813843
+      thread: 140068804892480
+      threadName: MainThread
+    - args: []
+      asctime: 2020-01-12 18:57:22,145
+      created: 1578855442.1451404
+      filename: utils.py
+      funcName: write
+      levelname: ERROR
+      levelno: 40
+      lineno: 799
+      message: '/usr/local/lib/python3.6/dist-packages/pandas/core/generic.py:5192:
+        FutureWarning: Attribute ''is_copy'' is deprecated and will be removed in
+        a future version.'
+      module: utils
+      msecs: 145.1404094696045
+      msg: '/usr/local/lib/python3.6/dist-packages/pandas/core/generic.py:5192: FutureWarning:
+        Attribute ''is_copy'' is deprecated and will be removed in a future version.'
+      name: redirect
+      pathname: /src/d3m/d3m/utils.py
+      process: 2667
+      processName: MainProcess
+      relativeCreated: 49176.26357078552
+      thread: 140068804892480
+      threadName: MainThread
+    - args: []
+      asctime: 2020-01-12 18:57:22,146
+      created: 1578855442.1467776
+      filename: utils.py
+      funcName: write
+      levelname: ERROR
+      levelno: 40
+      lineno: 799
+      message: '  return object.__setattr__(self, name, value)'
+      module: utils
+      msecs: 146.77762985229492
+      msg: '  return object.__setattr__(self, name, value)'
+      name: redirect
+      pathname: /src/d3m/d3m/utils.py
+      process: 2667
+      processName: MainProcess
+      relativeCreated: 49177.90079116821
+      thread: 140068804892480
+      threadName: MainThread
+    metadata:
+      produce:
+      - metadata:
+          dimension:
+            length: 29
+            name: rows
+            semantic_types:
+            - https://metadata.datadrivendiscovery.org/types/TabularRow
+          schema: https://metadata.datadrivendiscovery.org/schemas/v0/container.json
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/Table
+          structural_type: d3m.container.pandas.DataFrame
+        selector: []
+      - metadata:
+          dimension:
+            length: 17
+            name: columns
+            semantic_types:
+            - https://metadata.datadrivendiscovery.org/types/TabularColumn
+        selector:
+        - __ALL_ELEMENTS__
+      - metadata:
+          name: d3mIndex
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/PrimaryKey
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 0
+      - metadata:
+          location_base_uris:
+          - file:///input/30_personae/TEST/dataset_TEST/text/
+          media_types:
+          - text/plain
+          name: filename
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/FileName
+          - http://schema.org/Text
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          - https://metadata.datadrivendiscovery.org/types/UniqueKey
+          structural_type: str
+        selector:
+        - __ALL_ELEMENTS__
+        - 1
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 2
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 3
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 4
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 5
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 6
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 7
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 8
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 9
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 10
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 11
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 12
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 13
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 14
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 15
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 16
+    name: multi_produce
+    start: '2020-01-12T18:57:22.138741Z'
+    status:
+      state: SUCCESS
+  start: '2020-01-12T18:57:22.138140Z'
+  status:
+    state: SUCCESS
+  type: PRIMITIVE
+- end: '2020-01-12T18:57:25.742230Z'
+  method_calls:
+  - end: '2020-01-12T18:57:25.737456Z'
+    logging: []
+    metadata:
+      produce:
+      - metadata:
+          dimension:
+            length: 29
+            name: rows
+            semantic_types:
+            - https://metadata.datadrivendiscovery.org/types/TabularRow
+          schema: https://metadata.datadrivendiscovery.org/schemas/v0/container.json
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/Table
+          structural_type: d3m.container.pandas.DataFrame
+        selector: []
+      - metadata:
+          dimension:
+            length: 41
+            name: columns
+            semantic_types:
+            - https://metadata.datadrivendiscovery.org/types/TabularColumn
+        selector:
+        - __ALL_ELEMENTS__
+      - metadata:
+          name: d3mIndex
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/PrimaryKey
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 0
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 1
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 2
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 3
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 4
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 5
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 6
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 7
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 8
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 9
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 10
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 11
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 12
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 13
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 14
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 15
+      - metadata:
+          name: corex_17
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 16
+      - metadata:
+          name: corex_18
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 17
+      - metadata:
+          name: corex_19
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 18
+      - metadata:
+          name: corex_20
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 19
+      - metadata:
+          name: corex_21
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 20
+      - metadata:
+          name: corex_22
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 21
+      - metadata:
+          name: corex_23
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 22
+      - metadata:
+          name: corex_24
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 23
+      - metadata:
+          name: corex_25
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 24
+      - metadata:
+          name: corex_26
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 25
+      - metadata:
+          name: corex_27
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 26
+      - metadata:
+          name: corex_28
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 27
+      - metadata:
+          name: corex_29
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 28
+      - metadata:
+          name: corex_30
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 29
+      - metadata:
+          name: corex_31
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 30
+      - metadata:
+          name: corex_32
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 31
+      - metadata:
+          name: corex_33
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 32
+      - metadata:
+          name: corex_34
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 33
+      - metadata:
+          name: corex_35
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 34
+      - metadata:
+          name: corex_36
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 35
+      - metadata:
+          name: corex_37
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 36
+      - metadata:
+          name: corex_38
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 37
+      - metadata:
+          name: corex_39
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 38
+      - metadata:
+          name: corex_40
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 39
+      - metadata:
+          name: corex_41
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 40
+    name: multi_produce
+    start: '2020-01-12T18:57:22.200729Z'
+    status:
+      state: SUCCESS
+  start: '2020-01-12T18:57:22.200119Z'
+  status:
+    state: SUCCESS
+  type: PRIMITIVE
+- end: '2020-01-12T18:57:25.781347Z'
+  method_calls:
+  - end: '2020-01-12T18:57:25.776513Z'
+    logging: []
+    metadata:
+      produce:
+      - metadata:
+          dimension:
+            length: 29
+            name: rows
+            semantic_types:
+            - https://metadata.datadrivendiscovery.org/types/TabularRow
+          schema: https://metadata.datadrivendiscovery.org/schemas/v0/container.json
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/Table
+          structural_type: d3m.container.pandas.DataFrame
+        selector: []
+      - metadata:
+          dimension:
+            length: 41
+            name: columns
+            semantic_types:
+            - https://metadata.datadrivendiscovery.org/types/TabularColumn
+        selector:
+        - __ALL_ELEMENTS__
+      - metadata:
+          name: d3mIndex
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/PrimaryKey
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 0
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 1
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 2
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 3
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 4
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 5
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 6
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 7
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 8
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 9
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 10
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 11
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 12
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 13
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 14
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 15
+      - metadata:
+          name: corex_17
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 16
+      - metadata:
+          name: corex_18
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 17
+      - metadata:
+          name: corex_19
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 18
+      - metadata:
+          name: corex_20
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 19
+      - metadata:
+          name: corex_21
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 20
+      - metadata:
+          name: corex_22
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 21
+      - metadata:
+          name: corex_23
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 22
+      - metadata:
+          name: corex_24
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 23
+      - metadata:
+          name: corex_25
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 24
+      - metadata:
+          name: corex_26
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 25
+      - metadata:
+          name: corex_27
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 26
+      - metadata:
+          name: corex_28
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 27
+      - metadata:
+          name: corex_29
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 28
+      - metadata:
+          name: corex_30
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 29
+      - metadata:
+          name: corex_31
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 30
+      - metadata:
+          name: corex_32
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 31
+      - metadata:
+          name: corex_33
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 32
+      - metadata:
+          name: corex_34
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 33
+      - metadata:
+          name: corex_35
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 34
+      - metadata:
+          name: corex_36
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 35
+      - metadata:
+          name: corex_37
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 36
+      - metadata:
+          name: corex_38
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 37
+      - metadata:
+          name: corex_39
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 38
+      - metadata:
+          name: corex_40
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 39
+      - metadata:
+          name: corex_41
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 40
+    name: multi_produce
+    start: '2020-01-12T18:57:25.742709Z'
+    status:
+      state: SUCCESS
+  start: '2020-01-12T18:57:25.742284Z'
+  status:
+    state: SUCCESS
+  type: PRIMITIVE
+- end: '2020-01-12T18:57:25.837298Z'
+  method_calls:
+  - end: '2020-01-12T18:57:25.831306Z'
+    logging: []
+    metadata:
+      produce:
+      - metadata:
+          dimension:
+            length: 29
+            name: rows
+            semantic_types:
+            - https://metadata.datadrivendiscovery.org/types/TabularRow
+          schema: https://metadata.datadrivendiscovery.org/schemas/v0/container.json
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/Table
+          structural_type: d3m.container.pandas.DataFrame
+        selector: []
+      - metadata:
+          dimension:
+            length: 41
+            name: columns
+            semantic_types:
+            - https://metadata.datadrivendiscovery.org/types/TabularColumn
+        selector:
+        - __ALL_ELEMENTS__
+      - metadata:
+          name: d3mIndex
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/PrimaryKey
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 0
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 1
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 2
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 3
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 4
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 5
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 6
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 7
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 8
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 9
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 10
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 11
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 12
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 13
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 14
+      - metadata:
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 15
+      - metadata:
+          name: corex_17
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 16
+      - metadata:
+          name: corex_18
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 17
+      - metadata:
+          name: corex_19
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 18
+      - metadata:
+          name: corex_20
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 19
+      - metadata:
+          name: corex_21
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 20
+      - metadata:
+          name: corex_22
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 21
+      - metadata:
+          name: corex_23
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 22
+      - metadata:
+          name: corex_24
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 23
+      - metadata:
+          name: corex_25
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 24
+      - metadata:
+          name: corex_26
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 25
+      - metadata:
+          name: corex_27
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 26
+      - metadata:
+          name: corex_28
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 27
+      - metadata:
+          name: corex_29
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 28
+      - metadata:
+          name: corex_30
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 29
+      - metadata:
+          name: corex_31
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 30
+      - metadata:
+          name: corex_32
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 31
+      - metadata:
+          name: corex_33
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 32
+      - metadata:
+          name: corex_34
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 33
+      - metadata:
+          name: corex_35
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 34
+      - metadata:
+          name: corex_36
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 35
+      - metadata:
+          name: corex_37
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 36
+      - metadata:
+          name: corex_38
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 37
+      - metadata:
+          name: corex_39
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 38
+      - metadata:
+          name: corex_40
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 39
+      - metadata:
+          name: corex_41
+          semantic_types:
+          - http://schema.org/Float
+          - https://metadata.datadrivendiscovery.org/types/Attribute
+          structural_type: float
+        selector:
+        - __ALL_ELEMENTS__
+        - 40
+    name: multi_produce
+    start: '2020-01-12T18:57:25.781888Z'
+    status:
+      state: SUCCESS
+  start: '2020-01-12T18:57:25.781373Z'
+  status:
+    state: SUCCESS
+  type: PRIMITIVE
+- end: '2020-01-12T18:57:25.840194Z'
+  method_calls:
+  - end: '2020-01-12T18:57:25.839526Z'
+    logging: []
+    metadata:
+      produce:
+      - metadata:
+          dimension:
+            length: 29
+            name: rows
+            semantic_types:
+            - https://metadata.datadrivendiscovery.org/types/TabularRow
+          schema: https://metadata.datadrivendiscovery.org/schemas/v0/container.json
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/Table
+          structural_type: d3m.container.pandas.DataFrame
+        selector: []
+      - metadata:
+          dimension:
+            length: 1
+            name: columns
+            semantic_types:
+            - https://metadata.datadrivendiscovery.org/types/TabularColumn
+        selector:
+        - __ALL_ELEMENTS__
+      - metadata:
+          name: extrovert
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/CategoricalData
+          - https://metadata.datadrivendiscovery.org/types/SuggestedTarget
+          - https://metadata.datadrivendiscovery.org/types/Target
+          - https://metadata.datadrivendiscovery.org/types/TrueTarget
+          structural_type: str
+        selector:
+        - __ALL_ELEMENTS__
+        - 0
+    name: multi_produce
+    start: '2020-01-12T18:57:25.837872Z'
+    status:
+      state: SUCCESS
+  start: '2020-01-12T18:57:25.837327Z'
+  status:
+    state: SUCCESS
+  type: PRIMITIVE
+- end: '2020-01-12T18:57:25.842330Z'
+  method_calls:
+  - end: '2020-01-12T18:57:25.841775Z'
+    logging: []
+    metadata:
+      produce:
+      - metadata:
+          dimension:
+            length: 29
+            name: rows
+            semantic_types:
+            - https://metadata.datadrivendiscovery.org/types/TabularRow
+          schema: https://metadata.datadrivendiscovery.org/schemas/v0/container.json
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/Table
+          structural_type: d3m.container.pandas.DataFrame
+        selector: []
+      - metadata:
+          dimension:
+            length: 1
+            name: columns
+            semantic_types:
+            - https://metadata.datadrivendiscovery.org/types/TabularColumn
+        selector:
+        - __ALL_ELEMENTS__
+      - metadata:
+          name: extrovert
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/CategoricalData
+          - https://metadata.datadrivendiscovery.org/types/SuggestedTarget
+          - https://metadata.datadrivendiscovery.org/types/Target
+          - https://metadata.datadrivendiscovery.org/types/TrueTarget
+          structural_type: str
+        selector:
+        - __ALL_ELEMENTS__
+        - 0
+    name: multi_produce
+    start: '2020-01-12T18:57:25.840634Z'
+    status:
+      state: SUCCESS
+  start: '2020-01-12T18:57:25.840211Z'
+  status:
+    state: SUCCESS
+  type: PRIMITIVE
+- end: '2020-01-12T18:57:25.854831Z'
+  method_calls:
+  - end: '2020-01-12T18:57:25.854098Z'
+    logging: []
+    metadata:
+      produce:
+      - metadata:
+          dimension:
+            length: 29
+            name: rows
+            semantic_types:
+            - https://metadata.datadrivendiscovery.org/types/TabularRow
+          schema: https://metadata.datadrivendiscovery.org/schemas/v0/container.json
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/Table
+          structural_type: d3m.container.pandas.DataFrame
+        selector: []
+      - metadata:
+          dimension:
+            length: 2
+            name: columns
+            semantic_types:
+            - https://metadata.datadrivendiscovery.org/types/TabularColumn
+        selector:
+        - __ALL_ELEMENTS__
+      - metadata:
+          name: d3mIndex
+          semantic_types:
+          - http://schema.org/Integer
+          - https://metadata.datadrivendiscovery.org/types/PrimaryKey
+          structural_type: int
+        selector:
+        - __ALL_ELEMENTS__
+        - 0
+      - metadata:
+          name: extrovert
+          semantic_types:
+          - https://metadata.datadrivendiscovery.org/types/CategoricalData
+          - https://metadata.datadrivendiscovery.org/types/Target
+          - https://metadata.datadrivendiscovery.org/types/PredictedTarget
+          structural_type: str
+        selector:
+        - __ALL_ELEMENTS__
+        - 1
+    name: multi_produce
+    start: '2020-01-12T18:57:25.843495Z'
+    status:
+      state: SUCCESS
+  start: '2020-01-12T18:57:25.842344Z'
+  status:
+    state: SUCCESS
+  type: PRIMITIVE
