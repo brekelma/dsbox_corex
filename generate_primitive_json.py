@@ -1,10 +1,10 @@
-#!/usr/bin/env python3
+'0;95;0c#!/usr/bin/env python3
 
 import argparse
 import os.path
 import subprocess
 
-import dsbox_corex.config as _config
+import dsbox_corex._config as config
 
 # from dsbox_dev_setup import path_setup
 # path_setup()
