@@ -49,8 +49,8 @@ class CorexText_Hyperparams(hyperparams.Hyperparams):
     # number of Corex latent factors
     n_hidden = UniformInt(
         lower = 1, 
-        upper = 100, 
-        default = 10, 
+        upper = 301, 
+        default = 30, 
         description = 'number of topics', 
         semantic_types=["http://schema.org/Integer", 'https://metadata.datadrivendiscovery.org/types/TuningParameter']
     )
