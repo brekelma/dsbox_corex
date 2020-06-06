@@ -32,6 +32,7 @@ from tensorflow.keras.optimizers import Adam, SGD
 from tensorflow.keras.utils import to_categorical
 import tempfile
 from sklearn import preprocessing
+from sklearn.preprocessing.label import LabelEncoder
 
 import git
 #from common_primitives import utils
@@ -64,7 +65,7 @@ class EchoIB_Params(params.Params):
     model: typing.Union[keras.models.Model, None]
     model_weights: typing.Union[Any,None]
     fitted: typing.Union[bool, None] #bool
-    label_encode: typing.Union[preprocessing.LabelEncoder, None]
+    label_encode: typing.Union[LabelEncoder, None]
     output_columns: typing.Union[list, pd.Index, None]
     #max_discrete_labels: int
     # add support for resuming training / storing model information
@@ -460,7 +461,7 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
 
         if 'classification' in self.hyperparams['task'].lower():
             self._label_unique = np.unique(outputs.values).shape[0]
-            self.label_encode = preprocessing.LabelEncoder()
+            self.label_encode = LabelEncoder()
             self.training_outputs = to_categorical(self.label_encode.fit_transform(outputs.values), num_classes = np.unique(outputs.values).shape[0])
         else:
             self.training_outputs = outputs.values
