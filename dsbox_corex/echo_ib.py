@@ -32,7 +32,7 @@ from tensorflow.keras.optimizers import Adam, SGD
 from tensorflow.keras.utils import to_categorical
 import tempfile
 from sklearn import preprocessing
-from sklearn.preprocessing.label import skLabelEncoder
+from sklearn.preprocessing.label import LabelEncoder as skLabelEncoder
 
 import git
 #from common_primitives import utils
