@@ -1,5 +1,13 @@
-import tensorflow.compat.v1 as tf
-tf.disable_v2_behavior()
+import tensorflow as tf
+#import tensorflow.compat.v1 as tf
+#tf.disable_v2_behavior()
+#import os
+#os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+#try:
+#    from tensorflow.python.util import module_wrapper as deprecation
+#except ImportError:
+#    from tensorflow.python.util import deprecation_wrapper as deprecation
+#deprecation._PER_MODULE_WARNING_LIMIT = 0
 
 import os
 import copy
@@ -46,7 +54,7 @@ from d3m.metadata.hyperparams import Uniform, UniformInt, Union, Enumeration, Un
 
 import dsbox_corex._config as cfg_
 
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+#os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 #os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 Input = container.DataFrame
@@ -115,18 +123,18 @@ class EchoIB_Hyperparams(hyperparams.Hyperparams):
     )
 
 
-class ZeroAnneal(Callback):
-    def __init__(self, lw = 1, index = 0, epochs = 10, scaled = 0.0):#1):
-        self.lw = tf.constant(lw, dtype = tf.float32)
-        self.zero_epochs = epochs
-        self.ind = index
-        self.replace = scaled*lw
+# class ZeroAnneal(Callback):
+#     def __init__(self, lw = 1, index = 0, epochs = 10, scaled = 0.0):#1):
+#         self.lw = tf.constant(lw, dtype = tf.float32)
+#         self.zero_epochs = epochs
+#         self.ind = index
+#         self.replace = scaled*lw
         
-    def on_epoch_begin(self, epoch, logs={}):
-        if epoch < self.zero_epochs:
-            tf.assign(self.model.loss_weights[self.ind], tf.constant(self.replace, dtype = tf.float32)).eval(session=get_session())
-        else:
-            tf.assign(self.model.loss_weights[self.ind],self.lw).eval(session=get_session())
+#     def on_epoch_begin(self, epoch, logs={}):
+#         if epoch < self.zero_epochs:
+#             tf.assign(self.model.loss_weights[self.ind], tf.constant(self.replace, dtype = tf.float32)).eval(session=get_session())
+#         else:
+#             tf.assign(self.model.loss_weights[self.ind],self.lw).eval(session=get_session())
 
 
                 
@@ -199,6 +207,7 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
         "description": "Autoencoder implementation of Information Bottleneck using Echo Noise: https://arxiv.org/abs/1904.07199.  Can be used for feature construction with the task of classification or regression.  Image featurization and collaborative filtering in prep.  Returns embedding of size n_hidden, alongside predictions (which can be used with downstream modeling primitive).  Beta hyperparam controls regularization: Loss = task_loss - beta * I(X:Z)",
         "python_path": "d3m.primitives.feature_construction.echo_ib.DSBOX",
         "original_python_path": "echo_ib.EchoIB",
+        "can_use_gpus": True,
         "source": {
             "name": "ISI",
             "contact": "mailto:brekelma@usc.edu",
@@ -232,7 +241,7 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
         self._batch = int(self.hyperparams['batch']) #20
         self._epochs = None # HYPERPARAM?
         self._noise = 'echo'
-        self._kl_warmup = 1 # .1 * kl reg for first _ epochs
+        self._kl_warmup = 0 # .1 * kl reg for first _ epochs
         self._anneal_sched = None # not supported
         self._echo_args = {'batch': self._batch, 'd_max': self._batch, 'nomc': True, 'calc_log': True, 'plus_sx': True}
 
@@ -293,7 +302,7 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
             z_noise = Dense(self._latent_dims[-1], activation = z_var_act, name = 'z_noise', bias_initializer = 'ones')(t)
             z_act = Lambda(echo_sample, arguments = self._echo_args, output_shape = (self._latent_dims[-1],), name = 'z_act')([z_mean, z_noise])
 
-        t = z_act
+        t = Input(tensor=z_act)
         for i in range(len(self._decoder_dims)):
             t = Dense(self._decoder_dims[i], name = 'decoder_'+str(i), activation = self._activation)(t) 
         
@@ -329,14 +338,16 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
         loss_functions.append(dim_sum)
         loss_weights.append(tf.Variable(self.hyperparams["beta"], dtype = tf.float32, trainable = False))
 
-        if self._kl_warmup is not None and self._kl_warmup > 0:
-            my_callbacks = [ZeroAnneal(lw = self.hyperparams['beta'], index = -1, epochs = self._kl_warmup)] 
-        else:
-            my_callbacks = []
+        #if self._kl_warmup is not None and self._kl_warmup > 0:
+        #    my_callbacks = [ZeroAnneal(lw = self.hyperparams['beta'], index = -1, epochs = self._kl_warmup)] 
+        #else:
+        my_callbacks = []
         my_callbacks.append(keras.callbacks.TerminateOnNaN())
         self.model = keras.models.Model(inputs = x, outputs = outputs)
+        self.enc_model = keras.models.Model(inputs = x, outputs = z_act)
+        self.dec_model = keras.models.Model(inputs = z_inp, outputs = outputs)
         self.model.compile(optimizer = self._optimizer, loss = loss_functions, loss_weights = loss_weights)
-        get_session().run(tf.global_variables_initializer())
+        #get_session().run(tf.global_variables_initializer())
 
         # anneal? 
         if self._anneal_sched:
@@ -359,7 +370,11 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
         outputs = [layer.output for layer in self.model.layers if 'z_mean' in layer.name or 'z_noise' in layer.name]
         functors = [K.function([inp, K.learning_phase()], [out]) for out in outputs]
         dec_inp = [layer.input for layer in self.model.layers if 'decoder_0' in layer.name][0]
-        
+        # directly output sampled latent?
+        output_z = [layer.output for layer in self.model.layers if 'z_act' in layer.name or 'latent_act' in layer.name]
+        functors_z = [K.function([inp, K.learning_phase()], [out]) for out in output_z]
+
+
         preds = [layer.output for layer in self.model.layers if 'y_pred' in layer.name]
         pred_function = K.function([dec_inp, K.learning_phase()], [preds[0]])
 
@@ -369,12 +384,16 @@ class EchoIB(SupervisedLearnerPrimitiveBase[Input, Output, EchoIB_Params, EchoIB
         for i in range(0, inps.shape[0], self._batch):
             data = inps.values[i:i+self._batch]
             z_stats = [func([data, 1.])[0] for func in functors]
-        
+            z_out = [func([data, 1.])[0] for func in functors_z]
+
+
+            z_act = self.enc_model(data)
+            y_pred = self.dec_model(z_act)
             _echo_args = copy.copy(self._echo_args)
             _echo_args['batch'] = data.shape[0]
             _echo_args['d_max'] = data.shape[0]
             
-            z_act = echo_sample(z_stats, **_echo_args).eval(session=get_session())
+            #z_act = echo_sample(z_stats, **_echo_args).eval(session=get_session())
             
             y_pred= pred_function([z_act, 1.])[0]#.eval(session=K.get_session())
             features.extend([z_act[yp] for yp in range(z_act.shape[0])])

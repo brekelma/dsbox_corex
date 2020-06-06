@@ -10,7 +10,10 @@ import numpy as np
 
 from collections import defaultdict, OrderedDict
 from common_primitives import utils
+
 from dsbox_corex.corextext.corex_topic import Corex
+
+from corextext.corex_topic import Corex
 from scipy import sparse as sp
 
 from sklearn import preprocessing
@@ -27,7 +30,9 @@ from d3m.metadata.hyperparams import Uniform, UniformBool, UniformInt, Union, En
 from d3m.primitive_interfaces.base import CallResult
 from d3m.primitive_interfaces.unsupervised_learning import UnsupervisedLearnerPrimitiveBase
 
+
 import dsbox_corex._config as cfg_
+
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 import string
