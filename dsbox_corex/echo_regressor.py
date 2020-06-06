@@ -12,7 +12,7 @@ from collections import defaultdict, OrderedDict
 from common_primitives import utils
 
 from scipy import linalg
-from sklearn.linear_model import LinearModel, RegressorMixin
+#from sklearn.linear_model import LinearModel #, RegressorMixin
 from sklearn.utils import check_consistent_length, check_array, check_X_y
 
 from dsbox_corex.echo_regression.echo_regression import EchoRegression
