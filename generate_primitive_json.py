@@ -23,7 +23,7 @@ PRIMITIVES = [(p, config) for p in [
         'feature_construction.corex_text.DSBOX',
         'regression.echo_linear.DSBOX',
         #'feature_construction.corex_supervised.EchoIBReg',
-        #'feature_construction.echo_ib.DSBOX'
+        'feature_construction.echo_ib.DSBOX'
 ]
 ]
 
