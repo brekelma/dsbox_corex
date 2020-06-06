@@ -11,9 +11,12 @@ import numpy as np
 from collections import defaultdict, OrderedDict
 from common_primitives import utils
 
-from dsbox_corex.corextext.corex_topic import Corex
+try:
+    from dsbox_corex.corextext.corex_topic import Corex
+except:
+    from corextext.corex_topic import Corex
 
-from corextext.corex_topic import Corex
+#from corextext.corex_topic import Corex
 from scipy import sparse as sp
 
 from sklearn import preprocessing
