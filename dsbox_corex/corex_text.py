@@ -66,7 +66,7 @@ class CorexText_Hyperparams(hyperparams.Hyperparams):
     # 
     threshold = Uniform(
         lower = 0,
-        upper = 1000, 
+        upper = 10000, 
         default = 0, 
         q = 1, 
         description = 'threshold for number of columns in the tfidf matrix below which we don`t call CorEx', 
