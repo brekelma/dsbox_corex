@@ -18,7 +18,7 @@ setup(
     packages=find_packages(),
     url='https://github.com/brekelma/dsbox_corex',
     download_url='https://github.com/brekelma/dsbox_corex',
-    install_requires=['pillow==7.1.1'],
+    install_requires=[],
     long_description=long_description,
     include_package_data = True,
     classifiers=[

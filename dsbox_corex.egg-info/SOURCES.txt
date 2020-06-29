@@ -10,7 +10,6 @@ dsbox_corex.egg-info/PKG-INFO
 dsbox_corex.egg-info/SOURCES.txt
 dsbox_corex.egg-info/dependency_links.txt
 dsbox_corex.egg-info/entry_points.txt
-dsbox_corex.egg-info/requires.txt
 dsbox_corex.egg-info/top_level.txt
 dsbox_corex/corexcontinuous/__init__.py
 dsbox_corex/corexcontinuous/corex_continuous.py
