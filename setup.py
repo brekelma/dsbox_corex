@@ -10,7 +10,7 @@ setup(
     name="dsbox_corex",
     version="1.0.0",
     description="Return components/latent factors that explain the most multivariate mutual information in the data under Linear Gaussian model. For comparison, PCA returns components explaining the most variance in the data.",
-    license="AGPL-3.0",
+    license="Apache-2.0",
     author="Rob Brekelmans/Greg Ver Steeg",
     author_email="brekelma@usc.edu",
     keywords='d3m_primitive',
